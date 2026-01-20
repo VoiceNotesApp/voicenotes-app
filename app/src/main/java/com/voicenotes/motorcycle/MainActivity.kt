@@ -27,7 +27,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import java.io.File
-import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -411,6 +410,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     val waypoint = createWaypointXml(location, waypointName, waypointDesc)
                     val updatedContent = content.replace(gpxEndTag, "$waypoint\n$gpxEndTag")
                     gpxFile.writeText(updatedContent)
+                } else {
+                    // File is corrupted or incomplete, recreate it with current waypoint
+                    val gpxContent = createGpxFile(location, waypointName, waypointDesc)
+                    gpxFile.writeText(gpxContent)
                 }
             } else {
                 // Create new GPX file
