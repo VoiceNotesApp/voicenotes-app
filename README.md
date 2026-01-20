@@ -6,10 +6,24 @@ An Android app designed for recording voice notes while riding a motorcycle. The
 
 - **Automatic GPS Location**: Acquires precise GPS coordinates on app launch
 - **Voice Feedback**: Announces recording start and stop via text-to-speech
-- **Quick Recording**: Records exactly 10 seconds of audio
-- **Smart Naming**: Saves files as `latitude_longitude_timestamp.3gp`
-- **App Launcher**: Automatically opens your configured app after recording
+- **Quick Recording**: Records exactly 10 seconds of audio in MP3 format
+- **Smart Naming**: Saves files as `latitude_longitude_timestamp.mp3`
+- **GPX Waypoint Tracking**: Creates/updates `acquired_locations.gpx` with waypoints for each recording
+- **App Launcher**: Automatically opens your configured app after recording (immediately from second launch onwards)
+- **Background Operation**: Continues recording while your trigger app runs
+- **Landscape Support**: Works in both portrait and landscape orientations
 - **Hands-Free Design**: Minimal interaction required while riding
+
+## User Guide
+
+For detailed setup and usage instructions, see the **[User Guide](USER_GUIDE.md)**.
+
+Quick start:
+1. Install the app and launch it
+2. Grant microphone, location, and notification permissions
+3. Choose where to save recordings
+4. Select which app to launch after recording
+5. Start recording! The app will handle the rest automatically
 
 ## Perfect for Motorcyclists
 
@@ -79,8 +93,10 @@ The app requires:
 
 ## File Format
 
-Recordings are saved as `.3gp` files with AMR-NB encoding, which provides good quality for voice while keeping file sizes small.
+Recordings are saved as `.mp3` files with AAC encoding at 128 kbps and 44.1 kHz sample rate, providing excellent quality for voice while keeping file sizes reasonable.
 
-Filename format: `<latitude>_<longitude>_<timestamp>.3gp`
+Filename format: `<latitude>_<longitude>_<timestamp>.mp3`
 
-Example: `34.052235_-118.243683_20260120_143022.3gp`
+Example: `34.052235_-118.243683_20260120_143022.mp3`
+
+A GPX file (`acquired_locations.gpx`) is automatically created/updated with waypoints for each recording, making it easy to track where you recorded notes.
