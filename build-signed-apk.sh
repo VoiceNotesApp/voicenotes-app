@@ -54,7 +54,7 @@ if [ ! -f "keystore.properties" ]; then
 fi
 
 # Verify keystore file exists
-KEYSTORE_FILE=$(grep "storeFile=" keystore.properties | cut -d'=' -f2)
+KEYSTORE_FILE=$(grep "storeFile=" keystore.properties | cut -d'=' -f2-)
 if [ ! -f "$KEYSTORE_FILE" ]; then
     echo "ERROR: Keystore file not found at: $KEYSTORE_FILE"
     echo ""

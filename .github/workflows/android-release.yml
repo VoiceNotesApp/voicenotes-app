@@ -49,7 +49,7 @@ jobs:
       # - name: Create keystore.properties
       #   if: ${{ secrets.KEYSTORE_FILE != '' }}
       #   run: |
-      #     echo "storeFile=../release.keystore" >> keystore.properties
+      #     echo "storeFile=release.keystore" >> keystore.properties
       #     echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> keystore.properties
       #     echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore.properties
       #     echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties

@@ -37,8 +37,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             
             // Sign the release APK if keystore is configured
-            def keystorePropertiesFile = rootProject.file("keystore.properties")
-            if (keystorePropertiesFile.exists()) {
+            if (rootProject.file("keystore.properties").exists()) {
                 signingConfig signingConfigs.release
             }
         }

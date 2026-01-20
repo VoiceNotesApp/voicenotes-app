@@ -100,7 +100,7 @@ See [SIGNING.md](SIGNING.md) for detailed instructions.
 
 ```bash
 # Build debug APK (always signed automatically)
-./build-apk.sh
+./gradlew assembleDebug
 
 # Build signed release APK (requires keystore setup)
 ./build-signed-apk.sh
