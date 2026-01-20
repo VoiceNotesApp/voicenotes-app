@@ -54,11 +54,12 @@ On your first actual recording session, you'll see a tutorial explaining:
 4. The app acquires your GPS location
 5. Voice announcement: "Location acquired, recording for 10 seconds"
 6. Records for exactly 10 seconds (using Bluetooth mic if available)
-7. Audio is transcribed to text
-8. Voice announcement: "Recording complete"
-9. Saves the file with GPS coordinates in filename
-10. Creates or updates `acquired_locations.gpx` with waypoint using transcribed text
-11. Launches your selected app
+7. Voice announcement: "Recording complete"
+8. Saves the file with GPS coordinates in filename
+9. Creates or updates `acquired_locations.gpx` with waypoint
+10. Launches your selected app
+
+> **Note**: Speech-to-text transcription is planned for future implementation. Currently, waypoints use the filename.
 
 ### Subsequent Runs
 
@@ -68,10 +69,9 @@ Every time you launch the app:
 2. Recording process starts automatically
 3. GPS acquisition
 4. 10-second recording
-5. Audio transcription
-6. File saved with waypoint created
-7. Your trigger app launches
-8. You can continue using your trigger app without interruption
+5. File saved with waypoint created
+6. Your trigger app launches
+7. You can continue using your trigger app without interruption
 
 **Note**: The app now records **every time** you launch it, not just the first time.
 
@@ -87,21 +87,27 @@ Every time you launch the app:
 
 ### Speech-to-Text Transcription
 
-The app attempts to transcribe your recorded audio:
-- Transcribed text is used as the waypoint name in the GPX file
-- Makes it easier to identify locations by what you said
-- If transcription fails, falls back to using the filename
-- Works best with clear audio and Bluetooth microphones
+**Planned Feature**: The app is designed to support speech-to-text transcription in the future:
+- Transcribed text would be used as the waypoint name in the GPX file
+- Would make it easier to identify locations by what you said
+- Currently uses filename format: `VoiceNote: <filename>.mp3`
+
+**Implementation Status**: 
+- Not yet implemented due to Android API limitations
+- Requires real-time transcription or cloud service integration
+- Planned for future release
 
 ### GPX Location File
 
 The app creates and maintains a file called `acquired_locations.gpx` in your recording folder. This file contains:
 
 - GPS waypoints for each recording
-- Waypoint name: Transcribed text from your voice note (or `VoiceNote: filename.mp3` as fallback)
+- Waypoint name: `VoiceNote: filename.mp3`
 - Waypoint description: `VoiceNote: filename.mp3`
 - Timestamp of when the recording was made
 - Can be imported into mapping applications like Google Earth, Garmin, etc.
+
+> **Future Enhancement**: Waypoint names will use transcribed speech when speech-to-text is implemented.
 
 ## Bluetooth Microphone Support
 
@@ -218,11 +224,11 @@ If your phone supports voice activation:
 
 ### Transcription Not Working
 
-- Speak clearly and at normal volume
-- Reduce background noise (use Bluetooth headset)
-- Ensure a stable connection during recording
-- If transcription consistently fails, waypoints will use filenames instead
-- Check that your device has internet connectivity for better transcription
+**Note**: Speech-to-text transcription is planned for a future release but not yet implemented.
+
+- Waypoints currently use filename format
+- Implementation requires real-time transcription or cloud service
+- Will be added in a future update
 
 ## Privacy & Data
 
@@ -257,16 +263,16 @@ Consider setting up automatic cloud backup:
 The `acquired_locations.gpx` file can be:
 
 - Opened in Google Earth to see all recording locations
-- Waypoint names show transcribed speech for easy identification
+- Waypoint names currently use filename format (`VoiceNote: <filename>.mp3`)
 - Imported into GPS devices
 - Used in route planning software
 - Shared with others for route documentation
 
 ## Advanced Usage
 
-### Using Transcribed Waypoints
+### Future: Using Transcribed Waypoints
 
-The speech-to-text feature creates meaningful waypoint names:
+When speech-to-text is implemented in a future release:
 
 - Speak clearly: "Turn left at the red barn"
 - Waypoint will be named with that phrase

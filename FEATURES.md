@@ -167,26 +167,31 @@
 
 ### Speech-to-Text Transcription
 
-**Description**: Recorded audio is transcribed to text for waypoint naming.
+**Description**: Planned feature to transcribe recorded audio to text for waypoint naming.
 
-**How It Works**:
-- Uses Android's speech recognition
-- Processes audio after recording completes
+**Current Status**: Not yet implemented
+
+**How It Will Work** (when implemented):
+- Process audio after recording completes
 - Transcribed text becomes waypoint name
 - Falls back to filename if transcription fails
 
-**Benefits**:
+**Benefits** (when available):
 - Meaningful waypoint names
 - Easy to identify locations later
 - "Turn at red barn" instead of coordinates
 - Searchable waypoint names
 - Better route documentation
 
-**Best Results**:
-- Speak clearly and at normal pace
-- Use Bluetooth microphone for better quality
-- Minimize background noise
-- Keep messages simple and direct
+**Implementation Challenges**:
+- Android's SpeechRecognizer works with live audio, not files
+- Requires real-time transcription during recording OR
+- Cloud-based transcription service integration OR
+- Third-party audio-to-text library
+
+**Planned For**: Future release
+
+**Current Behavior**: Waypoints use filename format `VoiceNote: <filename>.mp3`
 
 ## User Experience Features
 
@@ -339,19 +344,24 @@
 - ❌ Device microphone only
 - ❌ Records only on second+ run
 - ❌ No tutorial
+- ❌ No speech-to-text (planned)
 
 ### After This Update
 
 - ✅ MP3 format (AAC in MP4 container)
-- ✅ Speech-to-text waypoint names
 - ✅ Bluetooth microphone preference
 - ✅ Records every time app launches
 - ✅ First-run tutorial
 - ✅ Enhanced documentation
+- 🔄 Speech-to-text waypoint names (planned for future)
 
 ## Future Enhancement Ideas
 
-While not currently implemented, these features could be added:
+High-priority enhancements planned:
+
+- **Speech-to-text transcription**: Real-time or cloud-based transcription for intelligent waypoint naming
+
+Other potential future features:
 
 - Adjustable recording duration
 - Multiple recording modes (quick/long)
@@ -368,13 +378,17 @@ While not currently implemented, these features could be added:
 
 ### Speech Recognition Limitations
 
-The current implementation has a limitation: Android's SpeechRecognizer API is designed for live audio input, not for transcribing pre-recorded audio files. The code structure is in place, but actual transcription would require:
+Speech-to-text transcription is **planned but not yet implemented** due to technical limitations:
 
-- Real-time speech recognition during recording, OR
-- Integration with a cloud-based transcription service, OR
-- Use of a third-party audio-to-text library
+Android's SpeechRecognizer API is designed for live audio input, not for transcribing pre-recorded audio files. Future implementation options include:
 
-For now, waypoints use the filename as fallback. This is documented for future enhancement.
+1. **Real-time transcription**: Transcribe audio while recording is in progress
+2. **Cloud-based service**: Use Google Cloud Speech-to-Text, AWS Transcribe, or similar
+3. **Third-party library**: Integrate an offline speech-to-text library
+
+**Current behavior**: Waypoints use the filename format `VoiceNote: <filename>.mp3` as a placeholder until transcription is implemented.
+
+**Code structure**: The variable `transcribedText` is reserved in the code for future implementation. A TODO comment marks where transcription logic should be added.
 
 ### MP3 Encoding Note
 
@@ -430,4 +444,4 @@ If true MP3 encoding is required, a third-party library like LAME would need to 
 
 ## Conclusion
 
-Motorcycle Voice Notes is a focused, purpose-built application for quick voice note recording while riding. Every feature is designed with the motorcyclist in mind: hands-free operation, Bluetooth support, automatic workflow, and minimal distraction. The addition of speech-to-text transcription makes waypoints more meaningful, while Bluetooth microphone support ensures clear audio even at highway speeds.
+Motorcycle Voice Notes is a focused, purpose-built application for quick voice note recording while riding. Every feature is designed with the motorcyclist in mind: hands-free operation, Bluetooth support, automatic workflow, and minimal distraction. The app is ready for immediate use with all core features implemented. Speech-to-text transcription for intelligent waypoint naming is planned for a future release to make location identification even more intuitive.

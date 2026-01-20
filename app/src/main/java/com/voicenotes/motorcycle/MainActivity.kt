@@ -12,9 +12,6 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.speech.RecognitionListener
-import android.speech.RecognizerIntent
-import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.view.View
@@ -44,10 +41,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var textToSpeech: TextToSpeech? = null
     private var mediaRecorder: MediaRecorder? = null
-    private var speechRecognizer: SpeechRecognizer? = null
     private var currentLocation: Location? = null
     private var recordingFilePath: String? = null
-    private var transcribedText: String? = null
+    private var transcribedText: String? = null  // Reserved for future speech-to-text implementation
 
     private val handler = Handler(Looper.getMainLooper())
     private val PERMISSIONS_REQUEST_CODE = 100
@@ -72,7 +68,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         textToSpeech = TextToSpeech(this, this)
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
 
         settingsButton.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
@@ -128,10 +123,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 
                 1. 📍 GPS location is acquired
                 2. 🎤 Records 10 seconds of audio in MP3 format
-                3. 🗣️ Audio is transcribed to text
-                4. 💾 Saved with GPS coordinates in filename
-                5. 📌 Waypoint created in GPX file using transcribed text
-                6. 🚀 Your chosen app launches automatically
+                3. 💾 Saved with GPS coordinates in filename
+                4. 📌 Waypoint created in GPX file
+                5. 🚀 Your chosen app launches automatically
                 
                 The app prefers Bluetooth microphones if connected.
                 
@@ -363,10 +357,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
             mediaRecorder = null
 
-            infoText.text = "Recording saved, transcribing..."
+            infoText.text = "Recording saved"
 
-            // Transcribe the recorded audio
-            transcribeRecording()
+            // Finish the recording process
+            finishRecordingProcess()
 
         } catch (e: Exception) {
             Toast.makeText(this, "Error stopping recording: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -375,55 +369,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
     
-    private fun transcribeRecording() {
-        try {
-            recordingFilePath?.let { filePath ->
-                val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-                    putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-                }
-                
-                speechRecognizer?.setRecognitionListener(object : RecognitionListener {
-                    override fun onReadyForSpeech(params: Bundle?) {}
-                    override fun onBeginningOfSpeech() {}
-                    override fun onRmsChanged(rmsdB: Float) {}
-                    override fun onBufferReceived(buffer: ByteArray?) {}
-                    override fun onEndOfSpeech() {}
-                    override fun onError(error: Int) {
-                        runOnUiThread {
-                            transcribedText = null
-                            infoText.text = "Transcription failed, using filename"
-                            finishRecordingProcess()
-                        }
-                    }
-                    override fun onResults(results: Bundle?) {
-                        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                        runOnUiThread {
-                            transcribedText = matches?.firstOrNull()
-                            infoText.text = "Transcription complete"
-                            finishRecordingProcess()
-                        }
-                    }
-                    override fun onPartialResults(partialResults: Bundle?) {}
-                    override fun onEvent(eventType: Int, params: Bundle?) {}
-                })
-                
-                // Note: Android's SpeechRecognizer works with live audio or requires different approach for files
-                // For now, we'll use a simplified approach - skip transcription and use filename
-                // A complete implementation would require additional audio processing libraries
-                transcribedText = null
-                finishRecordingProcess()
-                
-            } ?: run {
-                finishRecordingProcess()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            transcribedText = null
-            finishRecordingProcess()
-        }
-    }
+    // TODO: Implement speech-to-text transcription
+    // Android's SpeechRecognizer works with live audio, not pre-recorded files
+    // Future implementation options:
+    // 1. Real-time transcription during recording
+    // 2. Cloud-based transcription service (Google Cloud Speech-to-Text, etc.)
+    // 3. Third-party audio-to-text library
+    // For now, waypoints use filename as fallback
     
     private fun finishRecordingProcess() {
         // Create or update GPX file with transcribed text as waypoint name
@@ -554,7 +506,6 @@ ${createWaypointXml(location, name, desc)}
     override fun onDestroy() {
         textToSpeech?.shutdown()
         mediaRecorder?.release()
-        speechRecognizer?.destroy()
         
         // Stop Bluetooth SCO if it was started
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
