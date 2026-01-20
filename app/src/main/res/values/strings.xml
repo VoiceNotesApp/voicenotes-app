@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Motorcycle Voice Notes</string>
+    <string name="settings_title">Settings</string>
+    <string name="location_acquired">Location acquired, recording for 10 seconds</string>
+    <string name="recording_stopped">Recording stopped</string>
+    <string name="permission_required">Permissions Required</string>
+    <string name="grant_permissions">Please grant all required permissions to use this app</string>
+    <string name="setup_required">Setup Required</string>
+    <string name="complete_setup">Please complete the initial setup</string>
+    <string name="location_failed">Failed to acquire location</string>
+    <string name="recording_failed">Failed to record audio</string>
+    <string name="choose_directory">Choose Save Directory</string>
+    <string name="choose_trigger_app">Choose Trigger App</string>
+    <string name="save_directory">Save Directory</string>
+    <string name="trigger_app">Trigger App</string>
+    <string name="not_set">Not Set</string>
+    <string name="open_settings">Open Settings</string>
+</resources>
