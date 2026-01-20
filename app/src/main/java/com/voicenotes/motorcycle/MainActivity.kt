@@ -55,6 +55,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             add(Manifest.permission.POST_NOTIFICATIONS)
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            add(Manifest.permission.BLUETOOTH_CONNECT)
+        }
     }.toTypedArray()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -338,6 +341,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     
     private fun getPreferredAudioSource(): Int {
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        
+        // Check Bluetooth permission for Android 12+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) {
+                // Permission not granted, use regular microphone
+                return MediaRecorder.AudioSource.MIC
+            }
+        }
         
         // Check if Bluetooth SCO (Synchronous Connection Oriented) is available
         return if (audioManager.isBluetoothScoAvailableOffCall) {
