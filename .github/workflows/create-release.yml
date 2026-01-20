@@ -74,24 +74,26 @@ jobs:
           OTHER=""
 
           while IFS= read -r line; do
-            # Skip certain patterns that are not relevant to end users
-            if echo "$line" | grep -qiE "(merge|rebase|conflict|workflow|ci/cd|github action|test:|spec:)"; then
+            # Skip lines starting with merge, workflow files, or CI keywords
+            if echo "$line" | grep -qiE "^- (merge |rebase |update.*workflow|update.*github action|ci:|cd:)"; then
+              continue
+            fi
+
+            # Skip test-only commits
+            if echo "$line" | grep -qiE "^- (test:|spec:|add.*test|update.*test)$"; then
               continue
             fi
 
             # Categorize commits
-            if echo "$line" | grep -qiE "(feat:|feature:|add:)"; then
+            if echo "$line" | grep -qiE "^- (feat:|feature:)"; then
               FEATURES="${FEATURES}${line}\n"
-            elif echo "$line" | grep -qiE "(fix:|bugfix:|bug:)"; then
+            elif echo "$line" | grep -qiE "^- (fix:|bugfix:|bug:)"; then
               FIXES="${FIXES}${line}\n"
-            elif echo "$line" | grep -qiE "(improve:|enhancement:|update:|upgrade:)"; then
+            elif echo "$line" | grep -qiE "^- (improve:|improvement:|enhancement:|perf:|performance:)"; then
               IMPROVEMENTS="${IMPROVEMENTS}${line}\n"
             else
-              # Clean up commit message for end users
-              CLEAN_LINE=$(echo "$line" | sed 's/^- //' | sed 's/\(Initial\|Update\|Add\|Fix\|Improve\) //')
-              if [ -n "$CLEAN_LINE" ]; then
-                OTHER="${OTHER}- ${CLEAN_LINE}\n"
-              fi
+              # Include all other commits as-is to avoid removing important context
+              OTHER="${OTHER}${line}\n"
             fi
           done <<< "$COMMITS"
 
