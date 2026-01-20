@@ -320,7 +320,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             // Create or update GPX file
             recordingFilePath?.let { filePath ->
                 val fileName = File(filePath).name
-                createOrUpdateGpxFile(currentLocation, fileName)
+                currentLocation?.let { location ->
+                    createOrUpdateGpxFile(location, fileName)
+                }
             }
 
             // Speak recording stopped
