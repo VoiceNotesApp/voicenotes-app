@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
@@ -26,6 +27,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import java.io.File
+import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -45,10 +47,14 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private val handler = Handler(Looper.getMainLooper())
     private val PERMISSIONS_REQUEST_CODE = 100
 
-    private val requiredPermissions = arrayOf(
+    private val requiredPermissions = mutableListOf(
         Manifest.permission.RECORD_AUDIO,
         Manifest.permission.ACCESS_FINE_LOCATION
-    )
+    ).apply {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }.toTypedArray()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +76,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Check if this is first run
         if (isFirstRun()) {
             showSetupDialog()
+        } else if (isSecondOrLaterRun()) {
+            // From second start onwards, launch trigger app immediately and continue in background
+            launchTriggerAppImmediately()
+            startRecordingProcess()
         } else {
+            // First actual run after setup
+            markAsRun()
             startRecordingProcess()
         }
     }
@@ -79,7 +91,27 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         val saveDir = prefs.getString("saveDirectory", null)
         val triggerApp = prefs.getString("triggerApp", null)
+        
+        // Check if save directory exists
+        if (!saveDir.isNullOrEmpty()) {
+            val dir = File(saveDir)
+            if (!dir.exists()) {
+                // Directory doesn't exist, treat as first run
+                return true
+            }
+        }
+        
         return saveDir.isNullOrEmpty() || triggerApp.isNullOrEmpty()
+    }
+    
+    private fun isSecondOrLaterRun(): Boolean {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        return prefs.getBoolean("hasRunBefore", false)
+    }
+    
+    private fun markAsRun() {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        prefs.edit().putBoolean("hasRunBefore", true).apply()
     }
 
     private fun showSetupDialog() {
@@ -229,7 +261,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
             val lat = String.format("%.6f", location.latitude)
             val lng = String.format("%.6f", location.longitude)
-            val fileName = "${lat}_${lng}_${timestamp}.3gp"
+            val fileName = "${lat}_${lng}_${timestamp}.mp3"
 
             val directory = File(saveDir)
             if (!directory.exists()) {
@@ -238,13 +270,29 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             recordingFilePath = File(directory, fileName).absolutePath
 
-            mediaRecorder = MediaRecorder().apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                setOutputFile(recordingFilePath)
-                prepare()
-                start()
+            mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                MediaRecorder(this).apply {
+                    setAudioSource(MediaRecorder.AudioSource.MIC)
+                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    setAudioEncodingBitRate(128000)
+                    setAudioSamplingRate(44100)
+                    setOutputFile(recordingFilePath)
+                    prepare()
+                    start()
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                MediaRecorder().apply {
+                    setAudioSource(MediaRecorder.AudioSource.MIC)
+                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    setAudioEncodingBitRate(128000)
+                    setAudioSamplingRate(44100)
+                    setOutputFile(recordingFilePath)
+                    prepare()
+                    start()
+                }
             }
 
             infoText.text = "Recording for 10 seconds..."
@@ -269,6 +317,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             mediaRecorder = null
 
             infoText.text = "Recording saved"
+
+            // Create or update GPX file
+            recordingFilePath?.let { filePath ->
+                val fileName = File(filePath).name
+                createOrUpdateGpxFile(location, fileName)
+            }
 
             // Speak recording stopped
             speakRecordingStopped()
@@ -310,18 +364,94 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 val intent = packageManager.getLaunchIntentForPackage(triggerApp)
                 if (intent != null) {
                     startActivity(intent)
-                    finish()
+                    // Don't finish() here so we can continue in background
                 } else {
                     Toast.makeText(this, "Cannot launch trigger app", Toast.LENGTH_SHORT).show()
-                    finish()
                 }
             } catch (e: Exception) {
                 Toast.makeText(this, "Error launching app: ${e.message}", Toast.LENGTH_SHORT).show()
-                finish()
             }
-        } else {
-            finish()
         }
+    }
+    
+    private fun launchTriggerAppImmediately() {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val triggerApp = prefs.getString("triggerApp", null)
+
+        if (!triggerApp.isNullOrEmpty()) {
+            try {
+                val intent = packageManager.getLaunchIntentForPackage(triggerApp)
+                if (intent != null) {
+                    startActivity(intent)
+                    // Continue in background
+                } else {
+                    Toast.makeText(this, "Cannot launch trigger app", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this, "Error launching app: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    
+    private fun createOrUpdateGpxFile(location: Location, fileName: String) {
+        try {
+            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+            val saveDir = prefs.getString("saveDirectory", null) ?: return
+            
+            val gpxFile = File(saveDir, "acquired_locations.gpx")
+            val waypointName = "VoiceNote: $fileName"
+            val waypointDesc = "VoiceNote: $fileName"
+            
+            if (gpxFile.exists()) {
+                // Read existing file and add new waypoint
+                val content = gpxFile.readText()
+                val gpxEndTag = "</gpx>"
+                
+                if (content.contains(gpxEndTag)) {
+                    val waypoint = createWaypointXml(location, waypointName, waypointDesc)
+                    val updatedContent = content.replace(gpxEndTag, "$waypoint\n$gpxEndTag")
+                    gpxFile.writeText(updatedContent)
+                }
+            } else {
+                // Create new GPX file
+                val gpxContent = createGpxFile(location, waypointName, waypointDesc)
+                gpxFile.writeText(gpxContent)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Error creating GPX file: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    private fun createGpxFile(location: Location, name: String, desc: String): String {
+        val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date())
+        
+        return """<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Motorcycle Voice Notes"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.topografix.com/GPX/1/1"
+  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Voice Notes Locations</name>
+    <desc>GPS locations of voice note recordings</desc>
+    <time>$timestamp</time>
+  </metadata>
+${createWaypointXml(location, name, desc)}
+</gpx>"""
+    }
+    
+    private fun createWaypointXml(location: Location, name: String, desc: String): String {
+        val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date())
+        
+        return """  <wpt lat="${String.format("%.6f", location.latitude)}" lon="${String.format("%.6f", location.longitude)}">
+    <time>$timestamp</time>
+    <name>$name</name>
+    <desc>$desc</desc>
+  </wpt>"""
     }
 
     override fun onDestroy() {
