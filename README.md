@@ -4,21 +4,21 @@ An Android app designed for recording voice notes while riding a motorcycle. The
 
 ## Screenshots
 
+> **Note**: Screenshots will be added after building and testing the app on an Android device. See [SCREENSHOTS.md](SCREENSHOTS.md) for detailed screenshot requirements and guidelines.
+
 ### Main Screen
-<!-- TODO: Add screenshot of main activity -->
-*The main screen showing the recording interface with status text and progress indicator.*
+<!-- Screenshot of main activity showing recording interface -->
 
 ### First Run Tutorial
-<!-- TODO: Add screenshot of first run explanation dialog -->
-*Tutorial dialog that appears on first launch explaining how the app works.*
+<!-- Screenshot of tutorial dialog explaining how the app works -->
 
 ### Settings Screen
-<!-- TODO: Add screenshot of settings activity -->
-*Configuration screen where you can set the save directory, select trigger app, and grant permissions.*
+<!-- Screenshot of configuration screen -->
 
 ### App Selection
-<!-- TODO: Add screenshot of app chooser dialog -->
-*Dialog for selecting which app to launch after recording completes.*
+<!-- Screenshot of app chooser dialog -->
+
+For detailed screenshot specifications, see [SCREENSHOTS.md](SCREENSHOTS.md).
 
 ## Features
 

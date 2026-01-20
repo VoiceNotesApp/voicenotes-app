@@ -481,25 +481,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
     
-    private fun launchTriggerAppImmediately() {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val triggerApp = prefs.getString("triggerApp", null)
-
-        if (!triggerApp.isNullOrEmpty()) {
-            try {
-                val intent = packageManager.getLaunchIntentForPackage(triggerApp)
-                if (intent != null) {
-                    startActivity(intent)
-                    // Continue in background
-                } else {
-                    Toast.makeText(this, "Cannot launch trigger app", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this, "Error launching app: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-    
     private fun createOrUpdateGpxFile(location: Location?, waypointName: String, fileName: String) {
         try {
             // Add null check at the beginning
