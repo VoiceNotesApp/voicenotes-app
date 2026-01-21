@@ -60,6 +60,12 @@ android {
         viewBinding true
         buildConfig true
     }
+
+    packaging {
+        resources {
+            excludes += ['META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA']
+        }
+    }
 }
 
 dependencies {
