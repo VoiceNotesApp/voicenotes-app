@@ -25,15 +25,23 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-class OverlayService : Service(), TextToSpeech.OnInitListener {
+class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
+
+    companion object {
+        private const val PREF_TRY_ONLINE_PROCESSING = "tryOnlineProcessingDuringRide"
+        private const val PREF_ADD_OSM_NOTE = "addOsmNote"
+    }
 
     private var windowManager: WindowManager? = null
     private var overlayView: View? = null
@@ -352,28 +360,107 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     }
     
     private fun finishRecordingProcess() {
-        // TODO: GPX waypoint creation will happen in post-processing after transcription
-        // Create or update GPX file
-        // recordingFilePath?.let { filePath ->
-        //     val fileName = File(filePath).name
-        //     currentLocation?.let { location ->
-        //         val lat = String.format("%.6f", location.latitude)
-        //         val lng = String.format("%.6f", location.longitude)
-        //         val waypointName = "VoiceNote: ${lat},${lng}"
-        //         
-        //         // Use transcribed text if available, otherwise fall back to filename
-        //         val waypointDesc = fileName
-        //         
-        //         createOrUpdateGpxFile(location, waypointName, waypointDesc)
-        //     }
-        // }
+        // Show file saved message
+        val fileName = recordingFilePath?.let { File(it).name } ?: "unknown"
+        updateOverlay("File saved: $fileName")
+        
+        // Check if online processing is enabled
+        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val tryOnlineProcessing = prefs.getBoolean(PREF_TRY_ONLINE_PROCESSING, true) // default: true
+        
+        if (tryOnlineProcessing) {
+            // Check internet connectivity
+            if (!NetworkUtils.isOnline(this)) {
+                // Offline - skip post-processing
+                Log.d("OverlayService", "Offline - skipping post-processing")
+                handler.postDelayed({ stopSelfAndFinish() }, 2000)
+                return
+            }
+            
+            // Online - start post-processing
+            startPostProcessing()
+        } else {
+            // Online processing disabled - quit
+            Log.d("OverlayService", "Online processing disabled - quitting")
+            handler.postDelayed({ stopSelfAndFinish() }, 2000)
+        }
+    }
 
-        updateOverlay(getString(R.string.file_saved))
+    private fun startPostProcessing() {
+        val filePath = recordingFilePath ?: return
+        val location = currentLocation ?: return
+        
+        updateOverlay("Online: Transcribing:")
+        
+        // Launch coroutine for transcription
+        lifecycleScope.launch {
+            val transcriptionService = TranscriptionService(this@OverlayService)
+            val result = transcriptionService.transcribeAudioFile(filePath)
+            
+            result.onSuccess { transcribedText ->
+                handleTranscriptionSuccess(transcribedText, location, filePath)
+            }.onFailure { error ->
+                handleTranscriptionFailure(error)
+            }
+        }
+    }
 
-        // Wait 2 seconds and quit
-        handler.postDelayed({
-            stopSelfAndFinish()
-        }, 2000)
+    private suspend fun handleTranscriptionSuccess(transcribedText: String, location: Location, filePath: String) {
+        withContext(Dispatchers.Main) {
+            // Use fallback text if transcription is empty
+            val finalText = if (transcribedText.isBlank()) {
+                val coords = extractCoordinatesFromFilename(filePath)
+                "$coords (no text)"
+            } else {
+                transcribedText
+            }
+            
+            updateOverlay("Online: Transcribing: $finalText")
+            Log.d("OverlayService", "Transcription successful: $finalText")
+            
+            // Wait 1 second
+            delay(1000)
+            
+            // Create GPX waypoint
+            createGpxWaypoint(location, finalText, filePath)
+            
+            // TODO: Phase 4 - OSM note creation will go here
+            
+            // Quit app
+            handler.postDelayed({ stopSelfAndFinish() }, 1000)
+        }
+    }
+
+    private suspend fun handleTranscriptionFailure(error: Throwable) {
+        withContext(Dispatchers.Main) {
+            updateOverlay("Online: Transcribing: failed :-(")
+            Log.e("OverlayService", "Transcription failed", error)
+            
+            // Wait 1 second
+            delay(1000)
+            
+            // Skip GPX and OSM creation
+            // Quit app
+            handler.postDelayed({ stopSelfAndFinish() }, 1000)
+        }
+    }
+
+    private fun extractCoordinatesFromFilename(filePath: String): String {
+        val fileName = File(filePath).nameWithoutExtension
+        // Format: "latitude,longitude_timestamp"
+        return fileName.substringBefore("_")
+    }
+
+    private fun createGpxWaypoint(location: Location, transcribedText: String, filePath: String) {
+        val lat = String.format("%.6f", location.latitude)
+        val lng = String.format("%.6f", location.longitude)
+        val waypointName = "VoiceNote: $lat,$lng"
+        val waypointDesc = transcribedText
+        
+        Log.d("OverlayService", "Creating GPX waypoint: name=$waypointName, desc=$waypointDesc")
+        
+        // Call existing createOrUpdateGpxFile method with new waypoint data
+        createOrUpdateGpxFile(location, waypointName, waypointDesc)
     }
 
     private fun createOrUpdateGpxFile(location: Location?, waypointName: String, waypointDesc: String) {
