@@ -113,14 +113,27 @@ The app can create OSM notes with your voice recordings. This is optional.
    - Redirect URI: `app.voicenotes.motorcycle://oauth`
    - Requested scopes: `read_prefs` and `write_notes`
    - Description: Your application description
-2. After registration, note your "Client ID"
-3. Update `OsmOAuthManager.kt`:
-   ```kotlin
-   private const val CLIENT_ID = "your_osm_client_id_here"
-   ```
-4. Rebuild the app
-5. In the app settings, use "Bind OSM Account" to authenticate
-6. Enable "Add OSM Note" checkbox to create notes during/after recording
+   
+2. After registration, copy your "Client ID"
+
+3. **For local development:**
+   - Edit `gradle.properties` and replace `your_osm_client_id` with your actual Client ID:
+     ```
+     OSM_CLIENT_ID=your_actual_client_id_here
+     ```
+   - Keep this file private and do not commit to version control
+
+4. **For CI/CD with GitHub Actions:**
+   - Go to your repository Settings → Secrets and variables → Actions
+   - Add a secret named: `OSM_KEY`
+   - Value: Your OSM Client ID
+   - The workflows will automatically inject this during builds
+
+5. Rebuild the app
+
+6. In the app settings, use "Bind OSM Account" to authenticate
+
+7. Enable "Add OSM Note" checkbox to create notes during/after recording
 
 **Note**: The app will work without OSM integration, but note creation features will be disabled.
 

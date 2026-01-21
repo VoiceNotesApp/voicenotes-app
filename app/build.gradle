@@ -16,6 +16,7 @@ android {
         
         // Read service account JSON from gradle.properties
         buildConfigField "String", "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON", "\"${project.findProperty('GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON') ?: '{}'}\""
+        buildConfigField "String", "OSM_CLIENT_ID", "\"${project.findProperty('OSM_CLIENT_ID') ?: 'your_osm_client_id'}\""
         manifestPlaceholders = [appAuthRedirectScheme: "com.voicenotes.motorcycle"]
     }
 
