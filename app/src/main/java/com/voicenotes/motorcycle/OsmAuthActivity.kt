@@ -19,6 +19,16 @@ class OsmAuthActivity : AppCompatActivity() {
     private lateinit var authService: AuthorizationService
     private lateinit var tokenManager: OsmTokenManager
     
+    private val authLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.data != null) {
+            handleAuthorizationResponse(result.data!!)
+        } else {
+            finishWithError("Authorization cancelled")
+        }
+    }
+    
     companion object {
         private const val TAG = "OsmAuthActivity"
         const val EXTRA_AUTH_COMPLETED = "auth_completed"
@@ -55,19 +65,7 @@ class OsmAuthActivity : AppCompatActivity() {
         val authRequest = authRequestBuilder.build()
         
         val authIntent = authService.getAuthorizationRequestIntent(authRequest)
-        startActivityForResult(authIntent, 100)
-    }
-    
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        
-        if (requestCode == 100) {
-            if (data != null) {
-                handleAuthorizationResponse(data)
-            } else {
-                finishWithError("Authorization cancelled")
-            }
-        }
+        authLauncher.launch(authIntent)
     }
     
     private fun handleAuthorizationResponse(intent: Intent) {

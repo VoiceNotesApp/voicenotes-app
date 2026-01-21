@@ -49,7 +49,6 @@ class SettingsActivity : AppCompatActivity() {
 
     private val PERMISSIONS_REQUEST_CODE = 200
     private val OVERLAY_PERMISSION_REQUEST_CODE = 201
-    private val OSM_AUTH_REQUEST_CODE = 202
 
     private val requiredPermissions = mutableListOf(
         Manifest.permission.RECORD_AUDIO,
@@ -69,6 +68,18 @@ class SettingsActivity : AppCompatActivity() {
     ) { uri ->
         uri?.let {
             handleDirectorySelection(it)
+        }
+    }
+    
+    private val osmAuthLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            updateOsmUi()
+            Toast.makeText(this, "Successfully connected to OpenStreetMap", Toast.LENGTH_SHORT).show()
+        } else {
+            val error = result.data?.getStringExtra(OsmAuthActivity.EXTRA_AUTH_ERROR) ?: "Unknown error"
+            Toast.makeText(this, "Authentication failed: $error", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -239,15 +250,6 @@ class SettingsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Overlay permission granted", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
-            }
-        } else if (requestCode == OSM_AUTH_REQUEST_CODE) {
-            // Handle OAuth result
-            if (resultCode == RESULT_OK) {
-                updateOsmUi()
-                Toast.makeText(this, "Successfully connected to OpenStreetMap", Toast.LENGTH_SHORT).show()
-            } else {
-                val error = data?.getStringExtra(OsmAuthActivity.EXTRA_AUTH_ERROR) ?: "Unknown error"
-                Toast.makeText(this, "Authentication failed: $error", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -510,7 +512,7 @@ class SettingsActivity : AppCompatActivity() {
     
     private fun startOsmAuth() {
         val intent = Intent(this, OsmAuthActivity::class.java)
-        startActivityForResult(intent, OSM_AUTH_REQUEST_CODE)
+        osmAuthLauncher.launch(intent)
     }
     
     private fun disconnectOsm() {
