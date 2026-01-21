@@ -188,9 +188,10 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             }
         })
 
+        val utteranceId = "tts_${System.currentTimeMillis()}"
         val params = Bundle()
-        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, UUID.randomUUID().toString())
-        textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString())
+        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+        textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
     }
 
     private fun startRecording() {
