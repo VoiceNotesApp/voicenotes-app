@@ -56,14 +56,6 @@
         <service
             android:name=".OverlayService"
             android:exported="false" />
-        
-        <receiver
-            android:name=".FinishActivityReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.voicenotes.motorcycle.FINISH_ACTIVITY" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

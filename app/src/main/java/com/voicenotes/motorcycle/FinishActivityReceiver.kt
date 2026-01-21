@@ -4,11 +4,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.app.Activity
+import java.lang.ref.WeakReference
 
-class FinishActivityReceiver(private val activity: Activity) : BroadcastReceiver() {
+class FinishActivityReceiver(activity: Activity) : BroadcastReceiver() {
+    private val activityRef = WeakReference(activity)
+    
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == "com.voicenotes.motorcycle.FINISH_ACTIVITY") {
-            activity.finish()
+            activityRef.get()?.finish()
         }
     }
 }
