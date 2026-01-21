@@ -75,6 +75,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         val ttsTimeoutRunnable = Runnable {
             if (!isTtsInitialized) {
                 Log.w("OverlayService", "TTS initialization timeout - proceeding without TTS")
+                DebugLogger.logError(
+                    service = "OverlayService",
+                    error = "TTS initialization timeout after 10 seconds - proceeding without TTS"
+                )
                 isTtsInitialized = false
                 startRecordingProcess()
             }
@@ -133,6 +137,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         } else {
             isTtsInitialized = false
             Log.w("OverlayService", "TTS initialization failed")
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "TTS initialization failed with status: $status"
+            )
         }
         
         // Start the recording process after TTS initialization (or timeout)
@@ -158,6 +166,11 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Add 30-second timeout
         val locationTimeoutRunnable = Runnable {
             cancellationTokenSource.cancel()
+            Log.w("OverlayService", "GPS location acquisition timeout after 30 seconds - trying last known location")
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "GPS location acquisition timeout after 30 seconds - falling back to last known location"
+            )
             // Try last known location as fallback
             tryLastKnownLocation()
         }
@@ -174,8 +187,14 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             } else {
                 tryLastKnownLocation()
             }
-        }.addOnFailureListener {
+        }.addOnFailureListener { exception ->
             handler.removeCallbacks(locationTimeoutRunnable)
+            Log.e("OverlayService", "GPS location acquisition failed", exception)
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "GPS location acquisition failed - trying last known location",
+                exception = exception
+            )
             tryLastKnownLocation()
         }
     }
@@ -191,14 +210,29 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             if (location != null) {
                 currentLocation = location
                 updateOverlay("Using last known location")
+                DebugLogger.logInfo(
+                    service = "OverlayService",
+                    message = "Using last known location: ${location.latitude}, ${location.longitude}"
+                )
                 handler.postDelayed({
                     onLocationAcquired()
                 }, 1000)
             } else {
                 updateOverlay("Location unavailable - please ensure GPS is enabled")
+                Log.e("OverlayService", "No location available - last known location is null")
+                DebugLogger.logError(
+                    service = "OverlayService",
+                    error = "Location unavailable - both current and last known location failed. GPS may be disabled."
+                )
                 handler.postDelayed({ stopSelfAndFinish() }, 3000)
             }
-        }.addOnFailureListener {
+        }.addOnFailureListener { exception ->
+            Log.e("OverlayService", "Failed to get last known location", exception)
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "Failed to get last known location",
+                exception = exception
+            )
             onLocationFailed()
         }
     }
@@ -322,6 +356,11 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             e.printStackTrace()
             updateOverlay("Recording failed: Invalid state")
             Log.e("OverlayService", "MediaRecorder illegal state", e)
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "MediaRecorder illegal state - recording setup or start failed",
+                exception = e
+            )
             handler.postDelayed({ stopSelfAndFinish() }, 3000)
         } catch (e: RuntimeException) {
             e.printStackTrace()
@@ -332,11 +371,21 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             }
             updateOverlay(errorMsg)
             Log.e("OverlayService", "MediaRecorder runtime error", e)
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "MediaRecorder runtime error: $errorMsg",
+                exception = e
+            )
             handler.postDelayed({ stopSelfAndFinish() }, 3000)
         } catch (e: Exception) {
             e.printStackTrace()
             updateOverlay("Recording failed: ${e.message ?: "Unknown error"}")
             Log.e("OverlayService", "MediaRecorder error", e)
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "MediaRecorder error: ${e.message ?: "Unknown error"}",
+                exception = e
+            )
             handler.postDelayed({ stopSelfAndFinish() }, 3000)
         }
     }
@@ -361,6 +410,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             handler.postDelayed({
                 if (!audioManager.isBluetoothScoOn) {
                     Log.w("OverlayService", "Bluetooth SCO timeout - using device microphone")
+                    DebugLogger.logError(
+                        service = "OverlayService",
+                        error = "Bluetooth SCO connection timeout after 5 seconds - falling back to device microphone"
+                    )
                     audioManager.stopBluetoothSco()
                 }
             }, 5000)
