@@ -239,9 +239,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Check if coming back from settings
-        if (!isFirstRun() && !intent.hasExtra("fromSettings")) {
-            // Don't restart if we're already running the service
-        }
+        // Intentionally not restarting service if already running
+        // Activity minimizes to background during recording
     }
 }
