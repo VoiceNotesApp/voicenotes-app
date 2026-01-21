@@ -18,6 +18,7 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <!-- Declare that we need to query launchable apps -->
     <queries>
@@ -51,6 +52,18 @@
             android:exported="false"
             android:label="@string/settings_title"
             android:parentActivityName=".MainActivity" />
+        
+        <service
+            android:name=".OverlayService"
+            android:exported="false" />
+        
+        <receiver
+            android:name=".FinishActivityReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.voicenotes.motorcycle.FINISH_ACTIVITY" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
