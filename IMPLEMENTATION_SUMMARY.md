@@ -26,26 +26,24 @@ This document summarizes all changes made to implement the requested features fo
 
 ---
 
-### 2. 🔄 Use Text-to-Speech for Waypoint Names
+### 2. ✅ Use Speech-to-Text for Waypoint Descriptions
 
-**Status**: Documented as planned feature (not yet implemented)
+**Status**: Implemented using live transcription
 
-**Reason for Deferral**: 
-- Android's SpeechRecognizer API works with live audio, not pre-recorded files
-- Proper implementation requires:
-  - Real-time transcription during recording, OR
-  - Cloud-based transcription service integration, OR
-  - Third-party audio-to-text library
+**Changes Made**:
+- Integrated Android's SpeechRecognizer API for real-time transcription
+- Transcription runs during recording (not after)
+- Uses partial results for better accuracy
+- Transcribed text stored in waypoint descriptions
+- Waypoint names use "VoiceNote: <coordinates>" format
+- Falls back to filename if transcription fails
 
-**Current Behavior**:
-- Waypoints use filename format: `VoiceNote: <filename>.mp3`
-- Code structure includes `transcribedText` variable reserved for future use
-- TODO comment marks where implementation should be added
-
-**Future Implementation Path**:
-- Real-time transcription: Use SpeechRecognizer during recording
-- Cloud service: Integrate Google Cloud Speech-to-Text or AWS Transcribe
-- Offline library: Add a third-party speech recognition library
+**Implementation Details**:
+- `startLiveSpeechRecognition()`: Initiates speech recognition during recording
+- `RecognitionListener`: Captures partial and final transcription results
+- `transcribedText`: Stores recognized speech for waypoint creation
+- Waypoint name: "VoiceNote: <latitude>_<longitude>"
+- Waypoint description: Transcribed text (or filename as fallback)
 
 **Files Modified**:
 - `app/src/main/java/com/voicenotes/motorcycle/MainActivity.kt` (lines 370-384, 428-434)

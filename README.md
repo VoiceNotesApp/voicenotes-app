@@ -27,7 +27,8 @@ For detailed screenshot specifications, see [SCREENSHOTS.md](SCREENSHOTS.md).
 - **Quick Recording**: Records exactly 10 seconds of audio in MP3 format (AAC encoding)
 - **Live Speech-to-Text**: Transcribes your voice in real-time during recording
 - **Smart Naming**: Saves files as `latitude_longitude_timestamp.mp3`
-- **Intelligent Waypoint Names**: GPX waypoints use your transcribed speech instead of filenames
+- **Coordinate-Based Waypoints**: GPX waypoint names use "VoiceNote: " + coordinates format
+- **Transcription in Descriptions**: GPX waypoint descriptions contain your transcribed speech
 - **GPX Waypoint Tracking**: Creates/updates `acquired_locations.gpx` with waypoints for each recording
 - **Bluetooth Microphone Support**: Automatically prefers Bluetooth microphones when connected
 - **Always Recording**: Records again every time you launch the app
@@ -129,4 +130,4 @@ Filename format: `<latitude>_<longitude>_<timestamp>.mp3`
 
 Example: `34.052235_-118.243683_20260120_143022.mp3`
 
-A GPX file (`acquired_locations.gpx`) is automatically created/updated with waypoints for each recording. The waypoint names use the transcribed text from your voice note when available, making it easy to identify locations by what you said rather than just coordinates.
+A GPX file (`acquired_locations.gpx`) is automatically created/updated with waypoints for each recording. The waypoint names use the format "VoiceNote: " followed by coordinates, while the waypoint descriptions contain the transcribed text from your voice note when available, making it easy to identify locations by what you said.
