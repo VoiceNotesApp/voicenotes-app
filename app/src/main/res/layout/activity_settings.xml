@@ -152,7 +152,7 @@
                     android:id="@+id/setDurationButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Set Duration"
+                    android:text="@string/set_duration_button"
                     android:textSize="14sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>

@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,7 +25,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var directoryPathText: TextView
     private lateinit var triggerAppText: TextView
     private lateinit var durationValueText: TextView
-    private lateinit var durationEditText: android.widget.EditText
+    private lateinit var durationEditText: EditText
     private lateinit var chooseDirectoryButton: Button
     private lateinit var chooseTriggerAppButton: Button
     private lateinit var setDurationButton: Button
