@@ -83,10 +83,11 @@ The app can transcribe audio using Google Cloud Speech-to-Text API. This is opti
    ```bash
    cp gradle.properties.template gradle.properties
    ```
-6. Edit `gradle.properties` and replace `{}` with the entire content of the JSON file (as a single line, escaping any special characters if needed):
+6. Edit `gradle.properties` and replace `{}` with the entire content of the JSON file (as a single line):
    ```
    GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"your-project",...}
    ```
+   **Note**: The JSON should be on a single line. If your JSON spans multiple lines, you can remove newlines to make it a single line. No additional escaping is needed for the JSON content in gradle.properties.
 7. Keep this file private and do not commit to version control
 
 **Note**: The app will work without service account credentials, but transcription features will be disabled.

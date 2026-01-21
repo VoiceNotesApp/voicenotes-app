@@ -28,6 +28,13 @@ class TranscriptionService(private val context: Context) {
                 return@withContext Result.failure(Exception("Google Cloud service account credentials not configured"))
             }
 
+            // Validate service account JSON format
+            if (!serviceAccountJson.contains("\"type\"") || 
+                !serviceAccountJson.contains("\"project_id\"") || 
+                !serviceAccountJson.contains("\"private_key\"")) {
+                return@withContext Result.failure(Exception("Invalid service account JSON format. Must contain type, project_id, and private_key fields."))
+            }
+
             // Read audio file
             val audioFile = File(filePath)
             if (!audioFile.exists()) {
