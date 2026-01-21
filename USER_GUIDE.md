@@ -54,12 +54,11 @@ On your first actual recording session, you'll see a tutorial explaining:
 4. The app acquires your GPS location
 5. Voice announcement: "Location acquired, recording for 10 seconds"
 6. Records for exactly 10 seconds (using Bluetooth mic if available)
-7. Voice announcement: "Recording complete"
-8. Saves the file with GPS coordinates in filename
-9. Creates or updates `acquired_locations.gpx` with waypoint
-10. Launches your selected app
-
-> **Note**: Speech-to-text transcription is planned for future implementation. Currently, waypoints use the filename.
+7. Audio is transcribed to text in real-time
+8. Voice announcement: "Recording complete"
+9. Saves the file with GPS coordinates in filename
+10. Creates or updates `acquired_locations.gpx` with waypoint using transcribed text
+11. Launches your selected app
 
 ### Subsequent Runs
 
@@ -68,8 +67,8 @@ Every time you launch the app:
 1. Launch the app
 2. Recording process starts automatically
 3. GPS acquisition
-4. 10-second recording
-5. File saved with waypoint created
+4. 10-second recording with live transcription
+5. File saved with waypoint created using your spoken text
 6. Your trigger app launches
 7. You can continue using your trigger app without interruption
 
@@ -87,27 +86,29 @@ Every time you launch the app:
 
 ### Speech-to-Text Transcription
 
-**Planned Feature**: The app is designed to support speech-to-text transcription in the future:
-- Transcribed text would be used as the waypoint name in the GPX file
-- Would make it easier to identify locations by what you said
-- Currently uses filename format: `VoiceNote: <filename>.mp3`
+The app transcribes your recorded audio in real-time:
+- Transcription happens while you speak during recording
+- Transcribed text is used as the waypoint name in the GPX file
+- Makes it easier to identify locations by what you said
+- If transcription fails, falls back to using the filename
+- Works best with clear audio and Bluetooth microphones
 
-**Implementation Status**: 
-- Not yet implemented due to Android API limitations
-- Requires real-time transcription or cloud service integration
-- Planned for future release
+**Best Practices**:
+- Speak clearly and at normal pace
+- Use Bluetooth microphone for better quality
+- Minimize background noise
+- Keep messages simple and direct
+- Wait a moment after speaking for recognition to complete
 
 ### GPX Location File
 
 The app creates and maintains a file called `acquired_locations.gpx` in your recording folder. This file contains:
 
 - GPS waypoints for each recording
-- Waypoint name: `VoiceNote: filename.mp3`
+- Waypoint name: Transcribed text from your voice note (or `VoiceNote: filename.mp3` as fallback)
 - Waypoint description: `VoiceNote: filename.mp3`
 - Timestamp of when the recording was made
 - Can be imported into mapping applications like Google Earth, Garmin, etc.
-
-> **Future Enhancement**: Waypoint names will use transcribed speech when speech-to-text is implemented.
 
 ## Bluetooth Microphone Support
 
@@ -222,13 +223,16 @@ If your phone supports voice activation:
 - Try disconnecting and reconnecting the device
 - Grant Bluetooth permissions when prompted (Android 12+)
 
-### Transcription Not Working
+### Transcription Issues
 
-**Note**: Speech-to-text transcription is planned for a future release but not yet implemented.
+If speech-to-text transcription isn't working well:
 
-- Waypoints currently use filename format
-- Implementation requires real-time transcription or cloud service
-- Will be added in a future update
+- Speak clearly and at normal volume
+- Reduce background noise (use Bluetooth headset)
+- Ensure microphone permissions are granted
+- Check that your device supports speech recognition
+- If transcription consistently fails, waypoints will use filenames instead
+- Try speaking immediately after the recording starts
 
 ## Privacy & Data
 
@@ -263,16 +267,16 @@ Consider setting up automatic cloud backup:
 The `acquired_locations.gpx` file can be:
 
 - Opened in Google Earth to see all recording locations
-- Waypoint names currently use filename format (`VoiceNote: <filename>.mp3`)
+- Waypoint names show transcribed speech for easy identification
 - Imported into GPS devices
 - Used in route planning software
 - Shared with others for route documentation
 
 ## Advanced Usage
 
-### Future: Using Transcribed Waypoints
+### Using Transcribed Waypoints
 
-When speech-to-text is implemented in a future release:
+The speech-to-text feature creates meaningful waypoint names:
 
 - Speak clearly: "Turn left at the red barn"
 - Waypoint will be named with that phrase

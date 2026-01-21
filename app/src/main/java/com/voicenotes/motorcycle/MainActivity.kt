@@ -12,6 +12,9 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.view.View
@@ -41,9 +44,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var textToSpeech: TextToSpeech? = null
     private var mediaRecorder: MediaRecorder? = null
+    private var speechRecognizer: SpeechRecognizer? = null
     private var currentLocation: Location? = null
     private var recordingFilePath: String? = null
-    private var transcribedText: String? = null  // Reserved for future speech-to-text implementation
+    private var transcribedText: String? = null
 
     private val handler = Handler(Looper.getMainLooper())
     private val PERMISSIONS_REQUEST_CODE = 100
@@ -71,6 +75,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         textToSpeech = TextToSpeech(this, this)
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
 
         settingsButton.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
@@ -126,9 +131,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 
                 1. 📍 GPS location is acquired
                 2. 🎤 Records 10 seconds of audio in MP3 format
-                3. 💾 Saved with GPS coordinates in filename
-                4. 📌 Waypoint created in GPX file
-                5. 🚀 Your chosen app launches automatically
+                3. 🗣️ Audio is transcribed to text in real-time
+                4. 💾 Saved with GPS coordinates in filename
+                5. 📌 Waypoint created in GPX file using transcribed text
+                6. 🚀 Your chosen app launches automatically
                 
                 The app prefers Bluetooth microphones if connected.
                 
@@ -328,6 +334,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             infoText.text = "Recording for 10 seconds..."
 
+            // Start live speech recognition during recording
+            startLiveSpeechRecognition()
+
             // Stop recording after 10 seconds
             handler.postDelayed({
                 stopRecording()
@@ -361,8 +370,75 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
+    private fun startLiveSpeechRecognition() {
+        try {
+            // Reset transcribedText for new recording
+            transcribedText = null
+            
+            val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+                putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+                putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            }
+            
+            speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+                override fun onReadyForSpeech(params: Bundle?) {
+                    // Speech recognition ready
+                }
+                
+                override fun onBeginningOfSpeech() {
+                    // User started speaking
+                }
+                
+                override fun onRmsChanged(rmsdB: Float) {
+                    // Audio level changed
+                }
+                
+                override fun onBufferReceived(buffer: ByteArray?) {
+                    // Audio buffer received
+                }
+                
+                override fun onEndOfSpeech() {
+                    // User stopped speaking
+                }
+                
+                override fun onError(error: Int) {
+                    // Speech recognition error - will use filename as fallback
+                }
+                
+                override fun onResults(results: Bundle?) {
+                    val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                    if (!matches.isNullOrEmpty()) {
+                        transcribedText = matches[0]
+                    }
+                }
+                
+                override fun onPartialResults(partialResults: Bundle?) {
+                    // Update with partial results for better UX
+                    val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                    if (!matches.isNullOrEmpty()) {
+                        transcribedText = matches[0]
+                    }
+                }
+                
+                override fun onEvent(eventType: Int, params: Bundle?) {
+                    // Speech recognition event
+                }
+            })
+            
+            speechRecognizer?.startListening(recognizerIntent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Silently fail - will use filename as fallback
+        }
+    }
+    
     private fun stopRecording() {
         try {
+            // Stop speech recognition first
+            speechRecognizer?.stopListening()
+            
             mediaRecorder?.apply {
                 stop()
                 release()
@@ -380,14 +456,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             finishRecordingProcess()
         }
     }
-    
-    // TODO: Implement speech-to-text transcription
-    // Android's SpeechRecognizer works with live audio, not pre-recorded files
-    // Future implementation options:
-    // 1. Real-time transcription during recording
-    // 2. Cloud-based transcription service (Google Cloud Speech-to-Text, etc.)
-    // 3. Third-party audio-to-text library
-    // For now, waypoints use filename as fallback
     
     private fun finishRecordingProcess() {
         // Create or update GPX file with transcribed text as waypoint name
@@ -518,6 +586,7 @@ ${createWaypointXml(location, name, desc)}
     override fun onDestroy() {
         textToSpeech?.shutdown()
         mediaRecorder?.release()
+        speechRecognizer?.destroy()
         
         // Stop Bluetooth SCO if it was started
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager

@@ -25,7 +25,9 @@ For detailed screenshot specifications, see [SCREENSHOTS.md](SCREENSHOTS.md).
 - **Automatic GPS Location**: Acquires precise GPS coordinates on app launch
 - **Voice Feedback**: Announces recording start and stop via text-to-speech
 - **Quick Recording**: Records exactly 10 seconds of audio in MP3 format (AAC encoding)
+- **Live Speech-to-Text**: Transcribes your voice in real-time during recording
 - **Smart Naming**: Saves files as `latitude_longitude_timestamp.mp3`
+- **Intelligent Waypoint Names**: GPX waypoints use your transcribed speech instead of filenames
 - **GPX Waypoint Tracking**: Creates/updates `acquired_locations.gpx` with waypoints for each recording
 - **Bluetooth Microphone Support**: Automatically prefers Bluetooth microphones when connected
 - **Always Recording**: Records again every time you launch the app
@@ -33,10 +35,6 @@ For detailed screenshot specifications, see [SCREENSHOTS.md](SCREENSHOTS.md).
 - **Landscape Support**: Works in both portrait and landscape orientations
 - **Hands-Free Design**: Minimal interaction required while riding
 - **First-Run Tutorial**: Explains how the app works on first launch
-
-## Planned Features
-
-- **Speech-to-Text Transcription**: Future enhancement to transcribe audio and use as waypoint names (requires cloud service or real-time transcription implementation)
 
 ## User Guide
 
@@ -55,6 +53,7 @@ Quick start:
 This app is designed for quick voice notes while riding:
 - Record observations, directions, or reminders
 - Automatically tagged with GPS location
+- Speech transcribed and used as waypoint names
 - Bluetooth headset support for clearer audio
 - Minimal distraction from riding
 - Quick return to navigation or music app
@@ -130,6 +129,4 @@ Filename format: `<latitude>_<longitude>_<timestamp>.mp3`
 
 Example: `34.052235_-118.243683_20260120_143022.mp3`
 
-A GPX file (`acquired_locations.gpx`) is automatically created/updated with waypoints for each recording, making it easy to track where you recorded notes.
-
-> **Note**: Speech-to-text transcription for intelligent waypoint naming is planned for a future release. Currently, waypoints use the filename format `VoiceNote: <filename>.mp3`.
+A GPX file (`acquired_locations.gpx`) is automatically created/updated with waypoints for each recording. The waypoint names use the transcribed text from your voice note when available, making it easy to identify locations by what you said rather than just coordinates.

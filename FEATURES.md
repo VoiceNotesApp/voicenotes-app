@@ -167,31 +167,27 @@
 
 ### Speech-to-Text Transcription
 
-**Description**: Planned feature to transcribe recorded audio to text for waypoint naming.
+**Description**: Real-time transcription of recorded audio to text for waypoint naming.
 
-**Current Status**: Not yet implemented
-
-**How It Will Work** (when implemented):
-- Process audio after recording completes
+**How It Works**:
+- Uses Android's SpeechRecognizer API during recording
+- Processes audio in real-time as you speak
 - Transcribed text becomes waypoint name
 - Falls back to filename if transcription fails
 
-**Benefits** (when available):
+**Benefits**:
 - Meaningful waypoint names
 - Easy to identify locations later
 - "Turn at red barn" instead of coordinates
 - Searchable waypoint names
 - Better route documentation
 
-**Implementation Challenges**:
-- Android's SpeechRecognizer works with live audio, not files
-- Requires real-time transcription during recording OR
-- Cloud-based transcription service integration OR
-- Third-party audio-to-text library
-
-**Planned For**: Future release
-
-**Current Behavior**: Waypoints use filename format `VoiceNote: <filename>.mp3`
+**Best Practices**:
+- Speak clearly and at normal pace
+- Use Bluetooth microphone for better quality
+- Minimize background noise
+- Keep messages simple and direct
+- Wait briefly after speaking for recognition to complete
 
 ## User Experience Features
 
@@ -344,22 +340,24 @@
 - ❌ Device microphone only
 - ❌ Records only on second+ run
 - ❌ No tutorial
-- ❌ No speech-to-text (planned)
+- ❌ No speech-to-text
 
 ### After This Update
 
 - ✅ MP3 format (AAC in MP4 container)
+- ✅ Real-time speech-to-text transcription
+- ✅ Intelligent waypoint names using transcribed text
 - ✅ Bluetooth microphone preference
 - ✅ Records every time app launches
 - ✅ First-run tutorial
 - ✅ Enhanced documentation
-- 🔄 Speech-to-text waypoint names (planned for future)
 
 ## Future Enhancement Ideas
 
-High-priority enhancements planned:
+High-priority enhancements that could be considered:
 
-- **Speech-to-text transcription**: Real-time or cloud-based transcription for intelligent waypoint naming
+- **Cloud-based transcription**: Optional Google Cloud Speech-to-Text integration for better accuracy
+- **Offline transcription**: Use offline models for privacy-conscious users
 
 Other potential future features:
 
@@ -376,19 +374,39 @@ Other potential future features:
 
 ## Technical Implementation Notes
 
-### Speech Recognition Limitations
+### Speech Recognition Implementation
 
-Speech-to-text transcription is **planned but not yet implemented** due to technical limitations:
+Speech-to-text transcription is implemented using Android's built-in SpeechRecognizer API:
 
-Android's SpeechRecognizer API is designed for live audio input, not for transcribing pre-recorded audio files. Future implementation options include:
+**How It Works**:
+1. **Live transcription**: SpeechRecognizer starts when recording begins
+2. **Real-time processing**: Audio is transcribed as the user speaks
+3. **Partial results**: Captures intermediate transcription results for better accuracy
+4. **Final results**: Uses the best recognized text when recording completes
+5. **Graceful fallback**: If transcription fails, waypoint uses filename format
 
-1. **Real-time transcription**: Transcribe audio while recording is in progress
-2. **Cloud-based service**: Use Google Cloud Speech-to-Text, AWS Transcribe, or similar
-3. **Third-party library**: Integrate an offline speech-to-text library
+**Implementation Details**:
+```kotlin
+private fun startLiveSpeechRecognition() {
+    val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+    }
+    speechRecognizer?.startListening(recognizerIntent)
+}
+```
 
-**Current behavior**: Waypoints use the filename format `VoiceNote: <filename>.mp3` as a placeholder until transcription is implemented.
+**Advantages**:
+- No network required for basic recognition
+- Low latency
+- Built-in Android API
+- No external dependencies
 
-**Code structure**: The variable `transcribedText` is reserved in the code for future implementation. A TODO comment marks where transcription logic should be added.
+**Limitations**:
+- Accuracy depends on device and Android version
+- Background noise can affect quality
+- May require internet for better recognition on some devices
+- Language support varies by device
 
 ### MP3 Encoding Note
 
@@ -444,4 +462,4 @@ If true MP3 encoding is required, a third-party library like LAME would need to 
 
 ## Conclusion
 
-Motorcycle Voice Notes is a focused, purpose-built application for quick voice note recording while riding. Every feature is designed with the motorcyclist in mind: hands-free operation, Bluetooth support, automatic workflow, and minimal distraction. The app is ready for immediate use with all core features implemented. Speech-to-text transcription for intelligent waypoint naming is planned for a future release to make location identification even more intuitive.
+Motorcycle Voice Notes is a focused, purpose-built application for quick voice note recording while riding. Every feature is designed with the motorcyclist in mind: hands-free operation, Bluetooth support, automatic workflow, and minimal distraction. The real-time speech-to-text transcription makes waypoints meaningful and easy to identify, while Bluetooth microphone support ensures clear audio even at highway speeds.
