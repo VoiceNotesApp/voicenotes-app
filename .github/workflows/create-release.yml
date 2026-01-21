@@ -31,6 +31,7 @@ jobs:
           
           # If input is empty, auto-increment from last tag
           if [ -z "$INPUT_VERSION" ]; then
+            # Get the last tag, or default to v0.0.0 if this is the first release
             LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
             echo "Last tag: $LAST_TAG"
             
@@ -46,13 +47,7 @@ jobs:
             # Split into major.minor.patch
             IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION_NUM"
             
-            # Validate all components are numeric (should be guaranteed by regex, but double-check)
-            if ! [[ "$MAJOR" =~ ^[0-9]+$ ]] || ! [[ "$MINOR" =~ ^[0-9]+$ ]] || ! [[ "$PATCH" =~ ^[0-9]+$ ]]; then
-              echo "Error: Version components must be numeric"
-              exit 1
-            fi
-            
-            # Increment patch version
+            # Increment patch version (regex validation ensures numeric values)
             PATCH=$((PATCH + 1))
             
             # Construct new version with 'v' prefix
