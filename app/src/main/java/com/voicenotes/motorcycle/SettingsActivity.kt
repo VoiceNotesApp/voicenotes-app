@@ -159,7 +159,16 @@ class SettingsActivity : AppCompatActivity() {
         val saveDir = prefs.getString("saveDirectory", null)
         val recordingDuration = prefs.getInt("recordingDuration", 10)
 
-        directoryPathText.text = saveDir ?: getString(R.string.not_set)
+        // Display current path or default path if not set
+        if (saveDir != null) {
+            directoryPathText.text = saveDir
+        } else {
+            val defaultPath = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_MUSIC
+            ).absolutePath + "/VoiceNotes"
+            directoryPathText.text = defaultPath
+        }
+        
         durationValueText.text = "$recordingDuration seconds"
         durationEditText.setText(recordingDuration.toString())
         
@@ -244,23 +253,8 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-            // Show options to user: Use default or choose custom
-            AlertDialog.Builder(this)
-                .setTitle("Choose Storage Location")
-                .setMessage("Select where to save recordings:")
-                .setPositiveButton("Use Default") { _, _ ->
-                    val defaultPath = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_MUSIC
-                    ).absolutePath + "/VoiceNotes"
-                    saveDirectoryPath(defaultPath)
-                    Toast.makeText(this, "Using default directory", Toast.LENGTH_SHORT).show()
-                }
-                .setNegativeButton("Choose Custom") { _, _ ->
-                    // Use the document picker for custom location
-                    directoryPickerLauncher.launch(null)
-                }
-                .setNeutralButton("Cancel", null)
-                .show()
+            // Launch the directory picker directly
+            directoryPickerLauncher.launch(null)
 
         } catch (e: Exception) {
             Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
