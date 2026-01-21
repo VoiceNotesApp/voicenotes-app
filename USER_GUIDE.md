@@ -2,7 +2,7 @@
 
 ## Overview
 
-Motorcycle Voice Notes is designed for riders who need to quickly record voice memos while on the road. The app automatically captures your GPS location, records audio, and then seamlessly returns you to your navigation or music app.
+Motorcycle Voice Notes is designed for riders who need to quickly record voice memos while on the road. The app automatically captures your GPS location, records audio with speech-to-text transcription, and then seamlessly returns you to your navigation or music app. It preferentially uses Bluetooth microphones for clearer audio quality.
 
 ## First Time Setup
 
@@ -35,6 +35,9 @@ The app requires the following permissions to function:
 
 - **Microphone** - To record your voice notes
 - **Location** - To tag recordings with GPS coordinates
+- **Bluetooth** - To detect Bluetooth microphones
+- **Bluetooth Connect** - To connect to Bluetooth audio devices (Android 12+)
+- **Modify Audio Settings** - To route audio to Bluetooth devices
 - **Notifications** (Android 13+) - To provide status updates
 
 Tap **"Grant Required Permissions"** and allow all requested permissions.
@@ -43,44 +46,94 @@ Tap **"Grant Required Permissions"** and allow all requested permissions.
 
 ### First Run After Setup
 
-On your first actual recording session:
+On your first actual recording session, you'll see a tutorial explaining:
 
 1. Launch the app
-2. The app acquires your GPS location
-3. Voice announcement: "Location acquired, recording for 10 seconds"
-4. Records for exactly 10 seconds
-5. Voice announcement: "Recording complete"
-6. Saves the file with GPS coordinates in filename
-7. Creates or updates `acquired_locations.gpx` with waypoint
-8. Launches your selected app
+2. **Tutorial screen appears** explaining the process
+3. Tap "Start Recording" to begin
+4. The app acquires your GPS location
+5. Voice announcement: "Location acquired, recording for 10 seconds"
+6. Records for exactly 10 seconds (using Bluetooth mic if available)
+7. Audio is transcribed to text in real-time
+8. Voice announcement: "Recording complete"
+9. Saves the file with GPS coordinates in filename
+10. Creates or updates `acquired_locations.gpx` with waypoint using transcribed text
+11. Launches your selected app
 
-### Second Run and Beyond
+### Subsequent Runs
 
-From the second launch onwards, for a faster experience:
+Every time you launch the app:
 
 1. Launch the app
-2. Your trigger app launches **immediately**
-3. Recording continues in the background
-4. The recording process completes automatically
-5. You can continue using your trigger app without interruption
+2. Recording process starts automatically
+3. GPS acquisition
+4. 10-second recording with live transcription
+5. File saved with waypoint created using your spoken text
+6. Your trigger app launches
+7. You can continue using your trigger app without interruption
+
+**Note**: The app now records **every time** you launch it, not just the first time.
 
 ## Recording Files
 
 ### Audio Format
 
-- **Format:** MP3 (MPEG-4 AAC)
+- **Format:** MP3 (MPEG-4 AAC encoding)
 - **Bitrate:** 128 kbps
 - **Sample Rate:** 44.1 kHz
 - **Duration:** 10 seconds fixed
+- **Microphone:** Prefers Bluetooth microphones when available
+
+### Speech-to-Text Transcription
+
+The app transcribes your recorded audio in real-time:
+- Transcription happens while you speak during recording
+- Transcribed text is used as the waypoint name in the GPX file
+- Makes it easier to identify locations by what you said
+- If transcription fails, falls back to using the filename
+- Works best with clear audio and Bluetooth microphones
+
+**Best Practices**:
+- Speak clearly and at normal pace
+- Use Bluetooth microphone for better quality
+- Minimize background noise
+- Keep messages simple and direct
+- Wait a moment after speaking for recognition to complete
 
 ### GPX Location File
 
 The app creates and maintains a file called `acquired_locations.gpx` in your recording folder. This file contains:
 
 - GPS waypoints for each recording
-- Waypoint name: `VoiceNote: filename.mp3`
+- Waypoint name: Transcribed text from your voice note (or `VoiceNote: filename.mp3` as fallback)
+- Waypoint description: `VoiceNote: filename.mp3`
 - Timestamp of when the recording was made
 - Can be imported into mapping applications like Google Earth, Garmin, etc.
+
+## Bluetooth Microphone Support
+
+The app automatically detects and prefers Bluetooth audio devices:
+
+### Automatic Detection
+
+- The app checks for Bluetooth headsets/microphones on launch
+- If available, routes audio recording through Bluetooth
+- Provides clearer audio quality, especially while riding
+- Reduces wind noise compared to phone microphone
+
+### Supported Devices
+
+- Bluetooth headsets with microphone
+- Motorcycle helmet communication systems
+- Wireless earbuds with microphone
+- Any Bluetooth device with SCO (Synchronous Connection Oriented) audio
+
+### Best Practices
+
+- Pair your Bluetooth device before launching the app
+- Ensure the device is connected and active
+- Test audio quality with a sample recording
+- Position microphone appropriately for clear speech
 
 ## Screen Orientation
 
@@ -103,13 +156,22 @@ You can return to the configuration screen at any time by:
 - Use a quality motorcycle phone mount
 - Position for easy reach but minimal distraction
 - Ensure good GPS signal reception
+- Keep away from excessive vibration
+
+### Bluetooth Headset Recommendations
+
+- Use a motorcycle-specific Bluetooth system
+- Helmet-integrated communication systems work best
+- Ensure good microphone placement for voice clarity
+- Test before riding to verify audio quality
 
 ### Recording Best Practices
 
-- Speak clearly toward the phone
-- Keep wind noise in mind - the microphone will pick up wind
-- Consider a foam windscreen over your phone if needed
-- 10 seconds is enough for a quick note - keep it concise
+- Speak clearly toward the microphone
+- Bluetooth headsets significantly reduce wind noise
+- Keep messages concise - you have 10 seconds
+- The app transcribes your speech for waypoint names
+- Wait for location acquisition before speaking (listen for TTS announcement)
 
 ### Using Voice Commands
 
@@ -151,6 +213,26 @@ If your phone supports voice activation:
 - Check microphone permissions
 - Ensure no other app is using the microphone
 - Test your device microphone in another app
+- For Bluetooth: Verify device is connected and paired
+
+### Bluetooth Microphone Not Working
+
+- Ensure Bluetooth is enabled on your device
+- Verify the device is paired and connected
+- Check that the device supports voice/call audio (SCO)
+- Try disconnecting and reconnecting the device
+- Grant Bluetooth permissions when prompted (Android 12+)
+
+### Transcription Issues
+
+If speech-to-text transcription isn't working well:
+
+- Speak clearly and at normal volume
+- Reduce background noise (use Bluetooth headset)
+- Ensure microphone permissions are granted
+- Check that your device supports speech recognition
+- If transcription consistently fails, waypoints will use filenames instead
+- Try speaking immediately after the recording starts
 
 ## Privacy & Data
 
@@ -185,11 +267,22 @@ Consider setting up automatic cloud backup:
 The `acquired_locations.gpx` file can be:
 
 - Opened in Google Earth to see all recording locations
+- Waypoint names show transcribed speech for easy identification
 - Imported into GPS devices
 - Used in route planning software
 - Shared with others for route documentation
 
 ## Advanced Usage
+
+### Using Transcribed Waypoints
+
+The speech-to-text feature creates meaningful waypoint names:
+
+- Speak clearly: "Turn left at the red barn"
+- Waypoint will be named with that phrase
+- Makes it easy to find specific locations later
+- Much more useful than just GPS coordinates
+- Review waypoints in mapping software to plan routes
 
 ### Creating a Quick Launch Shortcut
 
