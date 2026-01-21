@@ -71,6 +71,16 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         textToSpeech = TextToSpeech(this, this)
         
+        // Add TTS timeout
+        val ttsTimeoutRunnable = Runnable {
+            if (!isTtsInitialized) {
+                Log.w("OverlayService", "TTS initialization timeout - proceeding without TTS")
+                isTtsInitialized = false
+                startRecordingProcess()
+            }
+        }
+        handler.postDelayed(ttsTimeoutRunnable, 10000)
+        
         createOverlay()
     }
 
@@ -122,9 +132,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             isTtsInitialized = true
         } else {
             isTtsInitialized = false
+            Log.w("OverlayService", "TTS initialization failed")
         }
         
-        // Start the recording process after TTS initialization
+        // Start the recording process after TTS initialization (or timeout)
         handler.post {
             startRecordingProcess()
         }
@@ -143,16 +154,49 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         }
 
         val cancellationTokenSource = CancellationTokenSource()
+        
+        // Add 30-second timeout
+        val locationTimeoutRunnable = Runnable {
+            cancellationTokenSource.cancel()
+            // Try last known location as fallback
+            tryLastKnownLocation()
+        }
+        handler.postDelayed(locationTimeoutRunnable, 30000)
 
         fusedLocationClient.getCurrentLocation(
             Priority.PRIORITY_HIGH_ACCURACY,
             cancellationTokenSource.token
         ).addOnSuccessListener { location: Location? ->
+            handler.removeCallbacks(locationTimeoutRunnable)
             if (location != null) {
                 currentLocation = location
                 onLocationAcquired()
             } else {
-                onLocationFailed()
+                tryLastKnownLocation()
+            }
+        }.addOnFailureListener {
+            handler.removeCallbacks(locationTimeoutRunnable)
+            tryLastKnownLocation()
+        }
+    }
+
+    private fun tryLastKnownLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            onLocationFailed()
+            return
+        }
+        
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                currentLocation = location
+                updateOverlay("Using last known location")
+                handler.postDelayed({
+                    onLocationAcquired()
+                }, 1000)
+            } else {
+                updateOverlay("Location unavailable - please ensure GPS is enabled")
+                handler.postDelayed({ stopSelfAndFinish() }, 3000)
             }
         }.addOnFailureListener {
             onLocationFailed()
@@ -274,10 +318,26 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             // Start countdown immediately
             startCountdown()
 
-        } catch (e: Exception) {
-            updateOverlay("Recording failed")
+        } catch (e: IllegalStateException) {
             e.printStackTrace()
-            handler.postDelayed({ stopSelfAndFinish() }, 1000)
+            updateOverlay("Recording failed: Invalid state")
+            Log.e("OverlayService", "MediaRecorder illegal state", e)
+            handler.postDelayed({ stopSelfAndFinish() }, 3000)
+        } catch (e: RuntimeException) {
+            e.printStackTrace()
+            val errorMsg = when {
+                e.message?.contains("start failed") == true -> "Recording failed: Microphone in use"
+                e.message?.contains("audio") == true -> "Recording failed: Audio source unavailable"
+                else -> "Recording failed: ${e.message ?: "Unknown error"}"
+            }
+            updateOverlay(errorMsg)
+            Log.e("OverlayService", "MediaRecorder runtime error", e)
+            handler.postDelayed({ stopSelfAndFinish() }, 3000)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            updateOverlay("Recording failed: ${e.message ?: "Unknown error"}")
+            Log.e("OverlayService", "MediaRecorder error", e)
+            handler.postDelayed({ stopSelfAndFinish() }, 3000)
         }
     }
     
@@ -296,6 +356,15 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         return if (audioManager.isBluetoothScoAvailableOffCall) {
             Log.d("OverlayService", "Bluetooth SCO available, starting Bluetooth SCO with VOICE_RECOGNITION")
             audioManager.startBluetoothSco()
+            
+            // Add timeout for Bluetooth SCO connection
+            handler.postDelayed({
+                if (!audioManager.isBluetoothScoOn) {
+                    Log.w("OverlayService", "Bluetooth SCO timeout - using device microphone")
+                    audioManager.stopBluetoothSco()
+                }
+            }, 5000)
+            
             MediaRecorder.AudioSource.VOICE_RECOGNITION
         } else {
             Log.d("OverlayService", "Bluetooth SCO not available, using VOICE_RECOGNITION source")
@@ -591,6 +660,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     private fun stopSelfAndFinish() {
+        // Cancel countdown if running
+        countdownRunnable?.let { handler.removeCallbacks(it) }
+        
         // Clear recording state from SharedPreferences
         val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         prefs.edit().apply {

@@ -8,6 +8,8 @@ import com.google.cloud.speech.v1.*
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -20,7 +22,29 @@ class TranscriptionService(private val context: Context) {
      * @param filePath Absolute path to the m4a file
      * @return Result containing transcribed text or error
      */
-    suspend fun transcribeAudioFile(filePath: String): Result<String> = withContext(Dispatchers.IO) {
+    suspend fun transcribeAudioFile(filePath: String): Result<String> {
+        return try {
+            withTimeout(60000) { // 60 second timeout
+                transcribeAudioFileInternal(filePath)
+            }
+        } catch (e: TimeoutCancellationException) {
+            DebugLogger.logError(
+                service = "Google Cloud Speech",
+                error = "Transcription timeout after 60 seconds",
+                exception = e
+            )
+            Result.failure(Exception("Transcription timeout - network too slow or file too large"))
+        } catch (e: Exception) {
+            DebugLogger.logError(
+                service = "Google Cloud Speech",
+                error = "Transcription failed",
+                exception = e
+            )
+            Result.failure(e)
+        }
+    }
+
+    private suspend fun transcribeAudioFileInternal(filePath: String): Result<String> = withContext(Dispatchers.IO) {
         try {
             val serviceAccountJson = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
             

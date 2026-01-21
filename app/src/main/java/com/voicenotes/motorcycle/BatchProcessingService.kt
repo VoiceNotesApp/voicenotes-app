@@ -8,6 +8,8 @@ import android.util.Log
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
 import java.io.File
 
 class BatchProcessingService : LifecycleService() {
@@ -71,6 +73,65 @@ class BatchProcessingService : LifecycleService() {
                 message = "Processing file $currentFile/$totalFiles: ${file.name}"
             )
             
+            try {
+                withTimeout(120000) { // 2 minute timeout per file
+                    processFile(file, currentFile, totalFiles, saveDir, transcriptionService, oauthManager, addOsmNote)
+                }
+            } catch (e: TimeoutCancellationException) {
+                Log.e("BatchProcessingService", "Timeout processing file: ${file.name}")
+                DebugLogger.logError(
+                    service = "BatchProcessingService",
+                    error = "File processing timeout: ${file.name}",
+                    exception = e
+                )
+                
+                // Send error status
+                val errorProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
+                errorProgressIntent.putExtra("filename", file.name)
+                errorProgressIntent.putExtra("status", "timeout")
+                errorProgressIntent.putExtra("current", currentFile)
+                errorProgressIntent.putExtra("total", totalFiles)
+                sendBroadcast(errorProgressIntent)
+                
+                // Continue to next file
+            } catch (e: Exception) {
+                Log.e("BatchProcessingService", "Error processing file: ${file.name}", e)
+                DebugLogger.logError(
+                    service = "BatchProcessingService",
+                    error = "Error processing file: ${file.name}",
+                    exception = e
+                )
+                
+                // Send error status
+                val errorProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
+                errorProgressIntent.putExtra("filename", file.name)
+                errorProgressIntent.putExtra("status", "error")
+                errorProgressIntent.putExtra("current", currentFile)
+                errorProgressIntent.putExtra("total", totalFiles)
+                sendBroadcast(errorProgressIntent)
+                
+                // Continue to next file
+            }
+        }
+        
+        // Broadcast completion
+        DebugLogger.logInfo(
+            service = "BatchProcessingService",
+            message = "Batch processing complete. Processed $totalFiles files."
+        )
+        sendBroadcast(Intent("com.voicenotes.motorcycle.BATCH_COMPLETE"))
+        stopSelf()
+    }
+    
+    private suspend fun processFile(
+        file: File,
+        currentFile: Int,
+        totalFiles: Int,
+        saveDir: String,
+        transcriptionService: TranscriptionService,
+        oauthManager: OsmOAuthManager,
+        addOsmNote: Boolean
+    ) {
             // Broadcast progress with detailed status
             val progressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
             progressIntent.putExtra("filename", file.name)
@@ -121,6 +182,7 @@ class BatchProcessingService : LifecycleService() {
                         service = "BatchProcessingService",
                         message = "Creating OSM note for ${file.name} at $lat,$lng"
                     )
+                    val osmService = OsmNotesService()
                     osmService.createNote(lat, lng, finalText, accessToken)
                 }
                 
@@ -148,15 +210,6 @@ class BatchProcessingService : LifecycleService() {
                 errorProgressIntent.putExtra("total", totalFiles)
                 sendBroadcast(errorProgressIntent)
             }
-        }
-        
-        // Broadcast completion
-        DebugLogger.logInfo(
-            service = "BatchProcessingService",
-            message = "Batch processing complete. Processed $totalFiles files."
-        )
-        sendBroadcast(Intent("com.voicenotes.motorcycle.BATCH_COMPLETE"))
-        stopSelf()
     }
     
     private fun extractCoordinatesFromFilename(filename: String): String {
