@@ -111,16 +111,20 @@ class SettingsActivity : AppCompatActivity() {
         if (triggerApp.isNullOrEmpty()) {
             val dmd2Package = "com.riser.dmd2"
             if (isAppInstalled(dmd2Package)) {
-                val pm = packageManager
-                val dmd2App = pm.getApplicationInfo(dmd2Package, PackageManager.GET_META_DATA)
-                val dmd2Name = dmd2App.loadLabel(pm).toString()
-                
-                saveTriggerApp(dmd2Package, dmd2Name)
-                Toast.makeText(
-                    this,
-                    "DMD2 detected and set as default trigger app",
-                    Toast.LENGTH_LONG
-                ).show()
+                try {
+                    val pm = packageManager
+                    val dmd2App = pm.getApplicationInfo(dmd2Package, PackageManager.GET_META_DATA)
+                    val dmd2Name = dmd2App.loadLabel(pm).toString()
+                    
+                    saveTriggerApp(dmd2Package, dmd2Name)
+                    Toast.makeText(
+                        this,
+                        "DMD2 detected and set as default trigger app",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } catch (e: PackageManager.NameNotFoundException) {
+                    // App was uninstalled between check and retrieval, ignore
+                }
             }
         }
     }

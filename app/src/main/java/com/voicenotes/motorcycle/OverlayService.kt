@@ -308,6 +308,10 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
 
     private fun startSpeechRecognitionBeforeRecording() {
         try {
+            // Load recording duration from preferences
+            val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+            recordingDuration = prefs.getInt("recordingDuration", 10)
+            
             transcribedText = null
             updateBubbleLine1("Listening...")
             updateBubbleLine2("🎤 Speak now...")
