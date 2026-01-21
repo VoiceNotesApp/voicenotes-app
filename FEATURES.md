@@ -132,8 +132,8 @@
 - Waypoint for each recording
 - GPS coordinates (latitude/longitude)
 - Timestamp (ISO 8601 format)
-- Waypoint name (transcribed text or filename)
-- Waypoint description (filename reference)
+- Waypoint name: `VoiceNote: <latitude>_<longitude>` format
+- Waypoint description: Transcribed text (or filename as fallback)
 
 **Benefits**:
 - Import into mapping software
@@ -167,19 +167,19 @@
 
 ### Speech-to-Text Transcription
 
-**Description**: Real-time transcription of recorded audio to text for waypoint naming.
+**Description**: Real-time transcription of recorded audio to text for waypoint descriptions.
 
 **How It Works**:
 - Uses Android's SpeechRecognizer API during recording
 - Processes audio in real-time as you speak
-- Transcribed text becomes waypoint name
+- Transcribed text becomes waypoint description
 - Falls back to filename if transcription fails
 
 **Benefits**:
-- Meaningful waypoint names
+- Meaningful waypoint descriptions
 - Easy to identify locations later
-- "Turn at red barn" instead of coordinates
-- Searchable waypoint names
+- "Turn at red barn" in description helps you remember
+- Searchable descriptions
 - Better route documentation
 
 **Best Practices**:

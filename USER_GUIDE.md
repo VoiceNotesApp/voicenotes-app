@@ -105,8 +105,8 @@ The app transcribes your recorded audio in real-time:
 The app creates and maintains a file called `acquired_locations.gpx` in your recording folder. This file contains:
 
 - GPS waypoints for each recording
-- Waypoint name: Transcribed text from your voice note (or `VoiceNote: filename.mp3` as fallback)
-- Waypoint description: `VoiceNote: filename.mp3`
+- Waypoint name: `VoiceNote: <latitude>_<longitude>` format
+- Waypoint description: Transcribed text from your voice note (or filename as fallback)
 - Timestamp of when the recording was made
 - Can be imported into mapping applications like Google Earth, Garmin, etc.
 

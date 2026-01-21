@@ -146,5 +146,16 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Quit Button -->
+        <Button
+            android:id="@+id/quitButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/quit_app"
+            android:textSize="16sp"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#D32F2F"
+            android:textColor="#FFFFFF" />
+
     </LinearLayout>
 </ScrollView>

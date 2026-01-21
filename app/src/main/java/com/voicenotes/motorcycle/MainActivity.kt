@@ -458,12 +458,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
     
     private fun finishRecordingProcess() {
-        // Create or update GPX file with transcribed text as waypoint name
+        // Create or update GPX file with coordinates in waypoint name and transcribed text as description
         recordingFilePath?.let { filePath ->
             val fileName = File(filePath).name
             currentLocation?.let { location ->
-                val waypointName = transcribedText ?: "VoiceNote: $fileName"
-                createOrUpdateGpxFile(location, waypointName, fileName)
+                val lat = String.format("%.6f", location.latitude)
+                val lng = String.format("%.6f", location.longitude)
+                val waypointName = "VoiceNote: ${lat}_${lng}"
+                val waypointDesc = transcribedText ?: fileName
+                createOrUpdateGpxFile(location, waypointName, waypointDesc)
             }
         }
 
@@ -513,7 +516,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
     
-    private fun createOrUpdateGpxFile(location: Location?, waypointName: String, fileName: String) {
+    private fun createOrUpdateGpxFile(location: Location?, waypointName: String, waypointDesc: String) {
         try {
             // Add null check at the beginning
             if (location == null) {
@@ -525,7 +528,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val saveDir = prefs.getString("saveDirectory", null) ?: return
             
             val gpxFile = File(saveDir, "acquired_locations.gpx")
-            val waypointDesc = "VoiceNote: $fileName"
             
             if (gpxFile.exists()) {
                 // Read existing file and add new waypoint
