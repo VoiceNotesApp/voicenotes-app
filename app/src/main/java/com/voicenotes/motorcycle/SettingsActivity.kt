@@ -23,7 +23,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.documentfile.provider.DocumentFile
 import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
