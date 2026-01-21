@@ -56,6 +56,8 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     private var recordingDuration = 10
     private var remainingSeconds = 0
     private var countdownRunnable: Runnable? = null
+    private var listeningRemainingSeconds = 0
+    private var listeningCountdownRunnable: Runnable? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -158,11 +160,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             updateBubbleLine1(getString(R.string.location_acquired_coords, coords))
         }
         
-        // Speak "Location acquired" and then "Recording started"
+        // Speak "Location acquired" only, "Recording started" will be spoken later
         speakText(getString(R.string.location_acquired)) {
-            speakText(getString(R.string.recording_started)) {
-                startSpeechRecognitionBeforeRecording()
-            }
+            startSpeechRecognitionBeforeRecording()
         }
     }
 
@@ -197,6 +197,10 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
 
     private fun startRecording() {
         try {
+            // Stop speech recognizer before starting audio recording
+            speechRecognizer?.stopListening()
+            speechRecognizer?.cancel()
+            
             val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
             val saveDir = prefs.getString("saveDirectory", null)
             recordingDuration = prefs.getInt("recordingDuration", 10)
@@ -263,8 +267,11 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 updateBubbleLine2("🎤 Recording...")
             }
             
-            // Start countdown
-            startCountdown()
+            // Give a moment for microphone to be released from speech recognizer
+            handler.postDelayed({
+                // Start countdown
+                startCountdown()
+            }, 300)
 
         } catch (e: Exception) {
             updateBubbleLine1("Recording failed")
@@ -313,6 +320,28 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         handler.post(countdownRunnable!!)
     }
 
+    private fun startListeningCountdown() {
+        listeningRemainingSeconds = recordingDuration
+        
+        listeningCountdownRunnable = object : Runnable {
+            override fun run() {
+                if (listeningRemainingSeconds > 0) {
+                    updateBubbleLine1("Listening... $listeningRemainingSeconds")
+                    listeningRemainingSeconds--
+                    handler.postDelayed(this, 1000)
+                } else {
+                    // Countdown finished, but speech recognition should handle completion
+                }
+            }
+        }
+        handler.post(listeningCountdownRunnable!!)
+    }
+
+    private fun stopListeningCountdown() {
+        listeningCountdownRunnable?.let { handler.removeCallbacks(it) }
+        listeningCountdownRunnable = null
+    }
+
     private fun startSpeechRecognitionBeforeRecording() {
         try {
             // Load recording duration from preferences
@@ -322,6 +351,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             transcribedText = null
             updateBubbleLine1("Listening...")
             updateBubbleLine2("🎤 Speak now...")
+            
+            // Start the listening countdown
+            startListeningCountdown()
             
             val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -345,6 +377,8 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                     // Speech ended, now start recording
                 }
                 override fun onError(error: Int) {
+                    // Stop the listening countdown
+                    stopListeningCountdown()
                     // If transcription fails, continue with recording anyway
                     updateBubbleLine2("Starting recording...")
                     handler.postDelayed({
@@ -355,6 +389,8 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 }
                 
                 override fun onResults(results: Bundle?) {
+                    // Stop the listening countdown
+                    stopListeningCountdown()
                     val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     if (!matches.isNullOrEmpty()) {
                         transcribedText = matches[0]
@@ -384,6 +420,8 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             speechRecognizer?.startListening(recognizerIntent)
         } catch (e: Exception) {
             e.printStackTrace()
+            // Stop the listening countdown on error
+            stopListeningCountdown()
             updateBubbleLine2("Speech recognition failed")
             // Continue with recording even if speech recognition fails
             handler.postDelayed({
@@ -550,6 +588,10 @@ ${createWaypointXml(location, name, desc)}
     }
 
     override fun onDestroy() {
+        // Clean up countdowns
+        countdownRunnable?.let { handler.removeCallbacks(it) }
+        listeningCountdownRunnable?.let { handler.removeCallbacks(it) }
+        
         textToSpeech?.shutdown()
         mediaRecorder?.release()
         speechRecognizer?.destroy()
