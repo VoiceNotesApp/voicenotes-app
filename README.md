@@ -7,10 +7,10 @@ A lightweight Android app for motorcyclists to quickly record voice notes with G
 Motorcycle Voice Notes is designed for hands-free operation while riding. When you launch the app:
 
 1. **Shows a small overlay bubble** at the top of the screen
-2. **Speaks your GPS coordinates** via text-to-speech
-3. **Captures your voice message** through speech recognition
-4. **Records audio** (configurable 1-99 seconds, default 10 seconds)
-5. **Saves the recording** with GPS coordinates in the filename
+2. **Announces location acquired** via text-to-speech
+3. **Records audio** (configurable 1-99 seconds, default 10 seconds)
+4. **Saves the recording** with GPS coordinates in the filename
+5. **Transcribes your voice message** using Google Cloud Speech-to-Text (optional, during or after ride)
 6. **Creates a GPX waypoint** with your transcribed message
 7. **Optional OSM Note creation** if enabled and authenticated
 8. **Quits automatically** so you stay in your current app
@@ -108,10 +108,9 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete build setup and 
 - **Language**: Kotlin
 - **Build System**: Gradle
 - **Location**: Google Play Services Location API
-- **Audio**: MediaRecorder with AAC encoding
-- **Speech Recognition**: Android SpeechRecognizer API
-- **Text-to-Speech**: Android TTS Engine
-- **Speech-to-Text**: Google Cloud Speech-to-Text API (post-processing)
+- **Audio**: MediaRecorder with AAC encoding (MPEG-4 container, .m4a files)
+- **Text-to-Speech**: Android TTS Engine (for status announcements)
+- **Speech-to-Text**: Google Cloud Speech-to-Text API (for transcription)
 - **OAuth**: AppAuth library for OpenStreetMap OAuth 2.0
 - **HTTP**: OkHttp for OSM API calls
 
