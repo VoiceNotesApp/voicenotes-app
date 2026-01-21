@@ -60,12 +60,6 @@ class SettingsActivity : AppCompatActivity() {
         }
     }.toTypedArray()
 
-    private val directoryPickerLauncher = registerForActivityResult(
-        ActivityResultContracts.OpenDocumentTree()
-    ) { uri ->
-        // This is now unused but kept for compatibility
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
