@@ -481,13 +481,19 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 val intent = packageManager.getLaunchIntentForPackage(triggerApp)
                 if (intent != null) {
                     startActivity(intent)
-                    // Don't finish() here so we can continue in background
+                    // Finish the activity to quit the app
+                    finish()
                 } else {
                     Toast.makeText(this, "Cannot launch trigger app", Toast.LENGTH_SHORT).show()
+                    finish() // Still quit even if trigger app can't launch
                 }
             } catch (e: Exception) {
                 Toast.makeText(this, "Error launching app: ${e.message}", Toast.LENGTH_SHORT).show()
+                finish() // Still quit even on error
             }
+        } else {
+            // No trigger app configured, just quit
+            finish()
         }
     }
     
@@ -576,8 +582,15 @@ ${createWaypointXml(location, name, desc)}
 
     override fun onResume() {
         super.onResume()
-        // Restart the process if setup is now complete
-        if (!isFirstRun() && currentLocation == null) {
+        // Always restart recording process when app comes to foreground
+        // This ensures recording starts every time you switch to the app
+        if (!isFirstRun()) {
+            // Reset location to force fresh acquisition
+            currentLocation = null
+            // Reset UI
+            infoText.text = "Acquiring location..."
+            progressBar.visibility = View.VISIBLE
+            // Start fresh recording process
             startRecordingProcess()
         }
     }
