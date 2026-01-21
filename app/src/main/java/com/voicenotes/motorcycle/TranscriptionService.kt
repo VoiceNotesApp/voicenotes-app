@@ -50,7 +50,7 @@ class TranscriptionService(private val context: Context) {
             try {
                 // Configure recognition
                 val recognitionConfig = RecognitionConfig.newBuilder()
-                    .setEncoding(RecognitionConfig.AudioEncoding.MP3) // m4a is similar to MP3
+                    .setEncoding(RecognitionConfig.AudioEncoding.ENCODING_UNSPECIFIED) // Let API auto-detect
                     .setSampleRateHertz(44100)
                     .setLanguageCode("en-US")
                     .setEnableAutomaticPunctuation(true)
