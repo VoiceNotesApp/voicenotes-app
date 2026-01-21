@@ -20,6 +20,7 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -279,18 +280,18 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) {
-                android.util.Log.d("OverlayService", "Bluetooth permission not granted, using device microphone")
+                Log.d("OverlayService", "Bluetooth permission not granted, using device microphone")
                 return MediaRecorder.AudioSource.MIC
             }
         }
         
         return if (audioManager.isBluetoothScoAvailableOffCall) {
-            android.util.Log.d("OverlayService", "Bluetooth SCO available, starting Bluetooth SCO")
+            Log.d("OverlayService", "Bluetooth SCO available, starting Bluetooth SCO")
             audioManager.startBluetoothSco()
             // MIC will route to Bluetooth if SCO is active
             MediaRecorder.AudioSource.MIC
         } else {
-            android.util.Log.d("OverlayService", "Bluetooth SCO not available, using device microphone")
+            Log.d("OverlayService", "Bluetooth SCO not available, using device microphone")
             MediaRecorder.AudioSource.MIC
         }
     }
@@ -434,10 +435,10 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 
                 // Use transcribed text if available, otherwise fall back to filename
                 val waypointDesc = if (!transcribedText.isNullOrEmpty()) {
-                    android.util.Log.d("OverlayService", "Using transcribed text for waypoint: $transcribedText")
+                    Log.d("OverlayService", "Using transcribed text for waypoint: $transcribedText")
                     transcribedText!!
                 } else {
-                    android.util.Log.d("OverlayService", "No transcribed text available, using filename: $fileName")
+                    Log.d("OverlayService", "No transcribed text available, using filename: $fileName")
                     fileName
                 }
                 
