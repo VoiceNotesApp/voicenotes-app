@@ -457,7 +457,7 @@ class SettingsActivity : AppCompatActivity() {
                 "com.voicenotes.motorcycle.BATCH_PROGRESS" -> {
                     val filename = intent.getStringExtra("filename")
                     // Update button text to show current file being processed
-                    buttonRunOnlineProcessing.text = "Processing: $filename"
+                    buttonRunOnlineProcessing.text = "Processing: ${filename ?: "..."}"
                 }
                 "com.voicenotes.motorcycle.BATCH_COMPLETE" -> {
                     buttonRunOnlineProcessing.isEnabled = true
