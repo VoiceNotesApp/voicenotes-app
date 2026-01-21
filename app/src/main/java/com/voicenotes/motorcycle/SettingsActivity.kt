@@ -9,8 +9,11 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.documentfile.provider.DocumentFile
+import com.voicenotes.motorcycle.osm.OsmTokenManager
 import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
@@ -33,9 +37,19 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var requestPermissionsButton: Button
     private lateinit var requestOverlayButton: Button
     private lateinit var quitButton: Button
+    
+    // OSM UI elements
+    private lateinit var osmEnableCheckbox: CheckBox
+    private lateinit var osmAuthSection: LinearLayout
+    private lateinit var osmStatusText: TextView
+    private lateinit var osmConnectButton: Button
+    private lateinit var osmDisconnectButton: Button
+    
+    private lateinit var osmTokenManager: OsmTokenManager
 
     private val PERMISSIONS_REQUEST_CODE = 200
     private val OVERLAY_PERMISSION_REQUEST_CODE = 201
+    private val OSM_AUTH_REQUEST_CODE = 202
 
     private val requiredPermissions = mutableListOf(
         Manifest.permission.RECORD_AUDIO,
@@ -72,6 +86,15 @@ class SettingsActivity : AppCompatActivity() {
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
         requestOverlayButton = findViewById(R.id.requestOverlayButton)
         quitButton = findViewById(R.id.quitButton)
+        
+        // OSM elements
+        osmEnableCheckbox = findViewById(R.id.osmEnableCheckbox)
+        osmAuthSection = findViewById(R.id.osmAuthSection)
+        osmStatusText = findViewById(R.id.osmStatusText)
+        osmConnectButton = findViewById(R.id.osmConnectButton)
+        osmDisconnectButton = findViewById(R.id.osmDisconnectButton)
+        
+        osmTokenManager = OsmTokenManager(this)
 
         loadCurrentSettings()
         
@@ -100,6 +123,20 @@ class SettingsActivity : AppCompatActivity() {
 
         quitButton.setOnClickListener {
             finishAffinity()
+        }
+        
+        // OSM listeners
+        osmEnableCheckbox.setOnCheckedChangeListener { _, isChecked ->
+            saveOsmEnabled(isChecked)
+            updateOsmUi()
+        }
+        
+        osmConnectButton.setOnClickListener {
+            startOsmAuth()
+        }
+        
+        osmDisconnectButton.setOnClickListener {
+            disconnectOsm()
         }
     }
     
@@ -144,14 +181,19 @@ class SettingsActivity : AppCompatActivity() {
         val triggerApp = prefs.getString("triggerApp", null)
         val triggerAppName = prefs.getString("triggerAppName", null)
         val recordingDuration = prefs.getInt("recordingDuration", 10)
+        val osmEnabled = prefs.getBoolean("osmEnabled", false)
 
         directoryPathText.text = saveDir ?: getString(R.string.not_set)
         triggerAppText.text = triggerAppName ?: getString(R.string.not_set)
         durationValueText.text = "$recordingDuration seconds"
         durationEditText.setText(recordingDuration.toString())
+        osmEnableCheckbox.isChecked = osmEnabled
         
         // Update overlay button text based on permission status
         updateOverlayButtonText()
+        
+        // Update OSM UI
+        updateOsmUi()
     }
 
     private fun updateOverlayButtonText() {
@@ -197,6 +239,15 @@ class SettingsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Overlay permission granted", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
+            }
+        } else if (requestCode == OSM_AUTH_REQUEST_CODE) {
+            // Handle OAuth result
+            if (resultCode == RESULT_OK) {
+                updateOsmUi()
+                Toast.makeText(this, "Successfully connected to OpenStreetMap", Toast.LENGTH_SHORT).show()
+            } else {
+                val error = data?.getStringExtra(OsmAuthActivity.EXTRA_AUTH_ERROR) ?: "Unknown error"
+                Toast.makeText(this, "Authentication failed: $error", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -426,6 +477,53 @@ class SettingsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadCurrentSettings()
+    }
+    
+    // OSM Methods
+    
+    private fun saveOsmEnabled(enabled: Boolean) {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        prefs.edit().putBoolean("osmEnabled", enabled).apply()
+    }
+    
+    private fun updateOsmUi() {
+        val isEnabled = osmEnableCheckbox.isChecked
+        
+        if (isEnabled) {
+            osmAuthSection.visibility = View.VISIBLE
+            
+            // Check authentication status
+            if (osmTokenManager.isAuthenticated()) {
+                val username = osmTokenManager.getUsername() ?: "Unknown"
+                osmStatusText.text = getString(R.string.osm_status_connected, username)
+                osmConnectButton.visibility = View.GONE
+                osmDisconnectButton.visibility = View.VISIBLE
+            } else {
+                osmStatusText.text = getString(R.string.osm_status_not_connected)
+                osmConnectButton.visibility = View.VISIBLE
+                osmDisconnectButton.visibility = View.GONE
+            }
+        } else {
+            osmAuthSection.visibility = View.GONE
+        }
+    }
+    
+    private fun startOsmAuth() {
+        val intent = Intent(this, OsmAuthActivity::class.java)
+        startActivityForResult(intent, OSM_AUTH_REQUEST_CODE)
+    }
+    
+    private fun disconnectOsm() {
+        AlertDialog.Builder(this)
+            .setTitle("Disconnect from OpenStreetMap")
+            .setMessage("Are you sure you want to disconnect? You'll need to authenticate again to create notes.")
+            .setPositiveButton("Disconnect") { _, _ ->
+                osmTokenManager.clearAuth()
+                updateOsmUi()
+                Toast.makeText(this, "Disconnected from OpenStreetMap", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     data class AppInfo(
