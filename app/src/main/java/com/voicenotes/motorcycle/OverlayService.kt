@@ -573,8 +573,4 @@ ${createWaypointXml(location, name, desc)}
         
         super.onDestroy()
     }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
 }
