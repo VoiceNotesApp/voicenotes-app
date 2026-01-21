@@ -61,7 +61,7 @@ class SettingsActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Android 11+ needs MANAGE_EXTERNAL_STORAGE for Music directory
             // This will be handled separately with ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-        } else if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             add(Manifest.permission.READ_EXTERNAL_STORAGE)
         }

@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     
     private lateinit var finishReceiver: FinishActivityReceiver
     
+    private val timeoutHandler = Handler(Looper.getMainLooper())
     private val initializationTimeout = Runnable {
         Log.e(TAG, "Initialization timeout - app stuck!")
         runOnUiThread {
@@ -68,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Android 11+ needs MANAGE_EXTERNAL_STORAGE for Music directory
             // This will be handled separately with ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-        } else if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             add(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
@@ -101,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
         
         // Set 10-second timeout for initialization
-        Handler(Looper.getMainLooper()).postDelayed(initializationTimeout, 10000)
+        timeoutHandler.postDelayed(initializationTimeout, 10000)
         
         // Check if first run
         if (isFirstRun()) {
@@ -258,7 +259,7 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun cancelInitializationTimeout() {
-        Handler(Looper.getMainLooper()).removeCallbacks(initializationTimeout)
+        timeoutHandler.removeCallbacks(initializationTimeout)
     }
     
     private fun extendRecording() {
@@ -329,6 +330,8 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             // Receiver might not be registered
         }
+        // Cancel initialization timeout to prevent memory leaks
+        cancelInitializationTimeout()
         super.onDestroy()
     }
 
