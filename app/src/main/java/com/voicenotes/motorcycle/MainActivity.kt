@@ -1,6 +1,7 @@
 package com.voicenotes.motorcycle
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -27,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     private val PERMISSIONS_REQUEST_CODE = 100
     private val OVERLAY_PERMISSION_REQUEST_CODE = 101
     
-    private val finishReceiver = FinishActivityReceiver()
+    private lateinit var finishReceiver: FinishActivityReceiver
 
     private val requiredPermissions = mutableListOf(
         Manifest.permission.RECORD_AUDIO,
@@ -50,10 +51,10 @@ class MainActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
 
         // Register broadcast receiver
-        finishReceiver.mainActivity = this
+        finishReceiver = FinishActivityReceiver(this)
         val filter = IntentFilter("com.voicenotes.motorcycle.FINISH_ACTIVITY")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(finishReceiver, filter, RECEIVER_NOT_EXPORTED)
+            registerReceiver(finishReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
         } else {
             registerReceiver(finishReceiver, filter)
         }
