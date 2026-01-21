@@ -67,7 +67,7 @@ The new flow matches the requirements exactly:
 11. **GPX creation**: Waypoint added to GPX file
 12. **File saved**: Bubble Line 1 shows "File saved."
 13. **Wait**: 2 second pause
-14. **App quits**: Overlay disappears and app closes
+14. **App quits**: Overlay disappears and app closes automatically
 
 ## User Experience
 

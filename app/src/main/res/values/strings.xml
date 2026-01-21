@@ -11,13 +11,11 @@
     <string name="location_failed">Unable to acquire GPS location</string>
     <string name="recording_failed">Recording error occurred</string>
     <string name="choose_directory">Set Recording Location</string>
-    <string name="choose_trigger_app">Select App to Launch</string>
     <string name="save_directory">Recording Storage Location</string>
-    <string name="trigger_app">App to Launch After Recording</string>
     <string name="not_set">Not Configured</string>
     <string name="open_settings">Open Configuration</string>
     <string name="grant_all_permissions">Grant Required Permissions</string>
-    <string name="configuration_info">Configure where recordings are saved and which app launches after recording completes</string>
+    <string name="configuration_info">Configure recording storage location and duration</string>
     <string name="reset_config_info">💡 Tip: To see this configuration screen again, delete the recording folder or revoke permissions</string>
     <string name="quit_app">Quit</string>
     <string name="recording_duration">Recording Duration (seconds)</string>
@@ -44,4 +42,6 @@
     <string name="permission_notification">Notification</string>
     <string name="permission_overlay">Overlay</string>
     <string name="permissions_description">Grant all required permissions for the app to function</string>
+    <string name="shortcut_settings_short">Settings</string>
+    <string name="shortcut_settings_long">Open Settings</string>
 </resources>

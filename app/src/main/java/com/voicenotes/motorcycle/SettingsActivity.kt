@@ -2,7 +2,6 @@ package com.voicenotes.motorcycle
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -24,11 +23,9 @@ import java.io.File
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var directoryPathText: TextView
-    private lateinit var triggerAppText: TextView
     private lateinit var durationValueText: TextView
     private lateinit var durationEditText: EditText
     private lateinit var chooseDirectoryButton: Button
-    private lateinit var chooseTriggerAppButton: Button
     private lateinit var setDurationButton: Button
     private lateinit var requestPermissionsButton: Button
     private lateinit var permissionStatusList: TextView
@@ -63,27 +60,18 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
 
         directoryPathText = findViewById(R.id.directoryPathText)
-        triggerAppText = findViewById(R.id.triggerAppText)
         durationValueText = findViewById(R.id.durationValueText)
         durationEditText = findViewById(R.id.durationEditText)
         chooseDirectoryButton = findViewById(R.id.chooseDirectoryButton)
-        chooseTriggerAppButton = findViewById(R.id.chooseTriggerAppButton)
         setDurationButton = findViewById(R.id.setDurationButton)
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
         permissionStatusList = findViewById(R.id.permissionStatusList)
         quitButton = findViewById(R.id.quitButton)
 
         loadCurrentSettings()
-        
-        // Auto-configure DMD2 if installed and no trigger app is set
-        autoConfigureDMD2IfAvailable()
 
         chooseDirectoryButton.setOnClickListener {
             openDirectoryPicker()
-        }
-
-        chooseTriggerAppButton.setOnClickListener {
-            showAppChooserDialog()
         }
 
         requestPermissionsButton.setOnClickListener {
@@ -98,51 +86,13 @@ class SettingsActivity : AppCompatActivity() {
             finishAffinity()
         }
     }
-    
-    private fun autoConfigureDMD2IfAvailable() {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val triggerApp = prefs.getString("triggerApp", null)
-        
-        // Only auto-configure if no trigger app is set
-        if (triggerApp.isNullOrEmpty()) {
-            val dmd2Package = "com.riser.dmd2"
-            if (isAppInstalled(dmd2Package)) {
-                try {
-                    val pm = packageManager
-                    val dmd2App = pm.getApplicationInfo(dmd2Package, PackageManager.GET_META_DATA)
-                    val dmd2Name = dmd2App.loadLabel(pm).toString()
-                    
-                    saveTriggerApp(dmd2Package, dmd2Name)
-                    Toast.makeText(
-                        this,
-                        "DMD2 detected and set as default trigger app",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } catch (e: PackageManager.NameNotFoundException) {
-                    // App was uninstalled between check and retrieval, ignore
-                }
-            }
-        }
-    }
-    
-    private fun isAppInstalled(packageName: String): Boolean {
-        return try {
-            packageManager.getPackageInfo(packageName, 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
 
     private fun loadCurrentSettings() {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         val saveDir = prefs.getString("saveDirectory", null)
-        val triggerApp = prefs.getString("triggerApp", null)
-        val triggerAppName = prefs.getString("triggerAppName", null)
         val recordingDuration = prefs.getInt("recordingDuration", 10)
 
         directoryPathText.text = saveDir ?: getString(R.string.not_set)
-        triggerAppText.text = triggerAppName ?: getString(R.string.not_set)
         durationValueText.text = "$recordingDuration seconds"
         durationEditText.setText(recordingDuration.toString())
         
@@ -323,55 +273,6 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    private fun showAppChooserDialog() {
-        try {
-            val installedApps = getInstalledApps()
-
-            val appNames = installedApps.map { it.name }.toTypedArray()
-            val appPackages = installedApps.map { it.packageName }.toTypedArray()
-
-            AlertDialog.Builder(this)
-                .setTitle("Select Trigger App")
-                .setItems(appNames) { _, which ->
-                    saveTriggerApp(appPackages[which], appNames[which])
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-
-        } catch (e: Exception) {
-            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun getInstalledApps(): List<AppInfo> {
-        val pm = packageManager
-        val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-
-        return apps
-            .filter { app ->
-                // Only show apps that can be launched
-                pm.getLaunchIntentForPackage(app.packageName) != null &&
-                        app.packageName != packageName // Exclude this app
-            }
-            .map { app ->
-                AppInfo(
-                    name = app.loadLabel(pm).toString(),
-                    packageName = app.packageName
-                )
-            }
-            .sortedBy { it.name }
-    }
-
-    private fun saveTriggerApp(packageName: String, appName: String) {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        prefs.edit()
-            .putString("triggerApp", packageName)
-            .putString("triggerAppName", appName)
-            .apply()
-        triggerAppText.text = appName
-        Toast.makeText(this, "Trigger app set to: $appName", Toast.LENGTH_SHORT).show()
-    }
-
     private fun saveDuration() {
         val durationStr = durationEditText.text.toString()
         
@@ -459,9 +360,4 @@ class SettingsActivity : AppCompatActivity() {
         super.onResume()
         loadCurrentSettings()
     }
-
-    data class AppInfo(
-        val name: String,
-        val packageName: String
-    )
 }

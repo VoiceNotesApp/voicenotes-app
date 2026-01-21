@@ -175,6 +175,7 @@ When you first launch the app, you need to:
 1. **Grant Permissions**:
    - Microphone permission (for recording)
    - Fine Location permission (for GPS coordinates)
+   - Overlay permission (for bubble display)
    - Storage permission (for saving recordings)
 
 2. **Configure Save Directory**:
@@ -182,19 +183,22 @@ When you first launch the app, you need to:
    - Choose a directory where recordings will be saved
    - Grant "All files access" if prompted (Android 11+)
 
-3. **Select Trigger App**:
-   - Choose an app to launch after recording completes
-   - This could be a navigation app, music player, etc.
+3. **Optionally Configure Recording Duration**:
+   - Set recording duration (1-99 seconds, default 10)
 
 ## App Usage
 
 After setup, the app will:
-1. Acquire your GPS location when started
-2. Play audio: "Location acquired, recording for 10 seconds"
-3. Record audio for 10 seconds
-4. Play audio: "Recording stopped"
-5. Save the recording with filename format: `latitude_longitude_timestamp.3gp`
-6. Launch the configured trigger app
+1. Show a small overlay bubble when started
+2. Acquire your GPS location
+3. Announce "Location acquired, recording started" via TTS
+4. Record audio for the configured duration (default 10 seconds)
+5. Display real-time transcription in the overlay bubble
+6. Announce "Recording stopped" via TTS
+7. Save the recording with filename format: `latitude,longitude_timestamp.m4a`
+8. Create a waypoint in the GPX file with your transcribed text
+9. Show "File saved." message
+10. Quit automatically after 2 seconds
 
 ## Troubleshooting
 

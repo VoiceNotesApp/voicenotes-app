@@ -10,8 +10,8 @@ This document provides a visual representation of the Settings screen with the n
 ├─────────────────────────────────────────────────┤
 │                                                 │
 │  Configuration                                  │
-│  Configure where recordings are saved and       │
-│  which app launches after recording completes   │
+│  Configure recording storage location and       │
+│  duration                                       │
 │                                                 │
 │  ┌───────────────────────────────────────────┐ │
 │  │ Recording Storage Location                │ │
@@ -22,15 +22,7 @@ This document provides a visual representation of the Settings screen with the n
 │  └───────────────────────────────────────────┘ │
 │                                                 │
 │  ┌───────────────────────────────────────────┐ │
-│  │ App to Launch After Recording             │ │
-│  │                                           │ │
-│  │ Google Maps                               │ │
-│  │                                           │ │
-│  │  [ Select App to Launch ]                 │ │
-│  └───────────────────────────────────────────┘ │
-│                                                 │
-│  ┌───────────────────────────────────────────┐ │
-│  │ Recording Duration (seconds)      ⭐ NEW  │ │
+│  │ Recording Duration (seconds)              │ │
 │  │                                           │ │
 │  │ 10 seconds                                │ │
 │  │                                           │ │
@@ -44,8 +36,8 @@ This document provides a visual representation of the Settings screen with the n
 │  ┌───────────────────────────────────────────┐ │
 │  │ Permissions                               │ │
 │  │                                           │ │
-│  │ Grant microphone, location, and           │ │
-│  │ notification permissions                  │ │
+│  │ Grant microphone, location, and overlay   │ │
+│  │ permissions                               │ │
 │  │                                           │ │
 │  │  [ Grant Required Permissions ]           │ │
 │  └───────────────────────────────────────────┘ │
