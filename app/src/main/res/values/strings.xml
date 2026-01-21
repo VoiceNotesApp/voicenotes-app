@@ -26,4 +26,5 @@
     <string name="duration_saved">Recording duration set to %d seconds</string>
     <string name="set_duration_button">Set Duration</string>
     <string name="initializing">Initializing...</string>
+    <string name="tts_not_available">Text-to-Speech not available</string>
 </resources>

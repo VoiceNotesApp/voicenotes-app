@@ -198,27 +198,23 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (status == TextToSpeech.SUCCESS) {
             textToSpeech?.language = Locale.US
             isTtsInitialized = true
-            
-            // NOW start the recording process
-            runOnUiThread {
-                if (isFirstRun()) {
-                    showSetupDialog()
-                } else {
-                    startRecordingProcess()
-                }
-            }
         } else {
             // TTS initialization failed - proceed without speech
             isTtsInitialized = false
-            Toast.makeText(this, "Text-to-Speech not available", Toast.LENGTH_SHORT).show()
-            
-            runOnUiThread {
-                if (isFirstRun()) {
-                    showSetupDialog()
-                } else {
-                    startRecordingProcess()
-                }
-            }
+            Toast.makeText(this, getString(R.string.tts_not_available), Toast.LENGTH_SHORT).show()
+        }
+        
+        // Start the recording process after TTS initialization (success or failure)
+        runOnUiThread {
+            proceedWithStartup()
+        }
+    }
+    
+    private fun proceedWithStartup() {
+        if (isFirstRun()) {
+            showSetupDialog()
+        } else {
+            startRecordingProcess()
         }
     }
 
