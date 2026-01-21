@@ -201,7 +201,6 @@ class SettingsActivity : AppCompatActivity() {
     private fun showDebugLog() {
         val logContent = DebugLogger.getLogContent(this)
         
-        val dialogView = layoutInflater.inflate(android.R.layout.simple_list_item_1, null)
         val textView = TextView(this).apply {
             text = logContent
             setPadding(32, 32, 32, 32)
@@ -234,23 +233,23 @@ class SettingsActivity : AppCompatActivity() {
                 folder.mkdirs()
             }
             
-            // Try to open with file manager
+            // Use file URI to open folder
+            val uri = Uri.fromFile(folder)
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(Uri.parse(saveDir), "resource/folder")
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.setDataAndType(uri, "vnd.android.document/directory")
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
             
-            if (intent.resolveActivityInfo(packageManager, 0) != null) {
+            try {
                 startActivity(intent)
-            } else {
-                // Fallback: try to open with document provider
-                val uri = Uri.parse("content://com.android.externalstorage.documents/document/primary:${folder.name}")
-                val intent2 = Intent(Intent.ACTION_VIEW)
-                intent2.setDataAndType(uri, "vnd.android.document/directory")
-                intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent2)
+            } catch (e: Exception) {
+                // Fallback: try generic file manager
+                val fallbackIntent = Intent(Intent.ACTION_VIEW)
+                fallbackIntent.setDataAndType(uri, "*/*")
+                fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(fallbackIntent)
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "Could not open folder: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Could not open folder. Please use your file manager to navigate to: $saveDir", Toast.LENGTH_LONG).show()
         }
     }
     

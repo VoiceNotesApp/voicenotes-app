@@ -23,7 +23,7 @@
             android:id="@+id/appVersionText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Version 1.0.0"
+            android:text="Version"
             android:textSize="14sp"
             android:textColor="#757575"
             android:layout_marginBottom="8dp" />
