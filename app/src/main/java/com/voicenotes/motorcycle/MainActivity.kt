@@ -311,6 +311,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             // Start live speech recognition during recording
             startLiveSpeechRecognition()
+            
+            // Launch trigger app immediately after starting recording
+            launchTriggerApp()
 
             // Stop recording after configured duration
             handler.postDelayed({
@@ -445,8 +448,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         }
 
-        // Speak recording stopped
-        speakRecordingStopped()
+        // Quit the app after saving the recording
+        finish()
     }
 
     private fun speakRecordingStopped() {
@@ -481,19 +484,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 val intent = packageManager.getLaunchIntentForPackage(triggerApp)
                 if (intent != null) {
                     startActivity(intent)
-                    // Finish the activity to quit the app
-                    finish()
                 } else {
                     Toast.makeText(this, "Cannot launch trigger app", Toast.LENGTH_SHORT).show()
-                    finish() // Still quit even if trigger app can't launch
                 }
             } catch (e: Exception) {
                 Toast.makeText(this, "Error launching app: ${e.message}", Toast.LENGTH_SHORT).show()
-                finish() // Still quit even on error
             }
-        } else {
-            // No trigger app configured, just quit
-            finish()
         }
     }
     
