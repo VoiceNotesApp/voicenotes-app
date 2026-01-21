@@ -169,9 +169,22 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun saveDirectoryPath(path: String) {
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        prefs.edit().putString("saveDirectory", path).apply()
-        directoryPathText.text = path
+        try {
+            // Create the directory if it doesn't exist
+            val directory = File(path)
+            if (!directory.exists()) {
+                val created = directory.mkdirs()
+                if (!created) {
+                    Toast.makeText(this, "Warning: Could not create directory", Toast.LENGTH_SHORT).show()
+                }
+            }
+            
+            val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+            prefs.edit().putString("saveDirectory", path).apply()
+            directoryPathText.text = path
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error creating directory: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun showAppChooserDialog() {
