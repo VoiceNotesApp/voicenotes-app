@@ -18,7 +18,6 @@ import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.view.View
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -38,7 +37,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var statusText: TextView
     private lateinit var infoText: TextView
-    private lateinit var settingsButton: Button
     private lateinit var progressBar: ProgressBar
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -70,17 +68,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         statusText = findViewById(R.id.statusText)
         infoText = findViewById(R.id.infoText)
-        settingsButton = findViewById(R.id.settingsButton)
         progressBar = findViewById(R.id.progressBar)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         textToSpeech = TextToSpeech(this, this)
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
-
-        settingsButton.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-        }
 
         // Check if setup is needed (folder missing or permissions missing)
         if (isFirstRun()) {
