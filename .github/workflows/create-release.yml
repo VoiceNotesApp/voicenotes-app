@@ -4,9 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version tag (e.g., v1.0.0)'
-        required: true
+        description: 'Version tag (e.g., v1.0.0 or 1.0.0). Leave empty to auto-increment patch version.'
+        required: false
         type: string
+        default: ''
 
 jobs:
   create-release:
@@ -23,9 +24,47 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for changelog generation
 
+      - name: Determine version
+        id: determine_version
+        run: |
+          INPUT_VERSION="${{ github.event.inputs.version }}"
+          
+          # If input is empty, auto-increment from last tag
+          if [ -z "$INPUT_VERSION" ]; then
+            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            echo "Last tag: $LAST_TAG"
+            
+            # Extract version numbers (remove 'v' prefix if present)
+            VERSION_NUM="${LAST_TAG#v}"
+            
+            # Split into major.minor.patch
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION_NUM"
+            
+            # Increment patch version
+            PATCH=$((PATCH + 1))
+            
+            # Construct new version with 'v' prefix
+            VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+            echo "Auto-incremented version: $VERSION"
+          else
+            # If input doesn't start with 'v', add it
+            if [[ ! "$INPUT_VERSION" =~ ^v ]]; then
+              VERSION="v${INPUT_VERSION}"
+              echo "Added 'v' prefix: $VERSION"
+            else
+              VERSION="$INPUT_VERSION"
+              echo "Using provided version: $VERSION"
+            fi
+          fi
+          
+          # Export version for use in subsequent steps
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Final version: $VERSION"
+
       - name: Validate version format
         run: |
-          VERSION="${{ github.event.inputs.version }}"
+          VERSION="${{ env.VERSION }}"
           if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Error: Version must be in format v1.0.0 (with 'v' prefix)"
             exit 1
@@ -34,7 +73,7 @@ jobs:
 
       - name: Check if tag already exists
         run: |
-          VERSION="${{ github.event.inputs.version }}"
+          VERSION="${{ env.VERSION }}"
           if git rev-parse "$VERSION" >/dev/null 2>&1; then
             echo "Error: Tag $VERSION already exists!"
             exit 1
@@ -48,7 +87,7 @@ jobs:
 
       - name: Create and push tag
         run: |
-          VERSION="${{ github.event.inputs.version }}"
+          VERSION="${{ env.VERSION }}"
           git tag -a "$VERSION" -m "Release $VERSION"
           git push origin "$VERSION"
           echo "Created and pushed tag: $VERSION"
@@ -56,7 +95,7 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          VERSION="${{ github.event.inputs.version }}"
+          VERSION="${{ env.VERSION }}"
 
           # Get the previous tag (if any)
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
@@ -172,7 +211,7 @@ jobs:
 
       - name: Rename APKs
         run: |
-          VERSION="${{ github.event.inputs.version }}"
+          VERSION="${{ env.VERSION }}"
           VERSION_NUMBER="${VERSION#v}"  # Remove 'v' prefix for filename
 
           echo "Version: $VERSION"
@@ -197,8 +236,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.event.inputs.version }}
-          name: Motorcycle Voice Notes ${{ github.event.inputs.version }}
+          tag_name: ${{ env.VERSION }}
+          name: Motorcycle Voice Notes ${{ env.VERSION }}
           body_path: changelog.md
           files: |
             ${{ env.DEBUG_APK_FILE }}
@@ -209,7 +248,7 @@ jobs:
 
       - name: Build Summary
         run: |
-          VERSION="${{ github.event.inputs.version }}"
+          VERSION="${{ env.VERSION }}"
           echo "## 🎉 Release Created Successfully!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Version**: $VERSION" >> $GITHUB_STEP_SUMMARY
