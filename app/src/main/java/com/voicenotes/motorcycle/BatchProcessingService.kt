@@ -31,8 +31,17 @@ class BatchProcessingService : LifecycleService() {
         val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         val saveDir = prefs.getString("saveDirectory", null)
         
+        DebugLogger.logInfo(
+            service = "BatchProcessingService",
+            message = "Starting batch processing"
+        )
+        
         if (saveDir.isNullOrEmpty()) {
             Log.e("BatchProcessing", "Save directory not configured")
+            DebugLogger.logError(
+                service = "BatchProcessingService",
+                error = "Save directory not configured"
+            )
             sendBroadcast(Intent("com.voicenotes.motorcycle.BATCH_COMPLETE"))
             stopSelf()
             return
@@ -42,42 +51,110 @@ class BatchProcessingService : LifecycleService() {
         val m4aFiles = directory.listFiles { file -> file.extension == "m4a" } ?: emptyArray()
         
         Log.d("BatchProcessing", "Found ${m4aFiles.size} files to process")
+        DebugLogger.logInfo(
+            service = "BatchProcessingService",
+            message = "Found ${m4aFiles.size} files to process in $saveDir"
+        )
         
         val transcriptionService = TranscriptionService(this)
         val osmService = OsmNotesService()
         val oauthManager = OsmOAuthManager(this)
         val addOsmNote = prefs.getBoolean("addOsmNote", false)
         
+        val totalFiles = m4aFiles.size
+        
         for ((index, file) in m4aFiles.withIndex()) {
-            Log.d("BatchProcessing", "Processing file ${index + 1}/${m4aFiles.size}: ${file.name}")
+            val currentFile = index + 1
+            Log.d("BatchProcessing", "Processing file $currentFile/$totalFiles: ${file.name}")
+            DebugLogger.logInfo(
+                service = "BatchProcessingService",
+                message = "Processing file $currentFile/$totalFiles: ${file.name}"
+            )
             
-            // Broadcast progress
+            // Broadcast progress with detailed status
             val progressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
             progressIntent.putExtra("filename", file.name)
+            progressIntent.putExtra("status", "transcribing")
+            progressIntent.putExtra("current", currentFile)
+            progressIntent.putExtra("total", totalFiles)
             sendBroadcast(progressIntent)
             
             // Transcribe file
             val result = transcriptionService.transcribeAudioFile(file.absolutePath)
             
             result.onSuccess { transcribedText ->
+                DebugLogger.logInfo(
+                    service = "BatchProcessingService",
+                    message = "Transcription successful for ${file.name}: $transcribedText"
+                )
+                
                 val coords = extractCoordinatesFromFilename(file.name)
                 val finalText = if (transcribedText.isBlank()) "$coords (no text)" else transcribedText
                 
+                // Update progress status
+                val gpxProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
+                gpxProgressIntent.putExtra("filename", file.name)
+                gpxProgressIntent.putExtra("status", "creating GPX")
+                gpxProgressIntent.putExtra("current", currentFile)
+                gpxProgressIntent.putExtra("total", totalFiles)
+                sendBroadcast(gpxProgressIntent)
+                
                 // Create/update GPX waypoint
+                DebugLogger.logInfo(
+                    service = "BatchProcessingService",
+                    message = "Creating GPX waypoint for ${file.name} at $coords"
+                )
                 createGpxWaypointFromFile(file, finalText, coords)
                 
                 // Create OSM note if enabled
                 if (addOsmNote && oauthManager.isAuthenticated()) {
+                    val osmProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
+                    osmProgressIntent.putExtra("filename", file.name)
+                    osmProgressIntent.putExtra("status", "creating OSM note")
+                    osmProgressIntent.putExtra("current", currentFile)
+                    osmProgressIntent.putExtra("total", totalFiles)
+                    sendBroadcast(osmProgressIntent)
+                    
                     val (lat, lng) = parseCoordinates(coords)
                     val accessToken = oauthManager.getAccessToken()!!
+                    DebugLogger.logInfo(
+                        service = "BatchProcessingService",
+                        message = "Creating OSM note for ${file.name} at $lat,$lng"
+                    )
                     osmService.createNote(lat, lng, finalText, accessToken)
                 }
+                
+                // Send completion status for this file
+                val doneProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
+                doneProgressIntent.putExtra("filename", file.name)
+                doneProgressIntent.putExtra("status", "complete")
+                doneProgressIntent.putExtra("current", currentFile)
+                doneProgressIntent.putExtra("total", totalFiles)
+                sendBroadcast(doneProgressIntent)
+                
             }.onFailure { error ->
                 Log.e("BatchProcessing", "Failed to process ${file.name}", error)
+                DebugLogger.logError(
+                    service = "BatchProcessingService",
+                    error = "Failed to process ${file.name}",
+                    exception = error
+                )
+                
+                // Send error status
+                val errorProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
+                errorProgressIntent.putExtra("filename", file.name)
+                errorProgressIntent.putExtra("status", "error")
+                errorProgressIntent.putExtra("current", currentFile)
+                errorProgressIntent.putExtra("total", totalFiles)
+                sendBroadcast(errorProgressIntent)
             }
         }
         
         // Broadcast completion
+        DebugLogger.logInfo(
+            service = "BatchProcessingService",
+            message = "Batch processing complete. Processed $totalFiles files."
+        )
         sendBroadcast(Intent("com.voicenotes.motorcycle.BATCH_COMPLETE"))
         stopSelf()
     }

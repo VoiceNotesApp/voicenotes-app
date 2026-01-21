@@ -43,6 +43,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var buttonOsmAccount: Button
     private lateinit var textOsmAccountStatus: TextView
     private lateinit var buttonRunOnlineProcessing: Button
+    private lateinit var textProcessingProgress: TextView
     
     private lateinit var oauthManager: OsmOAuthManager
     private lateinit var oauthLauncher: ActivityResultLauncher<Intent>
@@ -88,6 +89,7 @@ class SettingsActivity : AppCompatActivity() {
         buttonOsmAccount = findViewById(R.id.buttonOsmAccount)
         textOsmAccountStatus = findViewById(R.id.textOsmAccountStatus)
         buttonRunOnlineProcessing = findViewById(R.id.buttonRunOnlineProcessing)
+        textProcessingProgress = findViewById(R.id.textProcessingProgress)
         
         oauthManager = OsmOAuthManager(this)
         
@@ -494,12 +496,21 @@ class SettingsActivity : AppCompatActivity() {
             when (intent?.action) {
                 "com.voicenotes.motorcycle.BATCH_PROGRESS" -> {
                     val filename = intent.getStringExtra("filename")
+                    val status = intent.getStringExtra("status") ?: "processing"
+                    val current = intent.getIntExtra("current", 0)
+                    val total = intent.getIntExtra("total", 0)
+                    
                     // Update button text to show current file being processed
-                    buttonRunOnlineProcessing.text = "Processing: ${filename ?: "..."}"
+                    buttonRunOnlineProcessing.text = "Processing ($current/$total)"
+                    
+                    // Update progress text with detailed status
+                    textProcessingProgress.visibility = View.VISIBLE
+                    textProcessingProgress.text = "[$status] $filename"
                 }
                 "com.voicenotes.motorcycle.BATCH_COMPLETE" -> {
                     buttonRunOnlineProcessing.isEnabled = true
                     buttonRunOnlineProcessing.text = "Run Online Processing"
+                    textProcessingProgress.visibility = View.GONE
                     Toast.makeText(this@SettingsActivity, "Processing complete", Toast.LENGTH_SHORT).show()
                 }
             }

@@ -308,6 +308,16 @@
                     android:layout_height="wrap_content"
                     android:text="Run Online Processing"
                     android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/textProcessingProgress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="12sp"
+                    android:textColor="#616161"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
