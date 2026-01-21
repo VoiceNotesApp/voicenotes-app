@@ -56,6 +56,11 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     private var recordingDuration = 10
     private var remainingSeconds = 0
     private var countdownRunnable: Runnable? = null
+    private var listeningRemainingSeconds = 0
+    private var listeningCountdownRunnable: Runnable? = null
+    
+    // Delay to ensure speech recognizer is fully ready before starting recording
+    private val RECORDING_START_DELAY_MS = 100L
 
     override fun onCreate() {
         super.onCreate()
@@ -158,11 +163,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             updateBubbleLine1(getString(R.string.location_acquired_coords, coords))
         }
         
-        // Speak "Location acquired" and then "Recording started"
+        // Speak "Location acquired" only, "Recording started" will be spoken later
         speakText(getString(R.string.location_acquired)) {
-            speakText(getString(R.string.recording_started)) {
-                startSpeechRecognitionBeforeRecording()
-            }
+            startSpeechRecognitionBeforeRecording()
         }
     }
 
@@ -263,7 +266,7 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 updateBubbleLine2("🎤 Recording...")
             }
             
-            // Start countdown
+            // Start countdown immediately
             startCountdown()
 
         } catch (e: Exception) {
@@ -280,19 +283,21 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) {
-                Log.d("OverlayService", "Bluetooth permission not granted, using device microphone")
-                return MediaRecorder.AudioSource.MIC
+                Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_RECOGNITION source")
+                // Use VOICE_RECOGNITION to work alongside speech recognizer
+                return MediaRecorder.AudioSource.VOICE_RECOGNITION
             }
         }
         
         return if (audioManager.isBluetoothScoAvailableOffCall) {
-            Log.d("OverlayService", "Bluetooth SCO available, starting Bluetooth SCO")
+            Log.d("OverlayService", "Bluetooth SCO available, starting Bluetooth SCO with VOICE_RECOGNITION")
             audioManager.startBluetoothSco()
-            // MIC will route to Bluetooth if SCO is active
-            MediaRecorder.AudioSource.MIC
+            // Use VOICE_RECOGNITION to work alongside speech recognizer
+            MediaRecorder.AudioSource.VOICE_RECOGNITION
         } else {
-            Log.d("OverlayService", "Bluetooth SCO not available, using device microphone")
-            MediaRecorder.AudioSource.MIC
+            Log.d("OverlayService", "Bluetooth SCO not available, using VOICE_RECOGNITION source")
+            // Use VOICE_RECOGNITION to work alongside speech recognizer
+            MediaRecorder.AudioSource.VOICE_RECOGNITION
         }
     }
 
@@ -313,6 +318,28 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         handler.post(countdownRunnable!!)
     }
 
+    private fun startListeningCountdown() {
+        listeningRemainingSeconds = recordingDuration
+        
+        listeningCountdownRunnable = object : Runnable {
+            override fun run() {
+                if (listeningRemainingSeconds > 0) {
+                    updateBubbleLine1("Listening... $listeningRemainingSeconds")
+                    listeningRemainingSeconds--
+                    handler.postDelayed(this, 1000)
+                } else {
+                    // Countdown finished, but speech recognition should handle completion
+                }
+            }
+        }
+        handler.post(listeningCountdownRunnable!!)
+    }
+
+    private fun stopListeningCountdown() {
+        listeningCountdownRunnable?.let { handler.removeCallbacks(it) }
+        listeningCountdownRunnable = null
+    }
+
     private fun startSpeechRecognitionBeforeRecording() {
         try {
             // Load recording duration from preferences
@@ -322,6 +349,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             transcribedText = null
             updateBubbleLine1("Listening...")
             updateBubbleLine2("🎤 Speak now...")
+            
+            // Start the listening countdown
+            startListeningCountdown()
             
             val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -335,6 +365,13 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             speechRecognizer?.setRecognitionListener(object : RecognitionListener {
                 override fun onReadyForSpeech(params: Bundle?) {
                     updateBubbleLine2("🎤 Listening...")
+                    // Start recording immediately when speech recognizer is ready
+                    // Brief delay ensures speech recognizer is fully initialized
+                    handler.postDelayed({
+                        speakText(getString(R.string.recording_started)) {
+                            startRecording()
+                        }
+                    }, RECORDING_START_DELAY_MS)
                 }
                 override fun onBeginningOfSpeech() {
                     updateBubbleLine2("🎤 Recognizing...")
@@ -342,32 +379,28 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 override fun onRmsChanged(rmsdB: Float) {}
                 override fun onBufferReceived(buffer: ByteArray?) {}
                 override fun onEndOfSpeech() {
-                    // Speech ended, now start recording
+                    // Speech ended, but recording continues
                 }
                 override fun onError(error: Int) {
-                    // If transcription fails, continue with recording anyway
-                    updateBubbleLine2("Starting recording...")
-                    handler.postDelayed({
-                        speakText(getString(R.string.recording_started)) {
-                            startRecording()
-                        }
-                    }, 500)
+                    // Stop the listening countdown
+                    stopListeningCountdown()
+                    // If transcription fails, still keep the recording that's in progress
+                    updateBubbleLine2("Transcription error")
+                    Log.d("OverlayService", "Speech recognition error: $error")
                 }
                 
                 override fun onResults(results: Bundle?) {
+                    // Stop the listening countdown
+                    stopListeningCountdown()
                     val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     if (!matches.isNullOrEmpty()) {
                         transcribedText = matches[0]
                         updateBubbleLine2("\"${transcribedText}\"")
+                        Log.d("OverlayService", "Transcribed: $transcribedText")
                     } else {
                         updateBubbleLine2("")
                     }
-                    // Now start the actual recording
-                    handler.postDelayed({
-                        speakText(getString(R.string.recording_started)) {
-                            startRecording()
-                        }
-                    }, 500)
+                    // Recording continues after transcription completes
                 }
                 
                 override fun onPartialResults(partialResults: Bundle?) {
@@ -384,8 +417,10 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             speechRecognizer?.startListening(recognizerIntent)
         } catch (e: Exception) {
             e.printStackTrace()
+            // Stop the listening countdown on error
+            stopListeningCountdown()
             updateBubbleLine2("Speech recognition failed")
-            // Continue with recording even if speech recognition fails
+            // Start recording even if speech recognition fails
             handler.postDelayed({
                 speakText(getString(R.string.recording_started)) {
                     startRecording()
@@ -550,6 +585,10 @@ ${createWaypointXml(location, name, desc)}
     }
 
     override fun onDestroy() {
+        // Clean up countdowns
+        countdownRunnable?.let { handler.removeCallbacks(it) }
+        listeningCountdownRunnable?.let { handler.removeCallbacks(it) }
+        
         textToSpeech?.shutdown()
         mediaRecorder?.release()
         speechRecognizer?.destroy()
