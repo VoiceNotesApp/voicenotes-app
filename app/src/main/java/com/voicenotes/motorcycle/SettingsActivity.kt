@@ -26,6 +26,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var chooseDirectoryButton: Button
     private lateinit var chooseTriggerAppButton: Button
     private lateinit var requestPermissionsButton: Button
+    private lateinit var quitButton: Button
 
     private val PERMISSIONS_REQUEST_CODE = 200
 
@@ -62,6 +63,7 @@ class SettingsActivity : AppCompatActivity() {
         chooseDirectoryButton = findViewById(R.id.chooseDirectoryButton)
         chooseTriggerAppButton = findViewById(R.id.chooseTriggerAppButton)
         requestPermissionsButton = findViewById(R.id.requestPermissionsButton)
+        quitButton = findViewById(R.id.quitButton)
 
         loadCurrentSettings()
 
@@ -75,6 +77,10 @@ class SettingsActivity : AppCompatActivity() {
 
         requestPermissionsButton.setOnClickListener {
             requestAllPermissions()
+        }
+
+        quitButton.setOnClickListener {
+            finishAffinity()
         }
     }
 

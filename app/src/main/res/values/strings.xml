@@ -18,4 +18,5 @@
     <string name="open_settings">Open Configuration</string>
     <string name="grant_all_permissions">Grant Required Permissions</string>
     <string name="configuration_info">Configure where recordings are saved and which app launches after recording completes</string>
+    <string name="quit_app">Quit</string>
 </resources>
