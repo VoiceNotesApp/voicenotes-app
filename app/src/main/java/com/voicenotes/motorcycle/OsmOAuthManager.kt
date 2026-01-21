@@ -12,7 +12,7 @@ class OsmOAuthManager(private val context: Context) {
     companion object {
         private const val OSM_AUTH_ENDPOINT = "https://www.openstreetmap.org/oauth2/authorize"
         private const val OSM_TOKEN_ENDPOINT = "https://www.openstreetmap.org/oauth2/token"
-        private const val CLIENT_ID = "your_osm_client_id" // User configures this
+        private val CLIENT_ID = BuildConfig.OSM_CLIENT_ID
         private const val REDIRECT_URI = "app.voicenotes.motorcycle://oauth"
         
         private const val PREF_ACCESS_TOKEN = "osm_access_token"
@@ -23,6 +23,9 @@ class OsmOAuthManager(private val context: Context) {
     private val authService = AuthorizationService(context)
     
     fun startOAuthFlow(launcher: ActivityResultLauncher<Intent>) {
+        if (CLIENT_ID.isBlank() || CLIENT_ID == "your_osm_client_id") {
+            throw IllegalStateException("OSM Client ID not configured")
+        }
         val serviceConfig = AuthorizationServiceConfiguration(
             Uri.parse(OSM_AUTH_ENDPOINT),
             Uri.parse(OSM_TOKEN_ENDPOINT)

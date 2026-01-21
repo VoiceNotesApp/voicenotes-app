@@ -145,7 +145,12 @@ class SettingsActivity : AppCompatActivity() {
                 removeOsmAccount()
             } else {
                 // Bind account
-                oauthManager.startOAuthFlow(oauthLauncher)
+                try {
+                    oauthManager.startOAuthFlow(oauthLauncher)
+                } catch (e: IllegalStateException) {
+                    Toast.makeText(this, "OSM Client ID not configured", Toast.LENGTH_LONG).show()
+                    android.util.Log.e("SettingsActivity", "OSM Client ID not configured", e)
+                }
             }
         }
         
