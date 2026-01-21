@@ -68,6 +68,17 @@ class MainActivity : AppCompatActivity() {
             checkOverlayPermission()
         }
     }
+    
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        
+        // Check if recording is currently active
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        if (prefs.getBoolean("isCurrentlyRecording", false)) {
+            extendRecording()
+        }
+    }
 
     private fun isFirstRun(): Boolean {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
@@ -136,12 +147,47 @@ class MainActivity : AppCompatActivity() {
             requestPermissions()
             return
         }
+        
+        // Check if already recording - if so, extend instead
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        if (prefs.getBoolean("isCurrentlyRecording", false)) {
+            extendRecording()
+            return
+        }
 
         // Start overlay service
         val serviceIntent = Intent(this, OverlayService::class.java)
         startService(serviceIntent)
         
         // Minimize this activity to background
+        moveTaskToBack(true)
+    }
+    
+    private fun extendRecording() {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val startTime = prefs.getLong("recordingStartTime", 0)
+        val initialDuration = prefs.getInt("initialRecordingDuration", 10)
+        val configuredDuration = prefs.getInt("recordingDuration", 10)
+        
+        // Calculate elapsed time in seconds
+        val elapsed = (System.currentTimeMillis() - startTime) / 1000
+        val remaining = maxOf(0, initialDuration - elapsed.toInt())
+        
+        // Calculate new extended duration for tracking
+        val extendedDuration = remaining + configuredDuration
+        
+        // Update the initial duration for this recording session (keep the original start time)
+        prefs.edit().apply {
+            putInt("initialRecordingDuration", extendedDuration)
+            apply()
+        }
+        
+        // Send intent to OverlayService with configured duration to add
+        val serviceIntent = Intent(this, OverlayService::class.java)
+        serviceIntent.putExtra("extendedDuration", configuredDuration)
+        startService(serviceIntent)
+        
+        // Move to background again
         moveTaskToBack(true)
     }
 

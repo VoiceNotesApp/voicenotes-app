@@ -109,8 +109,15 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Wait for TTS initialization before starting
-        // onInit will be called when TTS is ready
+        val extendedDuration = intent?.getIntExtra("extendedDuration", -1) ?: -1
+        
+        if (extendedDuration > 0) {
+            // This is an extension request - use the duration from the intent
+            extendRecordingDuration(extendedDuration)
+            return START_NOT_STICKY
+        }
+        
+        // Normal startup flow - wait for TTS initialization
         return START_NOT_STICKY
     }
 
@@ -203,6 +210,14 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
             val saveDir = prefs.getString("saveDirectory", null)
             recordingDuration = prefs.getInt("recordingDuration", 10)
+            
+            // Save recording state to SharedPreferences
+            prefs.edit().apply {
+                putBoolean("isCurrentlyRecording", true)
+                putLong("recordingStartTime", System.currentTimeMillis())
+                putInt("initialRecordingDuration", recordingDuration)
+                apply()
+            }
 
             if (saveDir.isNullOrEmpty()) {
                 updateBubbleLine1("Save directory not configured")
@@ -316,6 +331,20 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
             }
         }
         handler.post(countdownRunnable!!)
+    }
+    
+    private fun extendRecordingDuration(additionalSeconds: Int) {
+        // Stop current countdown
+        countdownRunnable?.let { handler.removeCallbacks(it) }
+        
+        // Add additional seconds to remaining time
+        remainingSeconds += additionalSeconds
+        
+        // Restart countdown with new duration
+        startCountdown()
+        
+        // Update bubble to show extension
+        updateBubbleLine1("Recording extended! ${remainingSeconds}s remaining")
     }
 
     private fun startListeningCountdown() {
@@ -566,6 +595,15 @@ ${createWaypointXml(location, name, desc)}
     }
 
     private fun stopSelfAndFinish() {
+        // Clear recording state from SharedPreferences
+        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        prefs.edit().apply {
+            remove("isCurrentlyRecording")
+            remove("recordingStartTime")
+            remove("initialRecordingDuration")
+            apply()
+        }
+        
         // Remove overlay
         overlayView?.let {
             windowManager?.removeView(it)
