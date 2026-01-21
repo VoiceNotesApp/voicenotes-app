@@ -206,7 +206,7 @@
 - Speech-to-text transcription
 - File saving with coordinates
 - GPX waypoint creation
-- Automatic app launching
+- Overlay bubble display
 - Bluetooth microphone preference
 
 **Benefits**:
@@ -222,13 +222,12 @@
 
 **Setup Requirements**:
 1. Save directory configured
-2. Trigger app selected
-3. Required permissions granted
+2. Required permissions granted
 
 **Behavior**:
 - First launch: Shows setup dialog
 - Setup incomplete: Returns to setup on resume
-- Setup complete: Shows tutorial once, then records
+- Setup complete: Records immediately
 - Subsequent launches: Records immediately
 
 ### Minimal UI Interaction
@@ -245,42 +244,24 @@
 
 ## Integration Features
 
-### Trigger App Launching
-
-**Description**: Automatically launches your chosen app after recording.
-
-**How It Works**:
-- Configured in settings
-- Launches after TTS completion
-- App selection from installed apps
-- Can be any launchable app
-
-**Common Use Cases**:
-- Navigation apps (Google Maps, Waze)
-- Music apps (Spotify, YouTube Music)
-- Podcast apps
-- Communication apps
-
-**Benefits**:
-- Quick return to what you were doing
-- Seamless workflow integration
-- Customizable to your needs
-
 ### Background Operation
 
 **Description**: Recording continues while other apps are in foreground.
 
 **How It Works**:
-- Recording doesn't stop if trigger app launches
+- App starts and shows small overlay bubble
+- Recording happens in background
 - Continues recording for configured duration
 - Saves file in background
-- Creates GPX waypoint even if backgrounded
+- Creates GPX waypoint automatically
+- Quits cleanly when finished
 
 **Benefits**:
 - No interruption to workflow
 - Navigation continues uninterrupted
 - Music keeps playing
 - Multi-tasking friendly
+- Minimal screen space usage
 
 ## Technical Features
 

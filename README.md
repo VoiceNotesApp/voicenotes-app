@@ -6,22 +6,24 @@ A lightweight Android app for motorcyclists to quickly record voice notes with G
 
 Motorcycle Voice Notes is designed for hands-free operation while riding. When you launch the app:
 
-1. **Speaks your GPS coordinates** via text-to-speech
-2. **Captures your voice message** through speech recognition
-3. **Records audio** (configurable 1-99 seconds, default 10 seconds)
-4. **Saves the recording** with GPS coordinates in the filename
-5. **Creates a GPX waypoint** with your transcribed message
-6. **Launches your preferred app** (navigation, music, etc.)
+1. **Shows a small overlay bubble** at the top of the screen
+2. **Speaks your GPS coordinates** via text-to-speech
+3. **Captures your voice message** through speech recognition
+4. **Records audio** (configurable 1-99 seconds, default 10 seconds)
+5. **Saves the recording** with GPS coordinates in the filename
+6. **Creates a GPX waypoint** with your transcribed message
+7. **Quits automatically** so you stay in your current app
 
 ## Key Features
 
 - **GPS Tagging**: Every recording is named with precise coordinates and timestamp
 - **Speech-to-Text**: Your spoken words become waypoint descriptions in the GPX file
 - **Bluetooth Support**: Automatically uses your Bluetooth headset/helmet system
-- **Customizable**: Set recording duration, storage location, and trigger app
+- **Customizable**: Set recording duration and storage location
 - **GPX Export**: All locations saved to `acquired_locations.gpx` for easy import into mapping apps
 - **Minimal Interaction**: Launch once, everything happens automatically
 - **Overlay Bubble**: Visual feedback during recording with transcribed text display
+- **Background Operation**: Works while other apps are in the foreground
 
 ## Perfect For
 
@@ -40,12 +42,11 @@ Motorcycle Voice Notes is designed for hands-free operation while riding. When y
 3. Launch the app and complete initial setup:
    - Grant permissions (microphone, location, Bluetooth, overlay)
    - Choose recording storage location
-   - Select trigger app (auto-detects DMD2 if installed)
    - Optionally set recording duration (default: 10 seconds)
 
 ### Usage
 
-Just launch the app whenever you want to record a note. The app handles everything automatically and returns you to your selected app.
+Just launch the app whenever you want to record a note. A small overlay bubble will appear showing recording status, and the app will quit automatically when done, leaving you in whatever app you were using.
 
 ## File Format
 
