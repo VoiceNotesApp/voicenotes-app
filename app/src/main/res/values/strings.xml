@@ -44,4 +44,8 @@
     <string name="osm_status_connected">Connected as: %s</string>
     <string name="osm_status_not_connected">Not connected</string>
     <string name="osm_info_text">When enabled, a note will be created at the recording location in your OpenStreetMap account with the transcribed text.</string>
+    <string name="osm_disconnect_title">Disconnect from OpenStreetMap</string>
+    <string name="osm_disconnect_message">Are you sure you want to disconnect? You\'ll need to authenticate again to create notes.</string>
+    <string name="osm_disconnect_confirm">Disconnect</string>
+    <string name="osm_disconnected">Disconnected from OpenStreetMap</string>
 </resources>

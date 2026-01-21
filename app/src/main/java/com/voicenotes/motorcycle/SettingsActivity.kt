@@ -517,12 +517,12 @@ class SettingsActivity : AppCompatActivity() {
     
     private fun disconnectOsm() {
         AlertDialog.Builder(this)
-            .setTitle("Disconnect from OpenStreetMap")
-            .setMessage("Are you sure you want to disconnect? You'll need to authenticate again to create notes.")
-            .setPositiveButton("Disconnect") { _, _ ->
+            .setTitle(R.string.osm_disconnect_title)
+            .setMessage(R.string.osm_disconnect_message)
+            .setPositiveButton(R.string.osm_disconnect_confirm) { _, _ ->
                 osmTokenManager.clearAuth()
                 updateOsmUi()
-                Toast.makeText(this, "Disconnected from OpenStreetMap", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.osm_disconnected, Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel", null)
             .show()

@@ -96,16 +96,64 @@ class OsmAuthActivity : AppCompatActivity() {
                     
                     Log.d(TAG, "Authentication successful")
                     
-                    // Optionally fetch user details here
-                    // For now, we'll just mark as authenticated
-                    
-                    finishWithSuccess()
+                    // Fetch user details to get username
+                    fetchUserDetails(authState.accessToken)
                 } else {
                     finishWithError("No token received")
                 }
             }
         } else {
             finishWithError("No authorization response")
+        }
+    }
+    
+    private fun fetchUserDetails(accessToken: String?) {
+        if (accessToken == null) {
+            // No username, but still successful auth
+            finishWithSuccess()
+            return
+        }
+        
+        try {
+            val userService = com.voicenotes.motorcycle.osm.OsmUserService.create()
+            val call = userService.getUserDetails("Bearer $accessToken")
+            
+            call.enqueue(object : retrofit2.Callback<String> {
+                override fun onResponse(call: retrofit2.Call<String>, response: retrofit2.Response<String>) {
+                    if (response.isSuccessful) {
+                        val xmlBody = response.body()
+                        if (xmlBody != null) {
+                            // Parse username from XML
+                            val username = extractUsername(xmlBody)
+                            if (username != null) {
+                                tokenManager.saveUsername(username)
+                                Log.d(TAG, "Fetched username: $username")
+                            }
+                        }
+                    }
+                    finishWithSuccess()
+                }
+                
+                override fun onFailure(call: retrofit2.Call<String>, t: Throwable) {
+                    Log.e(TAG, "Failed to fetch user details: ${t.message}")
+                    // Still successful auth, just no username
+                    finishWithSuccess()
+                }
+            })
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching user details: ${e.message}")
+            finishWithSuccess()
+        }
+    }
+    
+    private fun extractUsername(xml: String): String? {
+        // Simple XML parsing to extract username from <user display_name="...">
+        return try {
+            val displayNamePattern = """display_name="([^"]+)"""".toRegex()
+            val match = displayNamePattern.find(xml)
+            match?.groupValues?.get(1)
+        } catch (e: Exception) {
+            null
         }
     }
     
