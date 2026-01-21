@@ -7,7 +7,16 @@ android {
     namespace 'com.voicenotes.motorcycle'
     compileSdk 34
 
-
+    defaultConfig {
+        applicationId "com.voicenotes.motorcycle"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+        
+        // Read API key from gradle.properties
+        buildConfigField "String", "GOOGLE_CLOUD_API_KEY", "\"${project.findProperty('GOOGLE_CLOUD_API_KEY') ?: ''}\""
+    }
 
     signingConfigs {
         release {
@@ -49,17 +58,6 @@ android {
     buildFeatures {
         viewBinding true
         buildConfig true
-    }
-
-    defaultConfig {
-        applicationId "com.voicenotes.motorcycle"
-        minSdk 26
-        targetSdk 34
-        versionCode 1
-        versionName "1.0.0"
-        
-        // Read API key from gradle.properties
-        buildConfigField "String", "GOOGLE_CLOUD_API_KEY", "\"${project.findProperty('GOOGLE_CLOUD_API_KEY') ?: ''}\""
     }
 }
 
