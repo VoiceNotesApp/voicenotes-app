@@ -171,21 +171,20 @@ class MainActivity : AppCompatActivity() {
         
         // Calculate elapsed time in seconds
         val elapsed = (System.currentTimeMillis() - startTime) / 1000
-        val remaining = initialDuration - elapsed.toInt()
+        val remaining = maxOf(0, initialDuration - elapsed.toInt())
         
-        // Calculate new extended duration
+        // Calculate new extended duration for tracking
         val extendedDuration = remaining + configuredDuration
         
-        // Update the start time and initial duration for future extensions
+        // Update the initial duration for this recording session (keep the original start time)
         prefs.edit().apply {
-            putLong("recordingStartTime", System.currentTimeMillis())
-            putInt("initialRecordingDuration", extendedDuration.toInt())
+            putInt("initialRecordingDuration", extendedDuration)
             apply()
         }
         
-        // Send intent to OverlayService with extended duration
+        // Send intent to OverlayService with configured duration to add
         val serviceIntent = Intent(this, OverlayService::class.java)
-        serviceIntent.putExtra("extendedDuration", extendedDuration.toInt())
+        serviceIntent.putExtra("extendedDuration", configuredDuration)
         startService(serviceIntent)
         
         // Move to background again

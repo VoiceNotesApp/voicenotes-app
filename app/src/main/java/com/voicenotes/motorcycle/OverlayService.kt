@@ -112,10 +112,8 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
         val extendedDuration = intent?.getIntExtra("extendedDuration", -1) ?: -1
         
         if (extendedDuration > 0) {
-            // This is an extension request
-            val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            val configuredDuration = prefs.getInt("recordingDuration", 10)
-            extendRecordingDuration(configuredDuration)
+            // This is an extension request - use the duration from the intent
+            extendRecordingDuration(extendedDuration)
             return START_NOT_STICKY
         }
         
