@@ -58,6 +58,9 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
     private var countdownRunnable: Runnable? = null
     private var listeningRemainingSeconds = 0
     private var listeningCountdownRunnable: Runnable? = null
+    
+    // Delay to ensure speech recognizer is fully ready before starting recording
+    private val RECORDING_START_DELAY_MS = 100L
 
     override fun onCreate() {
         super.onCreate()
@@ -363,11 +366,12 @@ class OverlayService : Service(), TextToSpeech.OnInitListener {
                 override fun onReadyForSpeech(params: Bundle?) {
                     updateBubbleLine2("🎤 Listening...")
                     // Start recording immediately when speech recognizer is ready
+                    // Brief delay ensures speech recognizer is fully initialized
                     handler.postDelayed({
                         speakText(getString(R.string.recording_started)) {
                             startRecording()
                         }
-                    }, 100)
+                    }, RECORDING_START_DELAY_MS)
                 }
                 override fun onBeginningOfSpeech() {
                     updateBubbleLine2("🎤 Recognizing...")
