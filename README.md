@@ -62,6 +62,7 @@ Just launch the app whenever you want to record a note. A small overlay bubble w
 - Microphone
 - Storage access
 - Bluetooth (optional, for headset support)
+- Internet connection (optional, for transcription and OSM features)
 
 ## Building from Source
 
@@ -75,6 +76,7 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete build setup and 
 - **Audio**: MediaRecorder with AAC encoding
 - **Speech Recognition**: Android SpeechRecognizer API
 - **Text-to-Speech**: Android TTS Engine
+- **Speech-to-Text**: Google Cloud Speech-to-Text API (post-processing)
 
 ## License
 

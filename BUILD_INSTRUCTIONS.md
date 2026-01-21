@@ -61,6 +61,21 @@ For example:
 
 ## Building the APK
 
+### Google Cloud API Key Setup (Optional)
+
+The app can transcribe audio using Google Cloud Speech-to-Text API. This is optional - the app works without it, but transcription features will be disabled.
+
+1. Create a Google Cloud project at https://console.cloud.google.com
+2. Enable the "Speech-to-Text API"
+3. Create an API key in "Credentials"
+4. Add the API key to `gradle.properties`:
+   ```
+   GOOGLE_CLOUD_API_KEY=your_actual_api_key_here
+   ```
+5. Keep this file private and do not commit to version control
+
+**Note**: The app will work without an API key, but transcription features will be disabled.
+
 ### Option 1: Using Gradle (Command Line)
 
 1. Navigate to the project directory:

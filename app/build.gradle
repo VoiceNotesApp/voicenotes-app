@@ -13,6 +13,9 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0.0"
+        
+        // Read API key from gradle.properties
+        buildConfigField "String", "GOOGLE_CLOUD_API_KEY", "\"${project.findProperty('GOOGLE_CLOUD_API_KEY') ?: ''}\""
     }
 
     signingConfigs {
@@ -54,6 +57,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 }
 
@@ -66,4 +70,12 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'androidx.activity:activity-ktx:1.8.1'
     implementation 'androidx.cardview:cardview:1.0.0'
+    
+    // Google Cloud Speech-to-Text
+    implementation 'com.google.cloud:google-cloud-speech:4.0.0'
+    
+    // Lifecycle and Coroutines
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-service:2.6.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
 }
