@@ -18,20 +18,27 @@ class TranscriptionService(private val context: Context) {
 
     companion object {
         /**
+         * Decode base64-encoded service account JSON
+         */
+        private fun decodeServiceAccountJson(base64: String): String? {
+            return try {
+                if (base64.isBlank()) return null
+                String(android.util.Base64.decode(base64, android.util.Base64.DEFAULT))
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        /**
          * Check if Google Cloud credentials are properly configured
          */
         fun isConfigured(): Boolean {
             val serviceAccountJsonBase64 = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64
-            if (serviceAccountJsonBase64.isBlank()) return false
+            val serviceAccountJson = decodeServiceAccountJson(serviceAccountJsonBase64) ?: return false
             
-            return try {
-                val serviceAccountJson = String(android.util.Base64.decode(serviceAccountJsonBase64, android.util.Base64.DEFAULT))
-                serviceAccountJson.contains("\"type\"") &&
-                serviceAccountJson.contains("\"project_id\"") &&
-                serviceAccountJson.contains("\"private_key\"")
-            } catch (e: Exception) {
-                false
-            }
+            return serviceAccountJson.contains("\"type\"") &&
+                   serviceAccountJson.contains("\"project_id\"") &&
+                   serviceAccountJson.contains("\"private_key\"")
         }
     }
 
@@ -66,11 +73,7 @@ class TranscriptionService(private val context: Context) {
     private suspend fun transcribeAudioFileInternal(filePath: String): Result<String> = withContext(Dispatchers.IO) {
         try {
             val serviceAccountJsonBase64 = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64
-            val serviceAccountJson = if (serviceAccountJsonBase64.isNotBlank()) {
-                String(android.util.Base64.decode(serviceAccountJsonBase64, android.util.Base64.DEFAULT))
-            } else {
-                ""
-            }
+            val serviceAccountJson = decodeServiceAccountJson(serviceAccountJsonBase64) ?: ""
             
             DebugLogger.logInfo(
                 service = "Google Cloud Speech-to-Text",
