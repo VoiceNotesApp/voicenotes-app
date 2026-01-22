@@ -105,7 +105,7 @@ If you're using GitHub Actions to build your app, set these repository secrets:
 1. Go to repository Settings → Secrets and variables → Actions
 2. Add secrets:
    - `GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON` - Your service account JSON (multi-line OK)
-   - `OSM_KEY` - Your OSM OAuth Client ID
+   - `OSM_CLIENT_ID` - Your OSM OAuth Client ID
 
 The workflows will automatically inject these during builds.
 

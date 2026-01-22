@@ -6,9 +6,13 @@ plugins {
 def getVersionName() {
     try {
         // Try to get the current git tag
-        def tag = 'git describe --tags --exact-match HEAD'.execute().text.trim()
-        if (tag) {
-            return tag // Returns like "v1.0.0"
+        def process = 'git describe --tags --exact-match HEAD'.execute()
+        process.waitFor()
+        if (process.exitValue() == 0) {
+            def tag = process.text.trim()
+            if (tag && !tag.isEmpty()) {
+                return tag // Returns like "v1.0.0"
+            }
         }
     } catch (Exception ignored) {
         // Not on a tag
@@ -16,16 +20,20 @@ def getVersionName() {
     
     try {
         // Get short commit hash
-        def hash = 'git rev-parse --short HEAD'.execute().text.trim()
-        if (hash) {
-            return "dev-${hash}" // Returns like "dev-abc1234"
+        def process = 'git rev-parse --short HEAD'.execute()
+        process.waitFor()
+        if (process.exitValue() == 0) {
+            def hash = process.text.trim()
+            if (hash && !hash.isEmpty()) {
+                return "dev-${hash}" // Returns like "dev-abc1234"
+            }
         }
     } catch (Exception ignored) {
         // Git not available
     }
     
-    // Fallback
-    return "1.0.0"
+    // Fallback when git is not available or commands fail
+    return "dev-unknown"
 }
 
 android {

@@ -159,7 +159,7 @@ To enable features in GitHub Actions builds:
 
 #### Add OSM Client ID
 
-- **Name**: `OSM_KEY`
+- **Name**: `OSM_CLIENT_ID`
 - **Value**: Your OSM OAuth Client ID
 - Click "Add secret"
 
@@ -170,7 +170,7 @@ The GitHub Actions workflows (`.github/workflows/*.yml`) should already be confi
 ```yaml
 env:
   GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON }}
-  OSM_CLIENT_ID: ${{ secrets.OSM_KEY }}
+  OSM_CLIENT_ID: ${{ secrets.OSM_CLIENT_ID }}
 ```
 
 These environment variables are automatically passed to the build process.
