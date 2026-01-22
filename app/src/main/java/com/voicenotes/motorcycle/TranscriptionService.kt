@@ -21,12 +21,17 @@ class TranscriptionService(private val context: Context) {
          * Check if Google Cloud credentials are properly configured
          */
         fun isConfigured(): Boolean {
-            val serviceAccountJson = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
-            return serviceAccountJson.isNotBlank() && 
-                   serviceAccountJson != "{}" &&
-                   serviceAccountJson.contains("\"type\"") &&
-                   serviceAccountJson.contains("\"project_id\"") &&
-                   serviceAccountJson.contains("\"private_key\"")
+            val serviceAccountJsonBase64 = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64
+            if (serviceAccountJsonBase64.isBlank()) return false
+            
+            return try {
+                val serviceAccountJson = String(android.util.Base64.decode(serviceAccountJsonBase64, android.util.Base64.DEFAULT))
+                serviceAccountJson.contains("\"type\"") &&
+                serviceAccountJson.contains("\"project_id\"") &&
+                serviceAccountJson.contains("\"private_key\"")
+            } catch (e: Exception) {
+                false
+            }
         }
     }
 
@@ -60,7 +65,12 @@ class TranscriptionService(private val context: Context) {
 
     private suspend fun transcribeAudioFileInternal(filePath: String): Result<String> = withContext(Dispatchers.IO) {
         try {
-            val serviceAccountJson = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
+            val serviceAccountJsonBase64 = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64
+            val serviceAccountJson = if (serviceAccountJsonBase64.isNotBlank()) {
+                String(android.util.Base64.decode(serviceAccountJsonBase64, android.util.Base64.DEFAULT))
+            } else {
+                ""
+            }
             
             DebugLogger.logInfo(
                 service = "Google Cloud Speech-to-Text",
