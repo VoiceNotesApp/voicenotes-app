@@ -1,9 +1,10 @@
 package com.voicenotes.motorcycle
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.View
 import android.widget.Button
 import android.widget.ScrollView
 import android.widget.TextView
@@ -15,12 +16,12 @@ class DebugLogActivity : AppCompatActivity() {
 
     private lateinit var switchEnableLogging: SwitchCompat
     private lateinit var buttonRunTests: Button
+    private lateinit var buttonRefreshLog: Button
+    private lateinit var buttonCopyLog: Button
+    private lateinit var buttonShareLog: Button
     private lateinit var buttonClearLog: Button
     private lateinit var textViewLog: TextView
     private lateinit var scrollViewLog: ScrollView
-    
-    private val updateHandler = Handler(Looper.getMainLooper())
-    private val updateInterval = 1000L // Update every second
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +34,9 @@ class DebugLogActivity : AppCompatActivity() {
         // Initialize views
         switchEnableLogging = findViewById(R.id.switchEnableLogging)
         buttonRunTests = findViewById(R.id.buttonRunTests)
+        buttonRefreshLog = findViewById(R.id.buttonRefreshLog)
+        buttonCopyLog = findViewById(R.id.buttonCopyLog)
+        buttonShareLog = findViewById(R.id.buttonShareLog)
         buttonClearLog = findViewById(R.id.buttonClearLog)
         textViewLog = findViewById(R.id.textViewLog)
         scrollViewLog = findViewById(R.id.scrollViewLog)
@@ -57,6 +61,32 @@ class DebugLogActivity : AppCompatActivity() {
             runTests()
         }
         
+        // Set up refresh log button
+        buttonRefreshLog.setOnClickListener {
+            updateLogDisplay()
+            Toast.makeText(this, "Log refreshed", Toast.LENGTH_SHORT).show()
+        }
+        
+        // Set up copy log button
+        buttonCopyLog.setOnClickListener {
+            val logContent = DebugLogger.getLogContent(this)
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("Debug Log", logContent)
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(this, "Log copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+        
+        // Set up share log button
+        buttonShareLog.setOnClickListener {
+            val logContent = DebugLogger.getLogContent(this)
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_SUBJECT, "Motorcycle Voice Notes Debug Log")
+                putExtra(Intent.EXTRA_TEXT, logContent)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Share log via..."))
+        }
+        
         // Set up clear log button
         buttonClearLog.setOnClickListener {
             DebugLogger.clearLog(this)
@@ -64,47 +94,17 @@ class DebugLogActivity : AppCompatActivity() {
             Toast.makeText(this, "Log cleared", Toast.LENGTH_SHORT).show()
         }
         
-        // Initial log display
+        // Initial log display (scroll to top)
         updateLogDisplay()
-    }
-    
-    override fun onResume() {
-        super.onResume()
-        startAutoUpdate()
-    }
-    
-    override fun onPause() {
-        super.onPause()
-        stopAutoUpdate()
-    }
-    
-    private fun startAutoUpdate() {
-        updateHandler.post(object : Runnable {
-            override fun run() {
-                updateLogDisplay()
-                updateHandler.postDelayed(this, updateInterval)
-            }
-        })
-    }
-    
-    private fun stopAutoUpdate() {
-        updateHandler.removeCallbacksAndMessages(null)
     }
     
     private fun updateLogDisplay() {
         val logContent = DebugLogger.getLogContent(this)
         textViewLog.text = logContent
         
-        // Auto-scroll to bottom if we're already near the bottom
+        // Scroll to top to show newest entries (if log is reversed) or oldest entries first
         scrollViewLog.post {
-            val scrollY = scrollViewLog.scrollY
-            val height = scrollViewLog.height
-            val contentHeight = textViewLog.height
-            
-            // If we're within 100px of the bottom, scroll to the new bottom
-            if (contentHeight - scrollY - height < 100) {
-                scrollViewLog.fullScroll(View.FOCUS_DOWN)
-            }
+            scrollViewLog.scrollTo(0, 0)
         }
     }
     
@@ -122,8 +122,7 @@ class DebugLogActivity : AppCompatActivity() {
             runOnUiThread {
                 buttonRunTests.isEnabled = true
                 buttonRunTests.text = "Run Tests"
-                updateLogDisplay()
-                Toast.makeText(this, "Tests complete", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Tests complete - click Refresh to see results", Toast.LENGTH_SHORT).show()
             }
         }.start()
     }
