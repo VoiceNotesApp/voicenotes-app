@@ -33,7 +33,8 @@ def getVersionName() {
     }
     
     // Fallback when git is not available or commands fail
-    return "dev-unknown"
+    // Ensure we always return a non-null string
+    return "1.0.0"
 }
 
 android {
