@@ -167,6 +167,13 @@ class BatchProcessingService : LifecycleService() {
                 )
                 createGpxWaypointFromFile(file, finalText, coords)
                 
+                // Create/update CSV file
+                DebugLogger.logInfo(
+                    service = "BatchProcessingService",
+                    message = "Creating CSV entry for ${file.name} at $coords"
+                )
+                createCsvEntryFromFile(file, finalText, coords)
+                
                 // Create OSM note if enabled
                 if (addOsmNote && oauthManager.isAuthenticated()) {
                     val osmProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
@@ -304,5 +311,163 @@ class BatchProcessingService : LifecycleService() {
         return java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US).apply {
             timeZone = java.util.TimeZone.getTimeZone("UTC")
         }.format(java.util.Date())
+    }
+    
+    private fun createCsvEntryFromFile(file: File, text: String, coords: String) {
+        try {
+            val (lat, lng) = parseCoordinates(coords)
+            
+            val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+            val saveDir = prefs.getString("saveDirectory", null) ?: return
+            
+            val csvFile = File(saveDir, "voicenote_waypoint_collection.csv")
+            
+            val latStr = String.format("%.6f", lat)
+            val lngStr = String.format("%.6f", lng)
+            val coordsStr = "$latStr,$lngStr"
+            
+            // Parse date and time from current timestamp
+            val now = java.util.Date()
+            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+            val timeFormat = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US)
+            val date = dateFormat.format(now)
+            val time = timeFormat.format(now)
+            
+            // Create map links
+            val googleMapsLink = "https://www.google.com/maps?q=$latStr,$lngStr"
+            val osmLink = "https://www.openstreetmap.org/?mlat=$latStr&mlon=$lngStr&zoom=17"
+            
+            if (csvFile.exists()) {
+                // Read existing content and check for duplicates
+                val existingLines = csvFile.readLines()
+                val updatedContent = replaceOrAddCsvEntry(existingLines, date, time, coordsStr, text, googleMapsLink, osmLink)
+                csvFile.writeText(updatedContent)
+            } else {
+                // Create new CSV file with UTF-8 BOM and header
+                val csvContent = buildNewCsvFile(date, time, coordsStr, text, googleMapsLink, osmLink)
+                csvFile.writeText(csvContent)
+            }
+            
+            Log.d("BatchProcessing", "CSV entry created/updated: $coordsStr")
+            
+        } catch (e: Exception) {
+            Log.e("BatchProcessing", "Failed to create CSV entry", e)
+        }
+    }
+    
+    private fun replaceOrAddCsvEntry(
+        existingLines: List<String>,
+        date: String,
+        time: String,
+        coords: String,
+        text: String,
+        googleMapsLink: String,
+        osmLink: String
+    ): String {
+        val utf8Bom = "\uFEFF"
+        val newEntry = buildCsvLine(date, time, coords, text, googleMapsLink, osmLink)
+        
+        // Check if we have a header (first line after BOM)
+        if (existingLines.isEmpty()) {
+            return utf8Bom + buildCsvHeader() + "\n" + newEntry
+        }
+        
+        val header = if (existingLines[0].startsWith(utf8Bom)) {
+            existingLines[0]
+        } else {
+            utf8Bom + existingLines[0]
+        }
+        
+        // Find if there's already an entry with the same coordinates
+        var found = false
+        val updatedLines = mutableListOf<String>()
+        updatedLines.add(header)
+        
+        for (i in 1 until existingLines.size) {
+            val line = existingLines[i]
+            if (line.isBlank()) continue
+            
+            // Check if this line has the same coordinates by parsing CSV fields
+            val lineCoords = extractCoordsFromCsvLine(line)
+            if (lineCoords == coords && !found) {
+                updatedLines.add(newEntry)
+                found = true
+                Log.d("BatchProcessing", "Replacing existing CSV entry at $coords")
+            } else {
+                updatedLines.add(line)
+            }
+        }
+        
+        // If not found, add new entry
+        if (!found) {
+            updatedLines.add(newEntry)
+            Log.d("BatchProcessing", "Adding new CSV entry at $coords")
+        }
+        
+        return updatedLines.joinToString("\n")
+    }
+    
+    private fun buildNewCsvFile(
+        date: String,
+        time: String,
+        coords: String,
+        text: String,
+        googleMapsLink: String,
+        osmLink: String
+    ): String {
+        val utf8Bom = "\uFEFF"
+        val header = buildCsvHeader()
+        val entry = buildCsvLine(date, time, coords, text, googleMapsLink, osmLink)
+        return utf8Bom + header + "\n" + entry
+    }
+    
+    private fun buildCsvHeader(): String {
+        return "Date,Time,Coordinates,Text,Google Maps link,OSM link"
+    }
+    
+    private fun buildCsvLine(
+        date: String,
+        time: String,
+        coords: String,
+        text: String,
+        googleMapsLink: String,
+        osmLink: String
+    ): String {
+        return "${escapeCsv(date)},${escapeCsv(time)},${escapeCsv(coords)},${escapeCsv(text)},${escapeCsv(googleMapsLink)},${escapeCsv(osmLink)}"
+    }
+    
+    private fun escapeCsv(value: String): String {
+        // Escape CSV values: wrap in quotes if contains comma, quote, or newline
+        return if (value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r")) {
+            "\"${value.replace("\"", "\"\"")}\""
+        } else {
+            value
+        }
+    }
+    
+    private fun extractCoordsFromCsvLine(line: String): String? {
+        try {
+            // Parse CSV line to extract the third field (Coordinates)
+            val fields = mutableListOf<String>()
+            var currentField = StringBuilder()
+            var insideQuotes = false
+            
+            for (char in line) {
+                when {
+                    char == '"' -> insideQuotes = !insideQuotes
+                    char == ',' && !insideQuotes -> {
+                        fields.add(currentField.toString())
+                        currentField = StringBuilder()
+                    }
+                    else -> currentField.append(char)
+                }
+            }
+            fields.add(currentField.toString())
+            
+            // The third field (index 2) is the coordinates
+            return if (fields.size > 2) fields[2] else null
+        } catch (e: Exception) {
+            return null
+        }
     }
 }
