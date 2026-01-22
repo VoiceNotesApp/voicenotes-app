@@ -221,28 +221,8 @@ class SettingsActivity : AppCompatActivity() {
     }
     
     private fun showDebugLog() {
-        val logContent = DebugLogger.getLogContent(this)
-        
-        val textView = TextView(this).apply {
-            text = logContent
-            setPadding(32, 32, 32, 32)
-            textSize = 12f
-            setTextIsSelectable(true)
-        }
-        
-        val scrollView = android.widget.ScrollView(this).apply {
-            addView(textView)
-        }
-        
-        AlertDialog.Builder(this)
-            .setTitle("Debug Log")
-            .setView(scrollView)
-            .setPositiveButton("Close", null)
-            .setNeutralButton("Clear Log") { _, _ ->
-                DebugLogger.clearLog(this)
-                Toast.makeText(this, "Log cleared", Toast.LENGTH_SHORT).show()
-            }
-            .show()
+        val intent = Intent(this, DebugLogActivity::class.java)
+        startActivity(intent)
     }
     
     private fun openStorageFolder() {

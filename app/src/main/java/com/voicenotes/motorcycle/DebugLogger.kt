@@ -18,6 +18,14 @@ object DebugLogger {
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
     
     /**
+     * Check if logging is enabled
+     */
+    fun isLoggingEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        return prefs.getBoolean("debug_logging_enabled", false)
+    }
+    
+    /**
      * Log an API request
      */
     fun logApiRequest(service: String, method: String, url: String, headers: Map<String, String> = emptyMap()) {
@@ -116,6 +124,12 @@ object DebugLogger {
     private fun appendToLogFile(message: String) {
         try {
             val context = AppContextHolder.context ?: return
+            
+            // Check if logging is enabled
+            if (!isLoggingEnabled(context)) {
+                return
+            }
+            
             val logFile = File(context.filesDir, LOG_FILE)
             
             // Check file size and truncate if needed
