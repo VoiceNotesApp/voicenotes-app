@@ -79,7 +79,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 Log.w("OverlayService", "TTS initialization timeout - proceeding without TTS")
                 DebugLogger.logError(
                     service = "OverlayService",
-                    error = "TTS initialization timeout after 10 seconds"
+                    error = "TTS initialization timeout after 10 seconds - proceeding without TTS"
                 )
                 startRecordingProcess()
             }
