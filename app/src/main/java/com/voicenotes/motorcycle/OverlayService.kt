@@ -402,6 +402,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     private fun startCountdown() {
+        // Cancel any existing countdown first to prevent duplicates
+        countdownRunnable?.let { handler.removeCallbacks(it) }
+        
         remainingSeconds = recordingDuration
         
         countdownRunnable = object : Runnable {
