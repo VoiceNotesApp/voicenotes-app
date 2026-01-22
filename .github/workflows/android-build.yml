@@ -48,7 +48,7 @@ jobs:
 
       - name: Create gradle.properties
         run: |
-          cat << 'EOF' >> gradle.properties
+          cat << 'EOF' > gradle.properties
           OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
           android.useAndroidX=true
