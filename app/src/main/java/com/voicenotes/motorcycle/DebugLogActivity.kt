@@ -85,10 +85,10 @@ class DebugLogActivity : AppCompatActivity() {
                 putExtra(Intent.EXTRA_TEXT, logContent)
             }
             
-            // Check if any app can handle the share intent
-            if (shareIntent.resolveActivity(packageManager) != null) {
+            // Try to share, handle case where no app is available
+            try {
                 startActivity(Intent.createChooser(shareIntent, "Share log via..."))
-            } else {
+            } catch (e: android.content.ActivityNotFoundException) {
                 Toast.makeText(this, "No app available to share log", Toast.LENGTH_SHORT).show()
             }
         }
