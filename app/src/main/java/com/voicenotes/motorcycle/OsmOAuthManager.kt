@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import net.openid.appauth.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -147,38 +148,59 @@ class OsmOAuthManager(private val context: Context) {
                     .build()
                 
                 val response = httpClient.newCall(request).execute()
-                val responseBody = response.body?.string()
                 
-                if (response.isSuccessful && responseBody != null) {
-                    // Parse JSON response to extract display_name
-                    val jsonObject = JSONObject(responseBody)
-                    val userObject = jsonObject.getJSONObject("user")
-                    val displayName = userObject.getString("display_name")
+                response.use {
+                    val responseBody = it.body?.string()
                     
-                    Log.d("OsmOAuthManager", "Fetched username: $displayName")
-                    DebugLogger.logApiResponse(
-                        service = "OSM User API",
-                        statusCode = response.code,
-                        responseBody = "Username fetched successfully: $displayName"
-                    )
-                    
-                    // Call callback on the main thread
-                    withContext(Dispatchers.Main) {
-                        callback(displayName)
-                    }
-                } else {
-                    val error = "Failed to fetch username: ${response.code} ${response.message}"
-                    Log.e("OsmOAuthManager", error)
-                    DebugLogger.logApiResponse(
-                        service = "OSM User API",
-                        statusCode = response.code,
-                        responseBody = responseBody,
-                        error = error
-                    )
-                    
-                    // Fall back to default username on error
-                    withContext(Dispatchers.Main) {
-                        callback("OSM_User")
+                    if (it.isSuccessful && responseBody != null) {
+                        // Parse JSON response to extract display_name
+                        val jsonObject = JSONObject(responseBody)
+                        
+                        // Safely extract display_name with null checks
+                        val userObject = jsonObject.optJSONObject("user")
+                        val displayName = userObject?.optString("display_name")
+                        
+                        if (displayName != null && displayName.isNotBlank()) {
+                            Log.d("OsmOAuthManager", "Fetched username: $displayName")
+                            DebugLogger.logApiResponse(
+                                service = "OSM User API",
+                                statusCode = it.code,
+                                responseBody = "Username fetched successfully: $displayName"
+                            )
+                            
+                            // Call callback on the main thread
+                            withContext(Dispatchers.Main) {
+                                callback(displayName)
+                            }
+                        } else {
+                            val error = "display_name not found in API response"
+                            Log.e("OsmOAuthManager", error)
+                            DebugLogger.logApiResponse(
+                                service = "OSM User API",
+                                statusCode = it.code,
+                                responseBody = responseBody,
+                                error = error
+                            )
+                            
+                            // Fall back to default username
+                            withContext(Dispatchers.Main) {
+                                callback("OSM_User")
+                            }
+                        }
+                    } else {
+                        val error = "Failed to fetch username: ${it.code} ${it.message}"
+                        Log.e("OsmOAuthManager", error)
+                        DebugLogger.logApiResponse(
+                            service = "OSM User API",
+                            statusCode = it.code,
+                            responseBody = responseBody,
+                            error = error
+                        )
+                        
+                        // Fall back to default username on error
+                        withContext(Dispatchers.Main) {
+                            callback("OSM_User")
+                        }
                     }
                 }
             } catch (e: IOException) {
@@ -193,15 +215,27 @@ class OsmOAuthManager(private val context: Context) {
                 withContext(Dispatchers.Main) {
                     callback("OSM_User")
                 }
-            } catch (e: Exception) {
-                Log.e("OsmOAuthManager", "Error parsing username response", e)
+            } catch (e: JSONException) {
+                Log.e("OsmOAuthManager", "Error parsing JSON response", e)
                 DebugLogger.logError(
                     service = "OSM User API",
-                    error = "Error parsing username response",
+                    error = "Error parsing JSON response",
                     exception = e
                 )
                 
-                // Fall back to default username on parse error
+                // Fall back to default username on JSON parse error
+                withContext(Dispatchers.Main) {
+                    callback("OSM_User")
+                }
+            } catch (e: Exception) {
+                Log.e("OsmOAuthManager", "Unexpected error fetching username", e)
+                DebugLogger.logError(
+                    service = "OSM User API",
+                    error = "Unexpected error fetching username",
+                    exception = e
+                )
+                
+                // Fall back to default username on unexpected error
                 withContext(Dispatchers.Main) {
                     callback("OSM_User")
                 }
