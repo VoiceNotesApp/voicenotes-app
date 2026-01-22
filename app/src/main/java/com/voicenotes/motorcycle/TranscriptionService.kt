@@ -73,15 +73,15 @@ class TranscriptionService(private val context: Context) {
     private suspend fun transcribeAudioFileInternal(filePath: String): Result<String> = withContext(Dispatchers.IO) {
         try {
             val serviceAccountJsonBase64 = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64
-            val serviceAccountJson = decodeServiceAccountJson(serviceAccountJsonBase64) ?: ""
             
             DebugLogger.logInfo(
                 service = "Google Cloud Speech-to-Text",
                 message = "Starting transcription for file: $filePath"
             )
             
-            // Enhanced error checking with specific messages
-            if (serviceAccountJson.isBlank() || serviceAccountJson == "{}") {
+            // Decode base64 credentials
+            val serviceAccountJson = decodeServiceAccountJson(serviceAccountJsonBase64)
+            if (serviceAccountJson == null) {
                 val errorMsg = "Google Cloud credentials not configured. " +
                     "Transcription is disabled. See Settings > Online Processing for setup instructions."
                 Log.e("TranscriptionService", errorMsg)
