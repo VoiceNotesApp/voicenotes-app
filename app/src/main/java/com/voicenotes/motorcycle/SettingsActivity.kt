@@ -196,16 +196,21 @@ class SettingsActivity : AppCompatActivity() {
             // Try to get git tag or commit hash from BuildConfig
             val buildConfigVersion = BuildConfig.VERSION_NAME
             
+            // Handle null or empty VERSION_NAME
+            if (buildConfigVersion.isNullOrEmpty()) {
+                return "Version 1.0.0"
+            }
+            
             // Check if VERSION_NAME is set to a git value
             if (buildConfigVersion.startsWith("v") || buildConfigVersion.contains("dev-")) {
                 "Version $buildConfigVersion"
             } else {
                 // Fallback to package version
                 val packageInfo = packageManager.getPackageInfo(packageName, 0)
-                "Version ${packageInfo.versionName}"
+                "Version ${packageInfo.versionName ?: "1.0.0"}"
             }
         } catch (e: Exception) {
-            "Version unknown"
+            "Version 1.0.0"
         }
     }
 
