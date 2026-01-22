@@ -39,13 +39,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Create Google Service Account Key
-        run: |
-          cat << 'EOF' > service-account.json
-          ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON }}
-          EOF
-        shell: bash
-
       - name: Create gradle.properties
         run: |
           cat << 'EOF' > gradle.properties
@@ -55,6 +48,8 @@ jobs:
           android.enableJetifier=true
           kotlin.code.style=official
           EOF
+          # Convert multi-line JSON to single line and append to gradle.properties
+          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=$(echo '${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON }}' | jq -c .)" >> gradle.properties
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
