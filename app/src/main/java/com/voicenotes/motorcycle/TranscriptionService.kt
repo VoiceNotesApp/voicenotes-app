@@ -18,13 +18,25 @@ class TranscriptionService(private val context: Context) {
 
     companion object {
         /**
+         * Decode base64-encoded service account JSON
+         */
+        private fun decodeServiceAccountJson(base64: String): String? {
+            return try {
+                if (base64.isBlank()) return null
+                String(android.util.Base64.decode(base64, android.util.Base64.NO_WRAP))
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        /**
          * Check if Google Cloud credentials are properly configured
          */
         fun isConfigured(): Boolean {
-            val serviceAccountJson = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
-            return serviceAccountJson.isNotBlank() && 
-                   serviceAccountJson != "{}" &&
-                   serviceAccountJson.contains("\"type\"") &&
+            val serviceAccountJsonBase64 = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64
+            val serviceAccountJson = decodeServiceAccountJson(serviceAccountJsonBase64) ?: return false
+            
+            return serviceAccountJson.contains("\"type\"") &&
                    serviceAccountJson.contains("\"project_id\"") &&
                    serviceAccountJson.contains("\"private_key\"")
         }
@@ -60,15 +72,16 @@ class TranscriptionService(private val context: Context) {
 
     private suspend fun transcribeAudioFileInternal(filePath: String): Result<String> = withContext(Dispatchers.IO) {
         try {
-            val serviceAccountJson = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
+            val serviceAccountJsonBase64 = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64
             
             DebugLogger.logInfo(
                 service = "Google Cloud Speech-to-Text",
                 message = "Starting transcription for file: $filePath"
             )
             
-            // Enhanced error checking with specific messages
-            if (serviceAccountJson.isBlank() || serviceAccountJson == "{}") {
+            // Decode base64 credentials
+            val serviceAccountJson = decodeServiceAccountJson(serviceAccountJsonBase64)
+            if (serviceAccountJson == null) {
                 val errorMsg = "Google Cloud credentials not configured. " +
                     "Transcription is disabled. See Settings > Online Processing for setup instructions."
                 Log.e("TranscriptionService", errorMsg)
