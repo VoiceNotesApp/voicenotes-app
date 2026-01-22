@@ -5,6 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.openid.appauth.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -123,8 +127,8 @@ class OsmOAuthManager(private val context: Context) {
     }
     
     private fun fetchUsername(accessToken: String, callback: (String) -> Unit) {
-        // Call OSM API to get user details in a background thread
-        Thread {
+        // Call OSM API to get user details in a coroutine
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val url = OSM_USER_DETAILS_ENDPOINT
                 
@@ -158,8 +162,8 @@ class OsmOAuthManager(private val context: Context) {
                         responseBody = "Username fetched successfully: $displayName"
                     )
                     
-                    // Call callback with the username on the main thread
-                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    // Call callback on the main thread
+                    withContext(Dispatchers.Main) {
                         callback(displayName)
                     }
                 } else {
@@ -173,7 +177,7 @@ class OsmOAuthManager(private val context: Context) {
                     )
                     
                     // Fall back to default username on error
-                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    withContext(Dispatchers.Main) {
                         callback("OSM_User")
                     }
                 }
@@ -186,7 +190,7 @@ class OsmOAuthManager(private val context: Context) {
                 )
                 
                 // Fall back to default username on network error
-                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                withContext(Dispatchers.Main) {
                     callback("OSM_User")
                 }
             } catch (e: Exception) {
@@ -198,11 +202,11 @@ class OsmOAuthManager(private val context: Context) {
                 )
                 
                 // Fall back to default username on parse error
-                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                withContext(Dispatchers.Main) {
                     callback("OSM_User")
                 }
             }
-        }.start()
+        }
     }
     
     fun saveTokensToKeystore(accessToken: String, refreshToken: String) {
