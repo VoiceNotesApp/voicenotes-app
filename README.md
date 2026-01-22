@@ -49,8 +49,8 @@ Motorcycle Voice Notes is designed for hands-free operation while riding. When y
    - Grant permissions (microphone, location, Bluetooth, overlay)
    - Choose recording storage location
    - Optionally set recording duration (default: 10 seconds)
-   - Configure Google Cloud service account for transcription (optional)
-   - Bind OSM account for note creation (optional)
+
+> **Note:** Pre-built APKs may not have Google Cloud or OSM credentials configured. See **[CONFIGURATION.md](CONFIGURATION.md)** to understand which features require setup.
 
 ### Usage
 
@@ -84,20 +84,31 @@ Just launch the app whenever you want to record a note. A small overlay bubble w
 - Microphone
 - Storage access
 - Bluetooth (optional, for headset support)
-- Internet connection (optional, for transcription and OSM features)
-- Google Cloud service account credentials (optional, for transcription)
-- OpenStreetMap OAuth 2.0 account (optional, for note creation)
+
+### Optional Online Features
+
+The app includes optional features that require configuration:
+
+- **Internet connection** - Required for transcription and OSM features
+- **Google Cloud credentials** - For Speech-to-Text transcription ([setup guide](CONFIGURATION.md))
+- **OSM OAuth account** - For creating OpenStreetMap notes ([setup guide](CONFIGURATION.md))
+
+> **Note:** The app works perfectly without these features - it will still record audio and capture GPS coordinates. See **[CONFIGURATION.md](CONFIGURATION.md)** for setup instructions.
 
 ## OpenStreetMap Integration
 
-To use the OSM note creation feature:
+The app can create OSM notes with your voice recordings. This requires configuration:
 
-1. Register an OAuth 2.0 application at https://www.openstreetmap.org/oauth2/applications
-   - Set redirect URI to: `app.voicenotes.motorcycle://oauth`
-   - Request scopes: `read_prefs write_notes`
-2. Update `CLIENT_ID` in `OsmOAuthManager.kt` with your application's client ID
-3. Bind your OSM account in the app settings
-4. Enable "Add OSM Note" checkbox
+1. **For developers**: See **[CONFIGURATION.md](CONFIGURATION.md)** for complete setup instructions
+2. **For users**: Pre-built APKs may not have OSM credentials - build from source if you need this feature
+
+Quick overview:
+- Register an OAuth 2.0 application at https://www.openstreetmap.org/oauth2/applications
+- Set redirect URI to: `app.voicenotes.motorcycle://oauth`
+- Request scopes: `read_prefs write_notes`
+- Configure your Client ID (see [CONFIGURATION.md](CONFIGURATION.md))
+- Bind your OSM account in the app settings
+- Enable "Add OSM Note" checkbox
 
 ## Building from Source
 

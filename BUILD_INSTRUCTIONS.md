@@ -1,5 +1,15 @@
 # Build Instructions for Motorcycle Voice Notes App
 
+## ⚠️ Important: Optional Feature Configuration
+
+This app includes **optional features** that require credentials to function:
+- **Google Cloud Speech-to-Text** - For transcription
+- **OpenStreetMap OAuth** - For creating OSM notes
+
+**The app works without these credentials** - it will still record audio and capture GPS coordinates. For detailed setup instructions, see **[CONFIGURATION.md](CONFIGURATION.md)**.
+
+---
+
 ## Prerequisites
 
 To build this Android app, you need the following installed on your system:
@@ -63,79 +73,68 @@ For example:
 
 ### Google Cloud Service Account Setup (Optional)
 
+> **Note:** For complete setup instructions including troubleshooting and GitHub Actions configuration, see **[CONFIGURATION.md](CONFIGURATION.md)**.
+
 The app can transcribe audio using Google Cloud Speech-to-Text API. This is optional - the app works without it, but transcription features will be disabled.
+
+**Quick Setup:**
 
 1. Create a Google Cloud project at https://console.cloud.google.com
 2. Enable the "Speech-to-Text API"
-3. Create a service account:
-   - Go to "IAM & Admin" > "Service Accounts"
-   - Click "Create Service Account"
-   - Give it a name (e.g., "motorcycle-voice-notes")
-   - Grant it the "Cloud Speech-to-Text API User" role
-   - Click "Done"
-4. Create a JSON key for the service account:
-   - Click on the service account you just created
-   - Go to "Keys" tab
-   - Click "Add Key" > "Create new key"
-   - Choose "JSON" format
-   - Save the downloaded JSON file
+3. Create a service account with "Cloud Speech-to-Text API User" role
+4. Download the JSON key file
 5. Copy the template file:
    ```bash
    cp gradle.properties.template gradle.properties
    ```
-6. Edit `gradle.properties` and replace `{}` with the entire content of the JSON file (as a single line):
+6. Edit `gradle.properties` and add the JSON content (on a single line):
    ```
    GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"your-project",...}
    ```
-   **Note**: The JSON should be on a single line. If your JSON spans multiple lines, you can remove newlines to make it a single line. No additional escaping is needed for the JSON content in gradle.properties.
-7. Keep this file private and do not commit to version control
 
-**Note**: The app will work without service account credentials, but transcription features will be disabled.
+**Important:** Keep this file private and do not commit to version control.
+
+For detailed instructions, see [CONFIGURATION.md](CONFIGURATION.md).
 
 ### CI/CD with GitHub Actions
 
-If you're using GitHub Actions to build your app:
+> **Note:** For complete GitHub Actions configuration instructions, see **[CONFIGURATION.md](CONFIGURATION.md)**.
 
-1. Go to your repository Settings → Secrets and variables → Actions
-2. Click "New repository secret"
-3. Name: `GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON`
-4. Value: The entire content of your service account JSON file
-5. Click "Add secret"
+If you're using GitHub Actions to build your app, set these repository secrets:
 
-The workflows will automatically inject this service account JSON during builds.
+1. Go to repository Settings → Secrets and variables → Actions
+2. Add secrets:
+   - `GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON` - Your service account JSON (multi-line OK)
+   - `OSM_KEY` - Your OSM OAuth Client ID
+
+The workflows will automatically inject these during builds.
 
 ### OpenStreetMap OAuth Setup (Optional)
 
+> **Note:** For complete setup instructions including troubleshooting, see **[CONFIGURATION.md](CONFIGURATION.md)**.
+
 The app can create OSM notes with your voice recordings. This is optional.
 
+**Quick Setup:**
+
 1. Register an OAuth 2.0 application at https://www.openstreetmap.org/oauth2/applications
-   - Application name: "Motorcycle Voice Notes" (or your choice)
    - Redirect URI: `app.voicenotes.motorcycle://oauth`
    - Requested scopes: `read_prefs` and `write_notes`
-   - Description: Your application description
    
-2. After registration, copy your "Client ID"
+2. Copy your "Client ID"
 
-3. **For local development:**
-   - Edit `gradle.properties` and replace `your_osm_client_id` with your actual Client ID:
-     ```
-     OSM_CLIENT_ID=your_actual_client_id_here
-     ```
-   - Keep this file private and do not commit to version control
+3. Edit `gradle.properties`:
+   ```
+   OSM_CLIENT_ID=your_actual_client_id_here
+   ```
 
-4. **For CI/CD with GitHub Actions:**
-   - Go to your repository Settings → Secrets and variables → Actions
-   - Add a secret named: `OSM_KEY`
-   - Value: Your OSM Client ID
-   - The workflows will automatically inject this during builds
+4. Rebuild the app
 
-5. Rebuild the app
+5. In app settings, use "Bind OSM Account" to authenticate
 
-6. In the app settings, use "Bind OSM Account" to authenticate
+**Important:** Keep this file private and do not commit to version control.
 
-7. Enable "Add OSM Note" checkbox to create notes during/after recording
-
-**Note**: The app will work without OSM integration, but note creation features will be disabled.
+For detailed instructions, see [CONFIGURATION.md](CONFIGURATION.md).
 
 ### Option 1: Using Gradle (Command Line)
 
