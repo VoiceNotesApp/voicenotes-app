@@ -51,23 +51,11 @@ class SettingsActivity : AppCompatActivity() {
     private val PERMISSIONS_REQUEST_CODE = 200
     private val OVERLAY_PERMISSION_REQUEST_CODE = 201
 
-    private val requiredPermissions = mutableListOf(
+    private val requiredPermissions = arrayOf(
         Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.ACCESS_FINE_LOCATION
-    ).apply {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            add(Manifest.permission.BLUETOOTH_CONNECT)
-        }
-        // Add storage permissions for public Music directory
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Android 11+ needs MANAGE_EXTERNAL_STORAGE for Music directory
-            // This will be handled separately with ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-        } else {
-            // Android 10 and below need WRITE_EXTERNAL_STORAGE
-            add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            add(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-    }.toTypedArray()
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.BLUETOOTH_CONNECT
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -239,10 +227,14 @@ class SettingsActivity : AppCompatActivity() {
                 startActivity(intent)
             } catch (e: Exception) {
                 // Fallback: try generic file manager
-                val fallbackIntent = Intent(Intent.ACTION_VIEW)
-                fallbackIntent.setDataAndType(uri, "*/*")
-                fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(fallbackIntent)
+                try {
+                    val fallbackIntent = Intent(Intent.ACTION_VIEW)
+                    fallbackIntent.setDataAndType(uri, "*/*")
+                    fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(fallbackIntent)
+                } catch (e2: Exception) {
+                    Toast.makeText(this, "Could not open folder. Please use your file manager to navigate to: $saveDir", Toast.LENGTH_LONG).show()
+                }
             }
         } catch (e: Exception) {
             Toast.makeText(this, "Could not open folder. Please use your file manager to navigate to: $saveDir", Toast.LENGTH_LONG).show()
@@ -250,11 +242,9 @@ class SettingsActivity : AppCompatActivity() {
     }
     
     private fun checkStoragePermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Android 11+ - check if we need MANAGE_EXTERNAL_STORAGE
-            if (!Environment.isExternalStorageManager()) {
-                showManageStorageDialog()
-            }
+        // Check if we need MANAGE_EXTERNAL_STORAGE
+        if (!Environment.isExternalStorageManager()) {
+            showManageStorageDialog()
         }
     }
 
@@ -309,24 +299,16 @@ class SettingsActivity : AppCompatActivity() {
             getString(R.string.permission_not_granted, getString(R.string.permission_location))
         })
         
-        // Check Bluetooth permission (Android 12+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val hasBluetooth = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
-            statusLines.add(if (hasBluetooth) {
-                getString(R.string.permission_granted, getString(R.string.permission_bluetooth))
-            } else {
-                getString(R.string.permission_not_granted, getString(R.string.permission_bluetooth))
-            })
-        }
+        // Check Bluetooth permission
+        val hasBluetooth = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        statusLines.add(if (hasBluetooth) {
+            getString(R.string.permission_granted, getString(R.string.permission_bluetooth))
+        } else {
+            getString(R.string.permission_not_granted, getString(R.string.permission_bluetooth))
+        })
         
         // Check storage permission
-        val hasStorage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Android 11+: Check Environment.isExternalStorageManager()
-            Environment.isExternalStorageManager()
-        } else {
-            // Android 10-: Check WRITE_EXTERNAL_STORAGE
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        }
+        val hasStorage = Environment.isExternalStorageManager()
         statusLines.add(if (hasStorage) {
             getString(R.string.permission_granted, getString(R.string.permission_storage))
         } else {
@@ -334,11 +316,7 @@ class SettingsActivity : AppCompatActivity() {
         })
         
         // Check overlay permission
-        val hasOverlay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Settings.canDrawOverlays(this)
-        } else {
-            true
-        }
+        val hasOverlay = Settings.canDrawOverlays(this)
         statusLines.add(if (hasOverlay) {
             getString(R.string.permission_granted, getString(R.string.permission_overlay))
         } else {
@@ -353,7 +331,7 @@ class SettingsActivity : AppCompatActivity() {
         
         if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
             updatePermissionStatusList()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(this)) {
+            if (Settings.canDrawOverlays(this)) {
                 Toast.makeText(this, "Overlay permission granted", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
@@ -421,7 +399,7 @@ class SettingsActivity : AppCompatActivity() {
     }
     
     private fun checkAndRequestOverlayPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+        if (!Settings.canDrawOverlays(this)) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.overlay_permission_required)
                 .setMessage(R.string.overlay_permission_message)
@@ -433,7 +411,6 @@ class SettingsActivity : AppCompatActivity() {
                     startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
                 }
                 .setNegativeButton("Cancel") { _, _ ->
-                    checkStoragePermissions()
                     updatePermissionStatusList()
                 }
                 .show()
@@ -525,11 +502,7 @@ class SettingsActivity : AppCompatActivity() {
         val filter = IntentFilter()
         filter.addAction("com.voicenotes.motorcycle.BATCH_PROGRESS")
         filter.addAction("com.voicenotes.motorcycle.BATCH_COMPLETE")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(batchReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(batchReceiver, filter)
-        }
+        registerReceiver(batchReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
     }
     
     override fun onPause() {

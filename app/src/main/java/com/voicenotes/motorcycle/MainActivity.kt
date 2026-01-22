@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
     }
 
-    private lateinit var statusText: TextView
     private lateinit var infoText: TextView
     private lateinit var progressBar: ProgressBar
 
@@ -37,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private val OVERLAY_PERMISSION_REQUEST_CODE = 101
     
     private lateinit var finishReceiver: FinishActivityReceiver
+    private var isReceiverRegistered = false
     
     private val timeoutHandler = Handler(Looper.getMainLooper())
     private val initializationTimeout = Runnable {
@@ -58,23 +58,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val requiredPermissions = mutableListOf(
+    private val requiredPermissions = arrayOf(
         Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.ACCESS_FINE_LOCATION
-    ).apply {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            add(Manifest.permission.BLUETOOTH_CONNECT)
-        }
-        // Add storage permissions for public Music directory
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Android 11+ needs MANAGE_EXTERNAL_STORAGE for Music directory
-            // This will be handled separately with ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-        } else {
-            // Android 10 and below need WRITE_EXTERNAL_STORAGE
-            add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            add(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-    }.toTypedArray()
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.BLUETOOTH_CONNECT
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,18 +72,14 @@ class MainActivity : AppCompatActivity() {
         // Initialize AppContextHolder for DebugLogger
         AppContextHolder.context = applicationContext
 
-        statusText = findViewById(R.id.statusText)
         infoText = findViewById(R.id.infoText)
         progressBar = findViewById(R.id.progressBar)
 
         // Register broadcast receiver
         finishReceiver = FinishActivityReceiver(this)
         val filter = IntentFilter("com.voicenotes.motorcycle.FINISH_ACTIVITY")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(finishReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(finishReceiver, filter)
-        }
+        registerReceiver(finishReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        isReceiverRegistered = true
 
         // Show "Initializing..." message
         Log.d(TAG, "Showing initializing message")
@@ -192,7 +176,7 @@ class MainActivity : AppCompatActivity() {
     
     private fun checkOverlayPermission() {
         Log.d(TAG, "checkOverlayPermission() called")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+        if (!Settings.canDrawOverlays(this)) {
             Log.d(TAG, "Overlay permission NOT granted, showing dialog")
             AlertDialog.Builder(this)
                 .setTitle(R.string.overlay_permission_required)
@@ -218,7 +202,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onActivityResult() requestCode: $requestCode, resultCode: $resultCode")
         
         if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(this)) {
+            if (Settings.canDrawOverlays(this)) {
                 Log.d(TAG, "Overlay permission granted after settings")
                 startRecordingProcess()
             } else {
@@ -284,7 +268,7 @@ class MainActivity : AppCompatActivity() {
         
         // Send intent to OverlayService with configured duration to add
         val serviceIntent = Intent(this, OverlayService::class.java)
-        serviceIntent.putExtra("extendedDuration", configuredDuration)
+        serviceIntent.putExtra("additionalDuration", configuredDuration)
         startService(serviceIntent)
         
         // Move to background again
@@ -326,10 +310,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        try {
+        if (isReceiverRegistered) {
             unregisterReceiver(finishReceiver)
-        } catch (e: Exception) {
-            // Receiver might not be registered
+            isReceiverRegistered = false
         }
         // Cancel initialization timeout to prevent memory leaks
         cancelInitializationTimeout()
@@ -346,7 +329,7 @@ class MainActivity : AppCompatActivity() {
             progressBar.visibility = View.GONE
             infoText.text = "Ready"
             
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(this)) {
+            if (Settings.canDrawOverlays(this)) {
                 Log.d(TAG, "Ready to record in onResume")
                 // Don't auto-start, just update UI
             }
