@@ -6,12 +6,18 @@ import android.net.Uri
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import net.openid.appauth.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class OsmOAuthManager(private val context: Context) {
     
     companion object {
         private const val OSM_AUTH_ENDPOINT = "https://www.openstreetmap.org/oauth2/authorize"
         private const val OSM_TOKEN_ENDPOINT = "https://www.openstreetmap.org/oauth2/token"
+        private const val OSM_USER_DETAILS_ENDPOINT = "https://api.openstreetmap.org/api/0.6/user/details.json"
         private val CLIENT_ID = BuildConfig.OSM_CLIENT_ID
         private const val REDIRECT_URI = "app.voicenotes.motorcycle://oauth"
         const val DEFAULT_CLIENT_ID_PLACEHOLDER = "your_osm_client_id"
@@ -22,6 +28,11 @@ class OsmOAuthManager(private val context: Context) {
     }
     
     private val authService = AuthorizationService(context)
+    
+    private val httpClient = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
     
     fun startOAuthFlow(launcher: ActivityResultLauncher<Intent>) {
         if (CLIENT_ID.isBlank() || CLIENT_ID == DEFAULT_CLIENT_ID_PLACEHOLDER) {
@@ -112,9 +123,86 @@ class OsmOAuthManager(private val context: Context) {
     }
     
     private fun fetchUsername(accessToken: String, callback: (String) -> Unit) {
-        // Call OSM API to get user details
-        // For now, use a placeholder
-        callback("OSM_User")
+        // Call OSM API to get user details in a background thread
+        Thread {
+            try {
+                val url = OSM_USER_DETAILS_ENDPOINT
+                
+                // Log the request
+                DebugLogger.logApiRequest(
+                    service = "OSM User API",
+                    method = "GET",
+                    url = url,
+                    headers = mapOf("Authorization" to "Bearer ***")
+                )
+                
+                val request = Request.Builder()
+                    .url(url)
+                    .get()
+                    .addHeader("Authorization", "Bearer $accessToken")
+                    .build()
+                
+                val response = httpClient.newCall(request).execute()
+                val responseBody = response.body?.string()
+                
+                if (response.isSuccessful && responseBody != null) {
+                    // Parse JSON response to extract display_name
+                    val jsonObject = JSONObject(responseBody)
+                    val userObject = jsonObject.getJSONObject("user")
+                    val displayName = userObject.getString("display_name")
+                    
+                    Log.d("OsmOAuthManager", "Fetched username: $displayName")
+                    DebugLogger.logApiResponse(
+                        service = "OSM User API",
+                        statusCode = response.code,
+                        responseBody = "Username fetched successfully: $displayName"
+                    )
+                    
+                    // Call callback with the username on the main thread
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        callback(displayName)
+                    }
+                } else {
+                    val error = "Failed to fetch username: ${response.code} ${response.message}"
+                    Log.e("OsmOAuthManager", error)
+                    DebugLogger.logApiResponse(
+                        service = "OSM User API",
+                        statusCode = response.code,
+                        responseBody = responseBody,
+                        error = error
+                    )
+                    
+                    // Fall back to default username on error
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        callback("OSM_User")
+                    }
+                }
+            } catch (e: IOException) {
+                Log.e("OsmOAuthManager", "Network error fetching username", e)
+                DebugLogger.logError(
+                    service = "OSM User API",
+                    error = "Network error fetching username",
+                    exception = e
+                )
+                
+                // Fall back to default username on network error
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    callback("OSM_User")
+                }
+            } catch (e: Exception) {
+                Log.e("OsmOAuthManager", "Error parsing username response", e)
+                DebugLogger.logError(
+                    service = "OSM User API",
+                    error = "Error parsing username response",
+                    exception = e
+                )
+                
+                // Fall back to default username on parse error
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    callback("OSM_User")
+                }
+            }
+        }.start()
     }
     
     fun saveTokensToKeystore(accessToken: String, refreshToken: String) {
