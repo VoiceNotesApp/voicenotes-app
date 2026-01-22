@@ -387,8 +387,9 @@ class BatchProcessingService : LifecycleService() {
             val line = existingLines[i]
             if (line.isBlank()) continue
             
-            // Check if this line contains the same coordinates
-            if (line.contains(coords) && !found) {
+            // Check if this line has the same coordinates by parsing CSV fields
+            val lineCoords = extractCoordsFromCsvLine(line)
+            if (lineCoords == coords && !found) {
                 updatedLines.add(newEntry)
                 found = true
                 Log.d("BatchProcessing", "Replacing existing CSV entry at $coords")
@@ -441,6 +442,32 @@ class BatchProcessingService : LifecycleService() {
             "\"${value.replace("\"", "\"\"")}\""
         } else {
             value
+        }
+    }
+    
+    private fun extractCoordsFromCsvLine(line: String): String? {
+        try {
+            // Parse CSV line to extract the third field (Coordinates)
+            val fields = mutableListOf<String>()
+            var currentField = StringBuilder()
+            var insideQuotes = false
+            
+            for (char in line) {
+                when {
+                    char == '"' -> insideQuotes = !insideQuotes
+                    char == ',' && !insideQuotes -> {
+                        fields.add(currentField.toString())
+                        currentField = StringBuilder()
+                    }
+                    else -> currentField.append(char)
+                }
+            }
+            fields.add(currentField.toString())
+            
+            // The third field (index 2) is the coordinates
+            return if (fields.size > 2) fields[2] else null
+        } catch (e: Exception) {
+            return null
         }
     }
 }
