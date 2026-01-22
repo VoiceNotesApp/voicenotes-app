@@ -84,7 +84,13 @@ class DebugLogActivity : AppCompatActivity() {
                 putExtra(Intent.EXTRA_SUBJECT, "Motorcycle Voice Notes Debug Log")
                 putExtra(Intent.EXTRA_TEXT, logContent)
             }
-            startActivity(Intent.createChooser(shareIntent, "Share log via..."))
+            
+            // Check if any app can handle the share intent
+            if (shareIntent.resolveActivity(packageManager) != null) {
+                startActivity(Intent.createChooser(shareIntent, "Share log via..."))
+            } else {
+                Toast.makeText(this, "No app available to share log", Toast.LENGTH_SHORT).show()
+            }
         }
         
         // Set up clear log button
@@ -122,7 +128,8 @@ class DebugLogActivity : AppCompatActivity() {
             runOnUiThread {
                 buttonRunTests.isEnabled = true
                 buttonRunTests.text = "Run Tests"
-                Toast.makeText(this, "Tests complete - click Refresh to see results", Toast.LENGTH_SHORT).show()
+                updateLogDisplay()
+                Toast.makeText(this, "Tests complete", Toast.LENGTH_SHORT).show()
             }
         }.start()
     }
