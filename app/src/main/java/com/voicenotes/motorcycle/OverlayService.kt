@@ -58,12 +58,14 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private var recordingDuration = 10
     private var remainingSeconds = 0
     private var countdownRunnable: Runnable? = null
+    private var ttsTimeoutRunnable: Runnable? = null
+    private var bluetoothScoTimeoutRunnable: Runnable? = null
 
     override fun onCreate() {
         super.onCreate()
         
         // Check if overlay permission is granted
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+        if (!Settings.canDrawOverlays(this)) {
             stopSelf()
             return
         }
@@ -72,18 +74,17 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         textToSpeech = TextToSpeech(this, this)
         
         // Add TTS timeout
-        val ttsTimeoutRunnable = Runnable {
+        ttsTimeoutRunnable = Runnable {
             if (!isTtsInitialized) {
                 Log.w("OverlayService", "TTS initialization timeout - proceeding without TTS")
                 DebugLogger.logError(
                     service = "OverlayService",
                     error = "TTS initialization timeout after 10 seconds - proceeding without TTS"
                 )
-                isTtsInitialized = false
                 startRecordingProcess()
             }
         }
-        handler.postDelayed(ttsTimeoutRunnable, 10000)
+        handler.postDelayed(ttsTimeoutRunnable!!, 10000)
         
         createOverlay()
     }
@@ -91,12 +92,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun createOverlay() {
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         
-        val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            @Suppress("DEPRECATION")
-            WindowManager.LayoutParams.TYPE_PHONE
-        }
+        val layoutType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
         
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -118,11 +114,11 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val extendedDuration = intent?.getIntExtra("extendedDuration", -1) ?: -1
+        val additionalDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
         
-        if (extendedDuration > 0) {
+        if (additionalDuration > 0) {
             // This is an extension request - use the duration from the intent
-            extendRecordingDuration(extendedDuration)
+            extendRecordingDuration(additionalDuration)
             return START_NOT_STICKY
         }
         
@@ -131,6 +127,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     override fun onInit(status: Int) {
+        ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
         if (status == TextToSpeech.SUCCESS) {
             textToSpeech?.language = Locale.US
             isTtsInitialized = true
@@ -324,29 +321,15 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             // Set audio source
             val audioSource = getPreferredAudioSource()
 
-            mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                MediaRecorder(this).apply {
-                    setAudioSource(audioSource)
-                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                    setAudioEncodingBitRate(128000)
-                    setAudioSamplingRate(44100)
-                    setOutputFile(recordingFilePath)
-                    prepare()
-                    start()
-                }
-            } else {
-                @Suppress("DEPRECATION")
-                MediaRecorder().apply {
-                    setAudioSource(audioSource)
-                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                    setAudioEncodingBitRate(128000)
-                    setAudioSamplingRate(44100)
-                    setOutputFile(recordingFilePath)
-                    prepare()
-                    start()
-                }
+            mediaRecorder = MediaRecorder(this).apply {
+                setAudioSource(audioSource)
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setAudioEncodingBitRate(128000)
+                setAudioSamplingRate(44100)
+                setOutputFile(recordingFilePath)
+                prepare()
+                start()
             }
             
             // Start countdown immediately
@@ -393,34 +376,27 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun getPreferredAudioSource(): Int {
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         
-        // Check Bluetooth permission for Android 12+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-                != PackageManager.PERMISSION_GRANTED) {
-                Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_RECOGNITION source")
-                return MediaRecorder.AudioSource.VOICE_RECOGNITION
-            }
+        // Check Bluetooth permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+            != PackageManager.PERMISSION_GRANTED) {
+            Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_RECOGNITION source")
+            return MediaRecorder.AudioSource.VOICE_RECOGNITION
         }
         
         return if (audioManager.isBluetoothScoAvailableOffCall) {
-            Log.d("OverlayService", "Bluetooth SCO available, starting Bluetooth SCO with VOICE_RECOGNITION")
+            Log.d("OverlayService", "Bluetooth SCO available, starting...")
             audioManager.startBluetoothSco()
             
-            // Add timeout for Bluetooth SCO connection
-            handler.postDelayed({
+            // Store timeout reference
+            bluetoothScoTimeoutRunnable = Runnable {
                 if (!audioManager.isBluetoothScoOn) {
-                    Log.w("OverlayService", "Bluetooth SCO timeout - using device microphone")
-                    DebugLogger.logError(
-                        service = "OverlayService",
-                        error = "Bluetooth SCO connection timeout after 5 seconds - falling back to device microphone"
-                    )
-                    audioManager.stopBluetoothSco()
+                    Log.d("OverlayService", "Bluetooth SCO timeout")
                 }
-            }, 5000)
+            }
+            handler.postDelayed(bluetoothScoTimeoutRunnable!!, 5000)
             
             MediaRecorder.AudioSource.VOICE_RECOGNITION
         } else {
-            Log.d("OverlayService", "Bluetooth SCO not available, using VOICE_RECOGNITION source")
             MediaRecorder.AudioSource.VOICE_RECOGNITION
         }
     }
@@ -713,6 +689,12 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     private fun stopSelfAndFinish() {
+        // Cancel Bluetooth SCO timeout
+        bluetoothScoTimeoutRunnable?.let { handler.removeCallbacks(it) }
+        
+        // Cancel TTS timeout
+        ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
+        
         // Cancel countdown if running
         countdownRunnable?.let { handler.removeCallbacks(it) }
         
@@ -744,7 +726,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     override fun onDestroy() {
-        // Clean up countdowns
+        // Clean up all timeouts
+        ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
+        bluetoothScoTimeoutRunnable?.let { handler.removeCallbacks(it) }
         countdownRunnable?.let { handler.removeCallbacks(it) }
         
         textToSpeech?.shutdown()
