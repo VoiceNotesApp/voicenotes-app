@@ -40,6 +40,8 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Create gradle.properties
+        env:
+          SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON }}
         run: |
           cat << 'EOF' > gradle.properties
           OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}
@@ -49,7 +51,7 @@ jobs:
           kotlin.code.style=official
           EOF
           # Convert multi-line JSON to single line and append to gradle.properties
-          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=$(echo '${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON }}' | jq -c .)" >> gradle.properties
+          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=$(echo "$SERVICE_ACCOUNT_JSON" | jq -c .)" >> gradle.properties
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
