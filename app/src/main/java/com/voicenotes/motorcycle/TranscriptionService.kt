@@ -23,7 +23,7 @@ class TranscriptionService(private val context: Context) {
         private fun decodeServiceAccountJson(base64: String): String? {
             return try {
                 if (base64.isBlank()) return null
-                String(android.util.Base64.decode(base64, android.util.Base64.DEFAULT))
+                String(android.util.Base64.decode(base64, android.util.Base64.NO_WRAP))
             } catch (e: Exception) {
                 null
             }
