@@ -78,18 +78,16 @@ class DebugLogActivity : AppCompatActivity() {
         
         // Set up share log button
         buttonShareLog.setOnClickListener {
-            val logContent = DebugLogger.getLogContent(this)
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_SUBJECT, "Motorcycle Voice Notes Debug Log")
-                putExtra(Intent.EXTRA_TEXT, logContent)
-            }
-            
-            // Try to share, handle case where no app is available
             try {
+                val logContent = DebugLogger.getLogContent(this)
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_SUBJECT, "Motorcycle Voice Notes Debug Log")
+                    putExtra(Intent.EXTRA_TEXT, logContent)
+                }
                 startActivity(Intent.createChooser(shareIntent, "Share log via..."))
-            } catch (e: android.content.ActivityNotFoundException) {
-                Toast.makeText(this, "No app available to share log", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, "Unable to share log: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
         
