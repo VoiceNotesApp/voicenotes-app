@@ -56,6 +56,11 @@ class SettingsActivity : AppCompatActivity() {
     // Map to track processing status of each file
     private val processingStatusMap = mutableMapOf<String, String>()
     
+    // Color constants for status display
+    private val COLOR_COMPLETE = Color.parseColor("#4CAF50") // Green
+    private val COLOR_ERROR = Color.parseColor("#F44336") // Red
+    private val COLOR_IN_PROGRESS = Color.parseColor("#2196F3") // Blue
+    
     private lateinit var oauthManager: OsmOAuthManager
     private lateinit var oauthLauncher: ActivityResultLauncher<Intent>
 
@@ -588,9 +593,9 @@ class SettingsActivity : AppCompatActivity() {
         for ((filename, status) in processingStatusMap) {
             val statusView = TextView(this).apply {
                 val (icon, color) = when (status) {
-                    "complete" -> "✓" to Color.parseColor("#4CAF50") // Green
-                    "error", "timeout" -> "✗" to Color.parseColor("#F44336") // Red
-                    else -> "→" to Color.parseColor("#2196F3") // Blue for in-progress
+                    "complete" -> "✓" to COLOR_COMPLETE
+                    "error", "timeout" -> "✗" to COLOR_ERROR
+                    else -> "→" to COLOR_IN_PROGRESS // For transcribing, creating GPX, creating OSM note
                 }
                 
                 text = "$icon $filename - $status"
@@ -612,7 +617,11 @@ class SettingsActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 "com.voicenotes.motorcycle.BATCH_PROGRESS" -> {
-                    val filename = intent.getStringExtra("filename") ?: return
+                    val filename = intent.getStringExtra("filename")
+                    if (filename == null) {
+                        android.util.Log.w("SettingsActivity", "Received BATCH_PROGRESS with null filename")
+                        return
+                    }
                     val status = intent.getStringExtra("status") ?: "processing"
                     val current = intent.getIntExtra("current", 0)
                     val total = intent.getIntExtra("total", 0)
