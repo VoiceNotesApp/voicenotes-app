@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.provider.Settings
 import android.view.View
 import android.widget.Button
@@ -44,6 +45,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var textOsmAccountStatus: TextView
     private lateinit var buttonRunOnlineProcessing: Button
     private lateinit var textProcessingProgress: TextView
+    private lateinit var textGoogleCloudStatus: TextView
+    private lateinit var textOsmConfigStatus: TextView
     
     private lateinit var oauthManager: OsmOAuthManager
     private lateinit var oauthLauncher: ActivityResultLauncher<Intent>
@@ -78,6 +81,8 @@ class SettingsActivity : AppCompatActivity() {
         textOsmAccountStatus = findViewById(R.id.textOsmAccountStatus)
         buttonRunOnlineProcessing = findViewById(R.id.buttonRunOnlineProcessing)
         textProcessingProgress = findViewById(R.id.textProcessingProgress)
+        textGoogleCloudStatus = findViewById(R.id.textGoogleCloudStatus)
+        textOsmConfigStatus = findViewById(R.id.textOsmConfigStatus)
         
         oauthManager = OsmOAuthManager(this)
         
@@ -141,6 +146,22 @@ class SettingsActivity : AppCompatActivity() {
                 // Remove account
                 removeOsmAccount()
             } else {
+                // Check if OSM client ID is properly configured
+                if (!isOsmClientIdConfigured()) {
+                    AlertDialog.Builder(this)
+                        .setTitle("OSM Integration Not Configured")
+                        .setMessage("OSM integration is not configured. The OSM Client ID is set to a placeholder value.\n\n" +
+                                "To enable OSM features:\n" +
+                                "1. Register an OAuth 2.0 application at https://www.openstreetmap.org/oauth2/applications\n" +
+                                "2. Set redirect URI to: app.voicenotes.motorcycle://oauth\n" +
+                                "3. Add your Client ID to gradle.properties\n" +
+                                "4. Rebuild the app\n\n" +
+                                "See BUILD_INSTRUCTIONS.md for detailed setup instructions.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                    return@setOnClickListener
+                }
+                
                 // Bind account
                 try {
                     oauthManager.startOAuthFlow(oauthLauncher)
@@ -217,22 +238,33 @@ class SettingsActivity : AppCompatActivity() {
                 folder.mkdirs()
             }
             
-            // Use file URI to open folder
-            val uri = Uri.fromFile(folder)
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(uri, "vnd.android.document/directory")
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            
+            // Use DocumentsContract for modern Android file manager integration
             try {
+                // Build a DocumentsProvider URI for the Music directory
+                // Format: content://com.android.externalstorage.documents/document/primary:Music/VoiceNotes
+                val musicPath = "Music/VoiceNotes"
+                val documentId = "primary:$musicPath"
+                val uri = DocumentsContract.buildDocumentUri(
+                    "com.android.externalstorage.documents",
+                    documentId
+                )
+                
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.setDataAndType(uri, DocumentsContract.Document.MIME_TYPE_DIR)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                
                 startActivity(intent)
             } catch (e: Exception) {
-                // Fallback: try generic file manager
+                // Fallback: try to open the Files app at a general location
                 try {
-                    val fallbackIntent = Intent(Intent.ACTION_VIEW)
-                    fallbackIntent.setDataAndType(uri, "*/*")
-                    fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(fallbackIntent)
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    val uri = Uri.parse("content://com.android.externalstorage.documents/document/primary:Music")
+                    intent.setDataAndType(uri, DocumentsContract.Document.MIME_TYPE_DIR)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    startActivity(intent)
+                    Toast.makeText(this, "Navigate to Music/VoiceNotes folder", Toast.LENGTH_LONG).show()
                 } catch (e2: Exception) {
+                    // Final fallback: show message with path
                     Toast.makeText(this, "Could not open folder. Please use your file manager to navigate to: $saveDir", Toast.LENGTH_LONG).show()
                 }
             }
@@ -276,8 +308,47 @@ class SettingsActivity : AppCompatActivity() {
             updateOsmAccountUI(username)
         }
         
+        // Update service configuration status
+        updateServiceConfigurationStatus()
+        
         // Update permission status list
         updatePermissionStatusList()
+    }
+    
+    private fun updateServiceConfigurationStatus() {
+        // Check Google Cloud configuration
+        val googleCloudConfigured = isGoogleCloudConfigured()
+        if (googleCloudConfigured) {
+            textGoogleCloudStatus.text = "✓ Google Cloud Speech-to-Text: Configured"
+            textGoogleCloudStatus.setTextColor(getColor(android.R.color.holo_green_dark))
+        } else {
+            textGoogleCloudStatus.text = "⚠ Google Cloud Speech-to-Text: Not configured (transcription disabled)"
+            textGoogleCloudStatus.setTextColor(getColor(android.R.color.holo_orange_dark))
+        }
+        
+        // Check OSM client ID configuration
+        val osmConfigured = isOsmClientIdConfigured()
+        if (osmConfigured) {
+            textOsmConfigStatus.text = "✓ OSM OAuth Client ID: Configured"
+            textOsmConfigStatus.setTextColor(getColor(android.R.color.holo_green_dark))
+        } else {
+            textOsmConfigStatus.text = "⚠ OSM OAuth Client ID: Not configured (using placeholder)"
+            textOsmConfigStatus.setTextColor(getColor(android.R.color.holo_orange_dark))
+        }
+    }
+    
+    private fun isGoogleCloudConfigured(): Boolean {
+        val serviceAccountJson = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
+        return serviceAccountJson.isNotBlank() && 
+               serviceAccountJson != "{}" &&
+               serviceAccountJson.contains("\"type\"") &&
+               serviceAccountJson.contains("\"project_id\"") &&
+               serviceAccountJson.contains("\"private_key\"")
+    }
+    
+    private fun isOsmClientIdConfigured(): Boolean {
+        val clientId = BuildConfig.OSM_CLIENT_ID
+        return clientId.isNotBlank() && clientId != "your_osm_client_id"
     }
 
     private fun updatePermissionStatusList() {
@@ -333,6 +404,8 @@ class SettingsActivity : AppCompatActivity() {
             updatePermissionStatusList()
             if (Settings.canDrawOverlays(this)) {
                 Toast.makeText(this, "Overlay permission granted", Toast.LENGTH_SHORT).show()
+                // Continue permission flow - check storage permissions
+                checkStoragePermissions()
             } else {
                 Toast.makeText(this, "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
             }

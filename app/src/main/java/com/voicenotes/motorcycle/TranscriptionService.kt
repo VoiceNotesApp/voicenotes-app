@@ -16,6 +16,20 @@ import java.io.FileInputStream
 
 class TranscriptionService(private val context: Context) {
 
+    companion object {
+        /**
+         * Check if Google Cloud credentials are properly configured
+         */
+        fun isConfigured(): Boolean {
+            val serviceAccountJson = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON
+            return serviceAccountJson.isNotBlank() && 
+                   serviceAccountJson != "{}" &&
+                   serviceAccountJson.contains("\"type\"") &&
+                   serviceAccountJson.contains("\"project_id\"") &&
+                   serviceAccountJson.contains("\"private_key\"")
+        }
+    }
+
     /**
      * Transcribes an m4a audio file using Google Cloud Speech-to-Text API
      * 
@@ -55,9 +69,8 @@ class TranscriptionService(private val context: Context) {
             
             // Enhanced error checking with specific messages
             if (serviceAccountJson.isBlank() || serviceAccountJson == "{}") {
-                val errorMsg = "Google Cloud service account credentials not configured. " +
-                    "Please add GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON to gradle.properties (local) or " +
-                    "as a GitHub Secret named 'GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON' (CI/CD)."
+                val errorMsg = "Google Cloud credentials not configured. " +
+                    "Transcription is disabled. See Settings > Online Processing for setup instructions."
                 Log.e("TranscriptionService", errorMsg)
                 DebugLogger.logError(
                     service = "Google Cloud Speech-to-Text",
@@ -70,9 +83,9 @@ class TranscriptionService(private val context: Context) {
             if (!serviceAccountJson.contains("\"type\"") || 
                 !serviceAccountJson.contains("\"project_id\"") || 
                 !serviceAccountJson.contains("\"private_key\"")) {
-                val errorMsg = "Invalid service account JSON format. " +
+                val errorMsg = "Invalid Google Cloud service account JSON format. " +
                     "The JSON must contain 'type', 'project_id', and 'private_key' fields. " +
-                    "Current value starts with: ${serviceAccountJson.take(50)}..."
+                    "Please check your configuration in gradle.properties or GitHub Secrets."
                 Log.e("TranscriptionService", errorMsg)
                 DebugLogger.logError(
                     service = "Google Cloud Speech-to-Text",
@@ -158,7 +171,7 @@ class TranscriptionService(private val context: Context) {
             Log.e("TranscriptionService", "Transcription failed", e)
             DebugLogger.logError(
                 service = "Google Cloud Speech-to-Text",
-                error = "Transcription failed",
+                error = "Transcription failed: ${e.message}",
                 exception = e
             )
             Result.failure(e)

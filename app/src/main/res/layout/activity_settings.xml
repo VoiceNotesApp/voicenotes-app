@@ -214,6 +214,14 @@
                     android:textColor="#212121"
                     android:layout_marginBottom="12dp" />
 
+                <TextView
+                    android:id="@+id/textGoogleCloudStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Checking configuration..."
+                    android:textSize="13sp"
+                    android:layout_marginBottom="12dp" />
+
                 <CheckBox
                     android:id="@+id/checkboxOnlineProcessing"
                     android:layout_width="match_parent"
@@ -243,6 +251,14 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#212121"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/textOsmConfigStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Checking configuration..."
+                    android:textSize="13sp"
                     android:layout_marginBottom="8dp" />
 
                 <TextView
