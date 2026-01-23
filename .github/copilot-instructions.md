@@ -218,6 +218,7 @@ If workflows fail:
 
 When creating or updating PRs:
 - Do NOT add automated tips or suggestions like "💡 You can make Copilot smarter..." to PR descriptions
+- If GitHub automatically adds such sections, remove them when updating the PR description
 - Keep PR descriptions focused on the actual changes made
 - Include only relevant information about the code changes, testing, and impact
 
