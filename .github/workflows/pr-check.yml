@@ -15,7 +15,6 @@ on:
       - '.github/workflows/**'     # Workflow changes don't affect app builds
       - '.gitignore'               # Git config changes
       - 'LICENSE'                  # License changes
-      - '.github/WORKFLOW_OPTIMIZATION.md'  # Workflow docs
 
 jobs:
   lint:
