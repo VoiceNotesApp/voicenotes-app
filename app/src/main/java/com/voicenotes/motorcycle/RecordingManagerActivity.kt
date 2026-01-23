@@ -192,23 +192,25 @@ class RecordingManagerActivity : AppCompatActivity() {
     
     private fun showDownloadAllDialog() {
         lifecycleScope.launch {
-            val db = RecordingDatabase.getDatabase(this@RecordingManagerActivity)
-            val recordings = withContext(Dispatchers.IO) {
-                db.recordingDao().getAllRecordings().toString() // This is wrong, need to get list
-            }
-            
             // Get all recordings synchronously for export
             val allRecordings = withContext(Dispatchers.IO) {
-                val dao = db.recordingDao()
-                // Use a suspend function to get all recordings as a list
-                val count = dao.getRecordingCount()
+                val db = RecordingDatabase.getDatabase(this@RecordingManagerActivity)
+                // Collect all recordings from database
+                val count = db.recordingDao().getRecordingCount()
                 if (count == 0) {
                     emptyList<Recording>()
                 } else {
-                    // We need to collect from Flow
-                    mutableListOf<Recording>().apply {
-                        // For now, we'll query directly
-                    }
+                    // Query all recordings synchronously
+                    // Since we can't easily get all at once from Flow, we'll use a workaround
+                    // by querying for recordings with different statuses
+                    val notStarted = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.NOT_STARTED)
+                    val processing = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.PROCESSING)
+                    val completed = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.COMPLETED)
+                    val fallback = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.FALLBACK)
+                    val error = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.ERROR)
+                    val disabled = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.DISABLED)
+                    
+                    (notStarted + processing + completed + fallback + error + disabled).distinct()
                 }
             }
             
