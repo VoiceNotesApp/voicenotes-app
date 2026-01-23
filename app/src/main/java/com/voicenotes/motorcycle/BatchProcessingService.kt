@@ -240,37 +240,30 @@ class BatchProcessingService : LifecycleService() {
                             )
                             
                             val osmService = OsmNotesService()
-                            val noteId = osmService.createNote(recording.latitude, recording.longitude, finalText, accessToken)
+                            val osmResult = osmService.createNote(recording.latitude, recording.longitude, finalText, accessToken)
                             
-                            // Update OSM status to COMPLETED
-                            withContext(Dispatchers.IO) {
-                                val updated = recording.copy(
-                                    osmStatus = OsmStatus.COMPLETED,
-                                    osmNoteId = noteId,
-                                    osmResult = "Note created: $noteId",
-                                    updatedAt = System.currentTimeMillis()
-                                )
-                                db.recordingDao().updateRecording(updated)
+                            osmResult.onSuccess {
+                                // Update OSM status to COMPLETED
+                                withContext(Dispatchers.IO) {
+                                    val updated = recording.copy(
+                                        osmStatus = OsmStatus.COMPLETED,
+                                        osmResult = "Note created at ${recording.latitude},${recording.longitude}",
+                                        updatedAt = System.currentTimeMillis()
+                                    )
+                                    db.recordingDao().updateRecording(updated)
+                                }
+                            }.onFailure { osmError ->
+                                // Update OSM status to ERROR
+                                withContext(Dispatchers.IO) {
+                                    val updated = recording.copy(
+                                        osmStatus = OsmStatus.ERROR,
+                                        errorMsg = "OSM: ${osmError.message}",
+                                        updatedAt = System.currentTimeMillis()
+                                    )
+                                    db.recordingDao().updateRecording(updated)
+                                }
                             }
-                        } catch (e: Exception) {
-                            Log.e("BatchProcessing", "Failed to create OSM note for ${recording.filename}", e)
-                            DebugLogger.logError(
-                                service = "BatchProcessingService",
-                                error = "Failed to create OSM note for ${recording.filename}",
-                                exception = e
-                            )
-                            
-                            // Update OSM status to ERROR
-                            withContext(Dispatchers.IO) {
-                                val updated = recording.copy(
-                                    osmStatus = OsmStatus.ERROR,
-                                    errorMsg = "OSM: ${e.message}",
-                                    updatedAt = System.currentTimeMillis()
-                                )
-                                db.recordingDao().updateRecording(updated)
-                            }
-                        }
-                    } else {
+                        } else {
                         // Update OSM status to DISABLED (not authenticated)
                         withContext(Dispatchers.IO) {
                             val updated = recording.copy(

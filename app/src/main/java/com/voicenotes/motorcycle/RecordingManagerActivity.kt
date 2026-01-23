@@ -195,23 +195,7 @@ class RecordingManagerActivity : AppCompatActivity() {
             // Get all recordings synchronously for export
             val allRecordings = withContext(Dispatchers.IO) {
                 val db = RecordingDatabase.getDatabase(this@RecordingManagerActivity)
-                // Collect all recordings from database
-                val count = db.recordingDao().getRecordingCount()
-                if (count == 0) {
-                    emptyList<Recording>()
-                } else {
-                    // Query all recordings synchronously
-                    // Since we can't easily get all at once from Flow, we'll use a workaround
-                    // by querying for recordings with different statuses
-                    val notStarted = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.NOT_STARTED)
-                    val processing = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.PROCESSING)
-                    val completed = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.COMPLETED)
-                    val fallback = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.FALLBACK)
-                    val error = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.ERROR)
-                    val disabled = db.recordingDao().getRecordingsByV2SStatus(V2SStatus.DISABLED)
-                    
-                    (notStarted + processing + completed + fallback + error + disabled).distinct()
-                }
+                db.recordingDao().getAllRecordingsList()
             }
             
             if (allRecordings.isEmpty()) {

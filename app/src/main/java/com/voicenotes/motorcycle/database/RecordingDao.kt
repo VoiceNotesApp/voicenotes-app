@@ -11,6 +11,9 @@ interface RecordingDao {
     fun getAllRecordings(): Flow<List<Recording>>
     
     @Query("SELECT * FROM recordings ORDER BY timestamp DESC")
+    suspend fun getAllRecordingsList(): List<Recording>
+    
+    @Query("SELECT * FROM recordings ORDER BY timestamp DESC")
     fun getAllRecordingsLiveData(): LiveData<List<Recording>>
     
     @Query("SELECT * FROM recordings WHERE id = :id")
