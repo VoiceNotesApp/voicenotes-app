@@ -214,6 +214,13 @@ If workflows fail:
    - Commit and push
    - Workflows will automatically re-run
 
+## PR Description Guidelines
+
+When creating or updating PRs:
+- Do NOT add automated tips or suggestions like "💡 You can make Copilot smarter..." to PR descriptions
+- Keep PR descriptions focused on the actual changes made
+- Include only relevant information about the code changes, testing, and impact
+
 ## Notes
 
 - These instructions apply to all PRs in this repository
