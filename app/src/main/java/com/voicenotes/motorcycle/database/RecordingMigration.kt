@@ -76,12 +76,12 @@ class RecordingMigration(private val context: Context) {
             }
             
             Log.d(TAG, "Scanning directory: ${dir.absolutePath}")
-            // Scan for both .ogg (Opus) and .m4a (AAC) audio files
+            // Scan for both .ogg (Opus) and .amr (AMR_WB) audio files
             val audioFiles = dir.listFiles { file -> 
-                file.extension == "ogg" || file.extension == "m4a" 
+                file.extension == "ogg" || file.extension == "amr" 
             } ?: emptyArray()
             
-            Log.d(TAG, "Found ${audioFiles.size} audio files (.ogg, .m4a) in ${dir.absolutePath}")
+            Log.d(TAG, "Found ${audioFiles.size} audio files (.ogg, .amr) in ${dir.absolutePath}")
             
             for (file in audioFiles) {
                 try {
@@ -140,7 +140,7 @@ class RecordingMigration(private val context: Context) {
     
     /**
      * Extract coordinates and timestamp from filename
-     * Expected format: {lat},{lng}_{yyyyMMdd_HHmmss}.m4a
+     * Expected format: {lat},{lng}_{yyyyMMdd_HHmmss}.ogg or .amr
      * Returns Triple(lat, lon, timestamp in millis) or Triple(null, null, null) if parsing fails
      */
     private fun extractMetadataFromFilename(filename: String): Triple<Double?, Double?, Long?> {

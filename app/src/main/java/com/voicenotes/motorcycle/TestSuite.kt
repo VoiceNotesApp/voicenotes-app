@@ -360,7 +360,7 @@ class TestSuite(private val context: Context) {
         
         runTest("Coordinate Extraction from Filename") {
             val testFilename = "VN_2024-01-15_12-30-45_40.7128_-74.0060.ogg"
-            val pattern = """_(-?\d+\.\d+)_(-?\d+\.\d+)\.(ogg|m4a)$""".toRegex()
+            val pattern = """_(-?\d+\.\d+)_(-?\d+\.\d+)\.(ogg|amr)$""".toRegex()
             val match = pattern.find(testFilename)
             
             if (match != null) {
@@ -429,7 +429,7 @@ class TestSuite(private val context: Context) {
                     val recorder = MediaRecorder()
                     recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
                     
-                    // Test OGG_OPUS on API 29+ (Android 10+), fallback to AAC for older devices
+                    // Test OGG_OPUS on API 29+ (Android 10+), fallback to AMR_WB for older devices
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         recorder.setOutputFormat(MediaRecorder.OutputFormat.OGG)
                         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS)
@@ -440,14 +440,14 @@ class TestSuite(private val context: Context) {
                         testFile.delete()
                         TestResult("MediaRecorder Initialization Test", true, "MediaRecorder can be initialized with OGG_OPUS")
                     } else {
-                        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                        val testFile = File(context.cacheDir, "test_audio_${System.currentTimeMillis()}.m4a")
+                        recorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_WB)
+                        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB)
+                        val testFile = File(context.cacheDir, "test_audio_${System.currentTimeMillis()}.amr")
                         recorder.setOutputFile(testFile.absolutePath)
                         recorder.prepare()
                         recorder.release()
                         testFile.delete()
-                        TestResult("MediaRecorder Initialization Test", true, "MediaRecorder can be initialized with AAC")
+                        TestResult("MediaRecorder Initialization Test", true, "MediaRecorder can be initialized with AMR_WB")
                     }
                 } catch (e: Exception) {
                     TestResult("MediaRecorder Initialization Test", false, "MediaRecorder error: ${e.message}")
@@ -845,12 +845,12 @@ class TestSuite(private val context: Context) {
                 val saveDir = File(saveDirPath)
                 if (saveDir.exists()) {
                     val audioFiles = saveDir.listFiles { file -> 
-                        file.extension == "ogg" || file.extension == "m4a" 
+                        file.extension == "ogg" || file.extension == "amr" 
                     }
                     val count = audioFiles?.size ?: 0
                     val oggCount = audioFiles?.count { it.extension == "ogg" } ?: 0
-                    val m4aCount = audioFiles?.count { it.extension == "m4a" } ?: 0
-                    TestResult("Audio File Discovery", true, "Found $count audio files ($oggCount .ogg, $m4aCount .m4a) in save directory")
+                    val amrCount = audioFiles?.count { it.extension == "amr" } ?: 0
+                    TestResult("Audio File Discovery", true, "Found $count audio files ($oggCount .ogg, $amrCount .amr) in save directory")
                 } else {
                     TestResult("Audio File Discovery", true, "Save directory does not exist yet")
                 }
@@ -861,13 +861,13 @@ class TestSuite(private val context: Context) {
         
         runTest("Coordinate Extraction from Filename Pattern") {
             val testFilenameOgg = "VN_2024-01-15_12-30-45_40.7128_-74.0060.ogg"
-            val testFilenameM4a = "VN_2024-01-15_12-30-45_40.7128_-74.0060.m4a"
-            val pattern = """_(-?\d+\.\d+)_(-?\d+\.\d+)\.(ogg|m4a)$""".toRegex()
+            val testFilenameAmr = "VN_2024-01-15_12-30-45_40.7128_-74.0060.amr"
+            val pattern = """_(-?\d+\.\d+)_(-?\d+\.\d+)\.(ogg|amr)$""".toRegex()
             val matchOgg = pattern.find(testFilenameOgg)
-            val matchM4a = pattern.find(testFilenameM4a)
+            val matchAmr = pattern.find(testFilenameAmr)
             
-            if (matchOgg != null && matchM4a != null) {
-                TestResult("Coordinate Extraction from Filename Pattern", true, "Pattern matched both .ogg and .m4a files successfully")
+            if (matchOgg != null && matchAmr != null) {
+                TestResult("Coordinate Extraction from Filename Pattern", true, "Pattern matched both .ogg and .amr files successfully")
             } else {
                 TestResult("Coordinate Extraction from Filename Pattern", false, "Pattern match failed")
             }

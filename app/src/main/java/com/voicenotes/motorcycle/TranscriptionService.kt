@@ -44,7 +44,7 @@ class TranscriptionService(private val context: Context) {
 
     /**
      * Transcribes an audio file using Google Cloud Speech-to-Text API
-     * Supports both OGG_OPUS (.ogg) and M4A/AAC (.m4a) formats
+     * Supports both OGG_OPUS (.ogg) and AMR_WB (.amr) formats
      * 
      * @param filePath Absolute path to the audio file
      * @return Result containing transcribed text or error
@@ -151,9 +151,9 @@ class TranscriptionService(private val context: Context) {
                 val encoding = if (isOggOpus) {
                     RecognitionConfig.AudioEncoding.OGG_OPUS
                 } else {
-                    RecognitionConfig.AudioEncoding.FLAC  // FLAC works for M4A/AAC
+                    RecognitionConfig.AudioEncoding.AMR_WB  // AMR_WB for older devices
                 }
-                val sampleRate = if (isOggOpus) 48000 else 44100
+                val sampleRate = if (isOggOpus) 48000 else 16000  // AMR_WB uses 16kHz
                 
                 val recognitionConfig = RecognitionConfig.newBuilder()
                     .setEncoding(encoding)
