@@ -138,6 +138,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         }
         
         // Normal startup flow - wait for TTS initialization
+        
+        // Call super implementation to comply with Android Service requirements
+        super.onStartCommand(intent, flags, startId)
         return START_NOT_STICKY
     }
 
