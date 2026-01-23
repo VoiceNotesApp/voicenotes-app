@@ -129,16 +129,17 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         val additionalDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
         
         if (additionalDuration > 0) {
             // This is an extension request - use the duration from the intent
             extendRecordingDuration(additionalDuration)
-            return super.onStartCommand(intent, flags, startId)
+            return START_NOT_STICKY
         }
         
         // Normal startup flow - wait for TTS initialization
-        return super.onStartCommand(intent, flags, startId)
+        return START_NOT_STICKY
     }
 
     override fun onInit(status: Int) {
