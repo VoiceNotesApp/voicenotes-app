@@ -6,17 +6,17 @@ This document summarizes all changes made to implement the requested features fo
 
 ## Requirements Implemented
 
-### 1. ✅ High-Quality Audio Recording with OGG_OPUS
+### 1. ✅ High-Quality Audio Recording with Ogg Opus
 
 **Status**: Implemented with modern Opus codec for speech
 
 **Changes Made**:
-- Uses OGG_OPUS encoding on Android 10+ (API 29+)
+- Uses Ogg Opus encoding on Android 10+ (API 29+)
 - Falls back to AAC encoding in MPEG-4 container on Android 8-9 (API 26-28)
 - Quality settings: 32 kbps bitrate, 48 kHz sample rate for Opus (optimal for speech)
 - Quality settings: 128 kbps bitrate, 44.1 kHz sample rate for AAC (legacy devices)
 
-**Technical Note**: OGG_OPUS provides:
+**Technical Note**: Ogg Opus provides:
 - Much smaller file sizes (32 kbps vs 128 kbps = ~4x reduction)
 - Better speech quality at lower bitrates
 - Native support in Google Cloud Speech-to-Text API
@@ -327,7 +327,7 @@ This document summarizes all changes made to implement the requested features fo
 
 ### Audio Encoding
 
-**Impact**: Uses OGG_OPUS on Android 10+ for optimal file size and quality
+**Impact**: Uses Ogg Opus on Android 10+ for optimal file size and quality
 
 **Fallback**: AAC in MPEG-4 container for Android 8-9
 
@@ -438,7 +438,7 @@ This document summarizes all changes made to implement the requested features fo
 
 All requested features have been successfully implemented except for speech-to-text transcription, which is documented as a planned future feature due to Android API limitations. The app now provides:
 
-- ✅ OGG_OPUS format recording (or AAC fallback for older devices)
+- ✅ Ogg Opus format recording (or AAC fallback for older devices)
 - ✅ Bluetooth microphone support
 - ✅ Always recording on launch
 - ✅ First-run tutorial

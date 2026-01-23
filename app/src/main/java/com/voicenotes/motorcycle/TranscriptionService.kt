@@ -148,14 +148,16 @@ class TranscriptionService(private val context: Context) {
                 val isOggOpus = filePath.endsWith(".ogg", ignoreCase = true)
                 
                 // Configure recognition based on file format
+                val encoding = if (isOggOpus) {
+                    RecognitionConfig.AudioEncoding.OGG_OPUS
+                } else {
+                    RecognitionConfig.AudioEncoding.FLAC  // FLAC works for M4A/AAC
+                }
+                val sampleRate = if (isOggOpus) 48000 else 44100
+                
                 val recognitionConfig = RecognitionConfig.newBuilder()
-                    .setEncoding(
-                        if (isOggOpus) 
-                            RecognitionConfig.AudioEncoding.OGG_OPUS 
-                        else 
-                            RecognitionConfig.AudioEncoding.FLAC  // FLAC works for M4A/AAC
-                    )
-                    .setSampleRateHertz(if (isOggOpus) 48000 else 44100)
+                    .setEncoding(encoding)
+                    .setSampleRateHertz(sampleRate)
                     .setLanguageCode("en-US")
                     .setEnableAutomaticPunctuation(true)
                     .setModel("default")
