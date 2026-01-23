@@ -133,6 +133,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         val additionalDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
         
         if (additionalDuration > 0) {
@@ -316,12 +317,13 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             }
 
             // Create filename with coordinates and timestamp
-            // Note: Using AAC encoding in MPEG-4 container, so extension is .m4a (not .mp3)
-            // Android's MediaRecorder doesn't support true MP3 encoding natively
+            // Use OGG_OPUS encoding for API 29+ (smaller, better quality for speech)
+            // Fall back to AAC in MPEG-4 container (.m4a) for older devices
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
             val lat = String.format("%.6f", location.latitude)
             val lng = String.format("%.6f", location.longitude)
-            val fileName = "${lat},${lng}_${timestamp}.m4a"
+            val fileExtension = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) "ogg" else "m4a"
+            val fileName = "${lat},${lng}_${timestamp}.${fileExtension}"
 
             // Use internal app storage instead of external storage
             val directory = File(filesDir, "recordings")
@@ -334,12 +336,30 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             // Set audio source
             val audioSource = getPreferredAudioSource()
 
-            mediaRecorder = MediaRecorder(this).apply {
+            // MediaRecorder constructor requires different signatures based on API level:
+            // API 31+ (Android S): MediaRecorder(Context) - required to associate with app context
+            // API 26-30: MediaRecorder() - deprecated but required for backward compatibility
+            mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                MediaRecorder(this)
+            } else {
+                MediaRecorder()
+            }.apply {
                 setAudioSource(audioSource)
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setAudioEncodingBitRate(128000)
-                setAudioSamplingRate(44100)
+                
+                // Use OGG_OPUS for API 29+ (Android 10+) for better compression and quality
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    setOutputFormat(MediaRecorder.OutputFormat.OGG)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.OPUS)
+                    setAudioEncodingBitRate(32000)  // 32kbps is optimal for speech with Opus
+                    setAudioSamplingRate(48000)     // Opus native sample rate
+                } else {
+                    // Fall back to AAC for older devices (API 26-28)
+                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    setAudioEncodingBitRate(128000)
+                    setAudioSamplingRate(44100)
+                }
+                
                 setOutputFile(recordingFilePath)
                 prepare()
                 start()

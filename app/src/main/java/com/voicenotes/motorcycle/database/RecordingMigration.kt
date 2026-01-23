@@ -76,11 +76,14 @@ class RecordingMigration(private val context: Context) {
             }
             
             Log.d(TAG, "Scanning directory: ${dir.absolutePath}")
-            val m4aFiles = dir.listFiles { file -> file.extension == "m4a" } ?: emptyArray()
+            // Scan for both .ogg (Opus) and .m4a (AAC) audio files
+            val audioFiles = dir.listFiles { file -> 
+                file.extension == "ogg" || file.extension == "m4a" 
+            } ?: emptyArray()
             
-            Log.d(TAG, "Found ${m4aFiles.size} m4a files in ${dir.absolutePath}")
+            Log.d(TAG, "Found ${audioFiles.size} audio files (.ogg, .m4a) in ${dir.absolutePath}")
             
-            for (file in m4aFiles) {
+            for (file in audioFiles) {
                 try {
                     // Extract metadata from filename
                     val (lat, lon, timestamp) = extractMetadataFromFilename(file.name)
