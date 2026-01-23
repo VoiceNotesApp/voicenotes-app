@@ -41,7 +41,8 @@ When creating or working on a pull request (PR):
 Before marking a PR as ready:
 - ✅ Lint checks must pass
 - ✅ Build must complete successfully
-- ✅ All automated tests must pass (if applicable)
+- ✅ All automated tests must pass (unit tests and instrumented tests)
+- ✅ Test coverage meets requirements for new code
 - ✅ No merge conflicts
 - ✅ Code follows repository conventions
 
@@ -68,6 +69,106 @@ The goal is to minimize manual steps:
 - Build must succeed with no errors
 - APK must be generated successfully in `app/build/outputs/apk/debug/`
 
+### Testable Code Guidelines
+
+When implementing features, always follow these testing practices:
+
+#### 1. Write Testable Code
+- Design all code with testability in mind
+- Use dependency injection to facilitate testing
+- Keep functions focused and single-purpose
+- Avoid tight coupling between components
+- Make methods and classes easily mockable
+
+#### 2. Create Comprehensive Tests
+
+For **each requested feature**, create:
+
+**a) Unit Tests:**
+- Place unit tests in the `tests` folder (or `app/src/test/` for Android standard structure)
+- Test individual components, methods, and classes in isolation
+- Mock external dependencies
+- Cover edge cases and error scenarios
+- Include extensive debug output to help identify errors immediately
+- Each test should have descriptive names that explain what is being tested
+
+**b) End-to-End On-Device Tests:**
+- Create instrumented tests in `app/src/androidTest/` for Android
+- Test complete user workflows and interactions
+- Verify actual device behavior and UI functionality
+- Test integration between multiple components
+- Cover realistic user scenarios
+
+#### 3. Run Tests After Each Build
+
+- **Always run unit tests from the tests folder after each build**
+- Use command: `./gradlew test` (or appropriate test command for the project)
+- Tests should be part of the development cycle, not an afterthought
+- Address any test failures immediately before proceeding
+
+#### 4. Test Output Requirements
+
+Unit test output should include:
+
+- **Extensive debug output:** 
+  - Log test execution steps
+  - Print input values and expected results
+  - Show actual vs expected comparisons
+  - Include stack traces for failures
+  - Output intermediate calculation results when relevant
+  
+- **Summary at the end:**
+  - Total tests run
+  - Tests passed
+  - Tests failed
+  - Overall pass/fail status
+  - Execution time
+  - Quick reference to any failures
+
+Example output format:
+```
+Running TestClassName...
+  ✓ testMethodName1 - PASSED (0.05s)
+    Input: value1
+    Expected: result1
+    Actual: result1
+  
+  ✗ testMethodName2 - FAILED (0.03s)
+    Input: value2
+    Expected: result2
+    Actual: result3
+    Error: Assertion failed at line 42
+
+======================================
+TEST SUMMARY
+======================================
+Total Tests: 25
+Passed: 24
+Failed: 1
+Success Rate: 96%
+Total Time: 1.23s
+Status: FAILED
+======================================
+```
+
+#### 5. Test Coverage Goals
+
+- Aim for high test coverage of new code
+- Critical paths should have 100% coverage
+- All public APIs should have tests
+- All error handling paths should be tested
+- Edge cases and boundary conditions must be tested
+
+#### 6. Testing Best Practices
+
+- Write tests before or alongside implementation (TDD approach when possible)
+- Keep tests independent and isolated
+- Use meaningful test data
+- Follow the AAA pattern: Arrange, Act, Assert
+- Make tests deterministic (no random values without seeds)
+- Clean up resources after tests (files, database, network connections)
+- Use appropriate assertion messages for clarity
+
 ### Workflow Artifacts
 - Lint reports are retained for 7 days
 - Build APKs are available as workflow artifacts
@@ -78,17 +179,21 @@ The goal is to minimize manual steps:
 1. **Before creating a PR:**
    - Ensure local build passes: `./gradlew assembleDebug`
    - Run local lint: `./gradlew lint`
+   - Run unit tests: `./gradlew test`
+   - Review test output for any failures
    - Review changes for quality
 
 2. **After creating a PR:**
    - Monitor workflow execution in the "Actions" tab
    - Check for any failures in the PR checks section
+   - Verify all tests pass in CI/CD pipeline
    - Address failures promptly
 
 3. **Communication:**
    - Use PR descriptions to explain changes
    - Reference related issues
    - Note any special considerations for reviewers
+   - Include test results summary when relevant
 
 ## Troubleshooting Workflow Failures
 
