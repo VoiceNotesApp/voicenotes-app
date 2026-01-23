@@ -155,8 +155,8 @@ To implement across multiple repositories:
 ## Additional Resources
 
 - [GitHub Copilot Documentation](https://docs.github.com/en/copilot)
-- [GitHub Actions Workflows](../.github/workflows/)
-- [Repository README](../../README.md)
+- [GitHub Actions Workflows](./workflows/)
+- [Repository README](../README.md)
 
 ## Questions or Issues?
 
