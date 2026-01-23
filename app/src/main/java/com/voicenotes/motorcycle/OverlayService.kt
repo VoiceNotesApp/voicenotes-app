@@ -338,6 +338,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             // Set audio source
             val audioSource = getPreferredAudioSource()
 
+            // MediaRecorder constructor requires different signatures based on API level:
+            // API 31+ (Android S): MediaRecorder(Context) - required to associate with app context
+            // API 26-30: MediaRecorder() - deprecated but required for backward compatibility
             mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 MediaRecorder(this)
             } else {
