@@ -81,6 +81,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         // Check if overlay permission is granted
         if (!Settings.canDrawOverlays(this)) {
+            Log.e("OverlayService", "Overlay permission not granted - stopping service")
             stopSelf()
             return
         }
@@ -125,7 +126,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         windowManager?.addView(overlayView, params)
         
-        updateOverlay(getString(R.string.acquiring_location))
+        // Show "Initializing..." when overlay is first created
+        updateOverlay(getString(R.string.initializing))
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -162,6 +164,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     private fun startRecordingProcess() {
+        updateOverlay(getString(R.string.acquiring_location))
         acquireLocation()
     }
 
