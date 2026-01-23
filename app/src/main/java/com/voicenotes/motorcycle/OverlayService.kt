@@ -337,7 +337,11 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             // Set audio source
             val audioSource = getPreferredAudioSource()
 
-            mediaRecorder = MediaRecorder(this).apply {
+            mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                MediaRecorder(this)
+            } else {
+                MediaRecorder()
+            }.apply {
                 setAudioSource(audioSource)
                 
                 // Use OGG_OPUS for API 29+ (Android 10+) for better compression and quality
