@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Motorcycle Voice Notes</string>
     <string name="settings_title">Configuration</string>
+    <string name="settings_launcher_name">Voice Notes Settings</string>
     <string name="location_acquired">Location acquired</string>
     <string name="recording_stopped">Recording stopped</string>
     <string name="permission_required">Permissions Required</string>
