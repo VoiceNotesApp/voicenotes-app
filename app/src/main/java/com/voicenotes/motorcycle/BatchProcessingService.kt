@@ -55,16 +55,6 @@ class BatchProcessingService : LifecycleService() {
             return
         }
         
-<<<<<<< HEAD
-=======
-        val directory = File(saveDir)
-        // Process .ogg (Opus) and .amr (AMR_WB) audio files
-        val audioFiles = directory.listFiles { file -> 
-            file.extension == "ogg" || file.extension == "amr" 
-        } ?: emptyArray()
-        
-        Log.d("BatchProcessing", "Found ${audioFiles.size} files to process")
->>>>>>> 3ca30bc6e33830905e9bfa02b9d1f631300cda1b
         DebugLogger.logInfo(
             service = "BatchProcessingService",
             message = "Processing single recording: ${recording.filename}"
