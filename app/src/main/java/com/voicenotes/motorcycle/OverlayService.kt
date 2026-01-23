@@ -138,7 +138,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         }
         
         // Normal startup flow - wait for TTS initialization
-        return START_NOT_STICKY
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onInit(status: Int) {
