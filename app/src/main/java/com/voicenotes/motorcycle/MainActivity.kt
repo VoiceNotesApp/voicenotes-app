@@ -114,47 +114,8 @@ class MainActivity : AppCompatActivity() {
     private fun isFirstRun(): Boolean {
         Log.d(TAG, "isFirstRun() called")
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val saveDir = prefs.getString("saveDirectory", null)
         
-        Log.d(TAG, "Save directory from prefs: $saveDir")
-        
-        // Always use fixed internal storage path
-        val defaultPath = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_MUSIC
-        ).absolutePath + "/VoiceNotes"
-        
-        // If no directory configured, set it now
-        if (saveDir.isNullOrEmpty()) {
-            Log.d(TAG, "No directory configured, setting default: $defaultPath")
-            prefs.edit().putString("saveDirectory", defaultPath).apply()
-            
-            // Try to create directory
-            try {
-                val dir = File(defaultPath)
-                if (!dir.exists()) {
-                    val created = dir.mkdirs()
-                    Log.d(TAG, "Created directory: $created")
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to create directory", e)
-            }
-        }
-        
-        // Directory should now be configured
-        val finalSaveDir = prefs.getString("saveDirectory", null)
-        val dir = File(finalSaveDir ?: defaultPath)
-        
-        Log.d(TAG, "Final save directory: ${dir.absolutePath}")
-        
-        // Check if directory exists or can be created
-        if (!dir.exists()) {
-            Log.d(TAG, "Directory doesn't exist, attempting to create")
-            try {
-                dir.mkdirs()
-            } catch (e: Exception) {
-                Log.e(TAG, "Cannot create directory", e)
-            }
-        }
+        Log.d(TAG, "Checking permissions")
         
         val permissionsMissing = !checkPermissions()
         Log.d(TAG, "Permissions missing: $permissionsMissing")
