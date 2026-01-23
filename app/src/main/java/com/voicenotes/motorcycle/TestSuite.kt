@@ -845,6 +845,7 @@ class TestSuite(private val context: Context) {
                 val saveDir = File(saveDirPath)
                 if (saveDir.exists()) {
                     val audioFiles = saveDir.listFiles { file -> 
+                    val audioFiles = saveDir.listFiles { file -> 
                         file.extension == "ogg" || file.extension == "amr" 
                     }
                     val count = audioFiles?.size ?: 0

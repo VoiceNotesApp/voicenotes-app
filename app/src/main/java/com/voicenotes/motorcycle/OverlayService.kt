@@ -409,11 +409,13 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun getPreferredAudioSource(): Int {
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         
-        // Check Bluetooth permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-            != PackageManager.PERMISSION_GRANTED) {
-            Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_RECOGNITION source")
-            return MediaRecorder.AudioSource.VOICE_RECOGNITION
+        // Check Bluetooth permission (only needed on API 31+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                != PackageManager.PERMISSION_GRANTED) {
+                Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_RECOGNITION source")
+                return MediaRecorder.AudioSource.VOICE_RECOGNITION
+            }
         }
         
         return if (audioManager.isBluetoothScoAvailableOffCall) {
