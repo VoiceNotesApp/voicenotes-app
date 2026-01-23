@@ -8,7 +8,38 @@ The workflows have been optimized to significantly reduce build times by impleme
 
 ## Implemented Optimizations
 
-### 1. Gradle Dependency Caching
+### 1. Path-Based Workflow Triggering
+
+**What:** Uses `paths-ignore` filters to skip builds when only non-code files change
+**Impact:** Prevents unnecessary workflow runs for documentation or workflow changes
+**Time Savings:** 100% (entire workflow skipped when only docs/workflows change)
+
+```yaml
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - '**.md'                    # Documentation files
+      - 'docs/**'                  # Documentation directory
+      - '.github/workflows/**'     # Workflow changes don't affect app builds
+      - '.gitignore'               # Git config changes
+      - 'LICENSE'                  # License changes
+```
+
+**Examples of changes that will NOT trigger builds:**
+- README.md updates
+- Documentation additions/changes
+- Workflow file modifications
+- .gitignore changes
+- License updates
+
+**Examples of changes that WILL trigger builds:**
+- Source code changes (app/src/**)
+- Gradle configuration (*.gradle*, gradle-wrapper.properties)
+- Android manifest changes
+- Resource changes (res/**)
+
+### 2. Gradle Dependency Caching
 
 **What:** Uses `actions/setup-java@v4` with `cache: gradle` parameter
 **Impact:** Caches Gradle dependencies, wrappers, and build cache
@@ -25,7 +56,7 @@ The workflows have been optimized to significantly reduce build times by impleme
 
 **Note:** The built-in `cache: gradle` is sufficient and preferred over manual `actions/cache` for Gradle. We removed redundant explicit Gradle caching in `android-build.yml` and `create-release.yml`.
 
-### 2. Android SDK Caching
+### 3. Android SDK Caching
 
 **What:** Caches Android SDK components using `actions/cache@v4`
 **Impact:** Prevents re-downloading SDK packages (~1-2 GB) on each run
@@ -47,7 +78,7 @@ The workflows have been optimized to significantly reduce build times by impleme
 - Primary key includes hash of build files to invalidate when dependencies change
 - Restore key provides fallback to use previous cache even if build files changed slightly
 
-### 3. Gradle Build Cache
+### 4. Gradle Build Cache
 
 **What:** Enables Gradle's built-in build cache with `--build-cache` flag
 **Impact:** Reuses task outputs from previous builds (incremental compilation)
@@ -58,13 +89,13 @@ The workflows have been optimized to significantly reduce build times by impleme
   run: ./gradlew assembleDebug --stacktrace --build-cache --parallel
 ```
 
-### 4. Parallel Execution
+### 5. Parallel Execution
 
 **What:** Enables parallel task execution with `--parallel` flag
 **Impact:** Executes independent Gradle tasks concurrently
 **Time Savings:** ~10-30% faster builds depending on available CPU cores
 
-### 5. Consistent Caching Strategy
+### 6. Consistent Caching Strategy
 
 **What:** Standardized caching approach across all three workflows
 **Impact:** Predictable performance, easier maintenance
@@ -75,16 +106,18 @@ The workflows have been optimized to significantly reduce build times by impleme
 
 ## Performance Impact Summary
 
-| Optimization | First Run | Subsequent Runs | Cache Hit |
-|--------------|-----------|-----------------|-----------|
-| Gradle Dependencies | 0s | ~30-60s faster | ~95% |
-| Android SDK | 0s | ~60-120s faster | ~99% |
-| Build Cache | 0s | ~20-40% faster | ~70% |
-| Parallel Execution | ~10-30% faster | ~10-30% faster | N/A |
+| Optimization | First Run | Subsequent Runs | Cache Hit | Skipped Runs |
+|--------------|-----------|-----------------|-----------|--------------|
+| Path Filtering | N/A | N/A | N/A | 100% (docs only) |
+| Gradle Dependencies | 0s | ~30-60s faster | ~95% | N/A |
+| Android SDK | 0s | ~60-120s faster | ~99% | N/A |
+| Build Cache | 0s | ~20-40% faster | ~70% | N/A |
+| Parallel Execution | ~10-30% faster | ~10-30% faster | N/A | N/A |
 
 **Total Expected Improvement:**
-- First run: ~10-30% faster (parallel execution only)
-- Subsequent runs: **~2-4 minutes faster** (with cache hits)
+- **Documentation-only changes: Entire workflow skipped** (saves 4-8 minutes)
+- First run with code changes: ~10-30% faster (parallel execution only)
+- Subsequent runs with code changes: **~2-4 minutes faster** (with cache hits)
 
 ## Cache Invalidation
 
@@ -93,6 +126,33 @@ Caches are automatically invalidated when:
 1. **Gradle Dependencies:** Build files (`*.gradle*`) or Gradle wrapper properties change
 2. **Android SDK:** Build configuration changes (uses same key as Gradle)
 3. **Build Cache:** Gradle automatically manages based on task inputs
+
+## Path Filtering Strategy
+
+The workflows use `paths-ignore` to prevent unnecessary runs:
+
+### Ignored Paths (workflow will NOT run):
+- `**.md` - All Markdown files (README, docs, etc.)
+- `docs/**` - Documentation directory
+- `.github/workflows/**` - Workflow file changes
+- `.gitignore` - Git configuration
+- `LICENSE` - License file
+
+### Included Paths (workflow WILL run):
+- `app/**` - All application source code
+- `*.gradle*` - Gradle build files
+- `gradle-wrapper.properties` - Gradle wrapper config
+- `gradle/**` - Gradle configuration
+- Any other files not explicitly ignored
+
+**Example scenarios:**
+- ✅ PR updating only README.md → **Workflow skipped** (saves 4-8 minutes)
+- ✅ PR updating workflow YAML → **Workflow skipped** (avoids recursive triggers)
+- ❌ PR updating app source code → **Workflow runs** (as expected)
+- ❌ PR updating build.gradle → **Workflow runs** (build config changed)
+- ✅ PR with both code + docs → **Workflow runs** (code changes present)
+
+**Note:** The `create-release.yml` workflow is manually triggered (`workflow_dispatch`) and doesn't need path filtering.
 
 ## Monitoring Cache Performance
 

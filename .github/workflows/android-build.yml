@@ -3,8 +3,24 @@ name: Android CI Build
 on:
   push:
     branches: [ main, develop, claude/** ]
+    # Only run when code that affects the build is changed
+    paths-ignore:
+      - '**.md'                    # Documentation files
+      - 'docs/**'                  # Documentation directory
+      - '.github/workflows/**'     # Workflow changes don't affect app builds
+      - '.gitignore'               # Git config changes
+      - 'LICENSE'                  # License changes
+      - '.github/WORKFLOW_OPTIMIZATION.md'  # Workflow docs
   pull_request:
     branches: [ main, develop ]
+    # Only run when code that affects the build is changed
+    paths-ignore:
+      - '**.md'                    # Documentation files
+      - 'docs/**'                  # Documentation directory
+      - '.github/workflows/**'     # Workflow changes don't affect app builds
+      - '.gitignore'               # Git config changes
+      - 'LICENSE'                  # License changes
+      - '.github/WORKFLOW_OPTIMIZATION.md'  # Workflow docs
   workflow_dispatch:
 
 jobs:
