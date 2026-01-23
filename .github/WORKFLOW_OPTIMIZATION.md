@@ -154,6 +154,16 @@ The workflows use `paths-ignore` to prevent unnecessary runs:
 
 **Note:** The `create-release.yml` workflow is manually triggered (`workflow_dispatch`) and doesn't need path filtering.
 
+**Trade-off:** Workflow file changes will not trigger CI builds. This is intentional to:
+- Prevent recursive workflow triggers
+- Avoid unnecessary APK builds when only workflow YAML changes
+- Save CI minutes for documentation/workflow maintenance
+
+If you need to test workflow changes, use:
+- Local YAML validation: `python3 -c "import yaml; yaml.safe_load(open('file.yml'))"`
+- Manual workflow triggers via GitHub UI (workflow_dispatch)
+- Push a small code change alongside the workflow change to trigger validation
+
 ## Monitoring Cache Performance
 
 To check cache effectiveness in GitHub Actions:
