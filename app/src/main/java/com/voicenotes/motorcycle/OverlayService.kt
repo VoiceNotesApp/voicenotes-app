@@ -129,6 +129,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Call super implementation to comply with Android Service requirements
+        super.onStartCommand(intent, flags, startId)
+        
         val additionalDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
         
         if (additionalDuration > 0) {
@@ -138,9 +141,6 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         }
         
         // Normal startup flow - wait for TTS initialization
-        
-        // Call super implementation to comply with Android Service requirements
-        super.onStartCommand(intent, flags, startId)
         return START_NOT_STICKY
     }
 
