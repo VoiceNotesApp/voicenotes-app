@@ -134,8 +134,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         windowManager?.addView(overlayView, params)
         
-        // Show "Initializing..." when overlay is first created
-        updateOverlay(getString(R.string.initializing))
+        updateOverlay(getString(R.string.acquiring_location))
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
