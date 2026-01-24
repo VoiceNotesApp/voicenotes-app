@@ -24,6 +24,17 @@ class OsmNotesService {
         accessToken: String
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
+            // Validate coordinates
+            if (lat < -90.0 || lat > 90.0) {
+                return@withContext Result.failure(IllegalArgumentException("Invalid latitude: $lat"))
+            }
+            if (lon < -180.0 || lon > 180.0) {
+                return@withContext Result.failure(IllegalArgumentException("Invalid longitude: $lon"))
+            }
+            if (text.isBlank()) {
+                return@withContext Result.failure(IllegalArgumentException("Note text cannot be empty"))
+            }
+            
             val url = "https://api.openstreetmap.org/api/0.6/notes.json?lat=$lat&lon=$lon&text=${text.urlEncode()}"
             
             // Log the request
@@ -41,7 +52,7 @@ class OsmNotesService {
                 .build()
             
             val response = client.newCall(request).execute()
-            val responseBody = response.body?.string()
+            val responseBody = response.body?.string() ?: ""
             
             if (response.isSuccessful) {
                 Log.d("OsmNotesService", "Note created successfully")
@@ -67,6 +78,14 @@ class OsmNotesService {
             DebugLogger.logError(
                 service = "OSM Notes API",
                 error = "Network error creating note",
+                exception = e
+            )
+            Result.failure(e)
+        } catch (e: Exception) {
+            Log.e("OsmNotesService", "Unexpected error creating note", e)
+            DebugLogger.logError(
+                service = "OSM Notes API",
+                error = "Unexpected error creating note",
                 exception = e
             )
             Result.failure(e)

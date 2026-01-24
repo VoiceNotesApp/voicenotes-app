@@ -244,14 +244,15 @@ class OsmOAuthManager(private val context: Context) {
     }
     
     fun saveTokensToKeystore(accessToken: String, refreshToken: String) {
-        // Use Android Keystore for secure storage
+        // Store tokens in SharedPreferences
+        // NOTE: For production apps, consider using Android Keystore for enhanced security
         val prefs = context.getSharedPreferences("OsmAuth", Context.MODE_PRIVATE)
         prefs.edit().apply {
             putString(PREF_ACCESS_TOKEN, accessToken)
             putString(PREF_REFRESH_TOKEN, refreshToken)
             apply()
         }
-        Log.d("OsmOAuthManager", "Tokens saved to keystore")
+        Log.d("OsmOAuthManager", "Tokens saved to storage")
     }
     
     fun getAccessToken(): String? {

@@ -116,12 +116,7 @@ class BatchProcessingService : LifecycleService() {
                 }
                 
                 // Send error status
-                val errorProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                errorProgressIntent.putExtra("filename", recording.filename)
-                errorProgressIntent.putExtra("status", "timeout")
-                errorProgressIntent.putExtra("current", currentFile)
-                errorProgressIntent.putExtra("total", totalFiles)
-                sendBroadcast(errorProgressIntent)
+                broadcastProgress(recording.filename, "timeout", currentFile, totalFiles)
                 
             } catch (e: Exception) {
                 Log.e("BatchProcessingService", "Error processing recording: ${recording.filename}", e)
@@ -142,12 +137,7 @@ class BatchProcessingService : LifecycleService() {
                 }
                 
                 // Send error status
-                val errorProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                errorProgressIntent.putExtra("filename", recording.filename)
-                errorProgressIntent.putExtra("status", "error")
-                errorProgressIntent.putExtra("current", currentFile)
-                errorProgressIntent.putExtra("total", totalFiles)
-                sendBroadcast(errorProgressIntent)
+                broadcastProgress(recording.filename, "error", currentFile, totalFiles)
             }
         }
         
@@ -179,12 +169,7 @@ class BatchProcessingService : LifecycleService() {
             }
             
             // Broadcast progress with detailed status
-            val progressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-            progressIntent.putExtra("filename", recording.filename)
-            progressIntent.putExtra("status", "transcribing")
-            progressIntent.putExtra("current", currentFile)
-            progressIntent.putExtra("total", totalFiles)
-            sendBroadcast(progressIntent)
+            broadcastProgress(recording.filename, "transcribing", currentFile, totalFiles)
             
             // Transcribe file
             val transcriptionService = TranscriptionService(this)
@@ -216,12 +201,7 @@ class BatchProcessingService : LifecycleService() {
                 try {
                     val coords = "${String.format("%.6f", recording.latitude)},${String.format("%.6f", recording.longitude)}"
                     
-                    val gpxProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                    gpxProgressIntent.putExtra("filename", recording.filename)
-                    gpxProgressIntent.putExtra("status", "creating GPX")
-                    gpxProgressIntent.putExtra("current", currentFile)
-                    gpxProgressIntent.putExtra("total", totalFiles)
-                    sendBroadcast(gpxProgressIntent)
+                    broadcastProgress(recording.filename, "creating GPX", currentFile, totalFiles)
                     
                     DebugLogger.logInfo(
                         service = "BatchProcessingService",
@@ -247,12 +227,7 @@ class BatchProcessingService : LifecycleService() {
                 if (addOsmNote) {
                     val oauthManager = OsmOAuthManager(this)
                     if (oauthManager.isAuthenticated()) {
-                        val osmProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                        osmProgressIntent.putExtra("filename", recording.filename)
-                        osmProgressIntent.putExtra("status", "creating OSM note")
-                        osmProgressIntent.putExtra("current", currentFile)
-                        osmProgressIntent.putExtra("total", totalFiles)
-                        sendBroadcast(osmProgressIntent)
+                        broadcastProgress(recording.filename, "creating OSM note", currentFile, totalFiles)
                         
                         try {
                             // Update OSM status to PROCESSING
@@ -319,12 +294,7 @@ class BatchProcessingService : LifecycleService() {
                 }
                 
                 // Send completion status for this file
-                val doneProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                doneProgressIntent.putExtra("filename", recording.filename)
-                doneProgressIntent.putExtra("status", "complete")
-                doneProgressIntent.putExtra("current", currentFile)
-                doneProgressIntent.putExtra("total", totalFiles)
-                sendBroadcast(doneProgressIntent)
+                broadcastProgress(recording.filename, "complete", currentFile, totalFiles)
                 
             }.onFailure { error ->
                 Log.e("BatchProcessing", "Failed to transcribe ${recording.filename}", error)
@@ -345,18 +315,43 @@ class BatchProcessingService : LifecycleService() {
                 }
                 
                 // Send error status
-                val errorProgressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
-                errorProgressIntent.putExtra("filename", recording.filename)
-                errorProgressIntent.putExtra("status", "error")
-                errorProgressIntent.putExtra("current", currentFile)
-                errorProgressIntent.putExtra("total", totalFiles)
-                sendBroadcast(errorProgressIntent)
+                broadcastProgress(recording.filename, "error", currentFile, totalFiles)
             }
+    }
+    
+    /**
+     * Helper function to broadcast batch processing progress
+     */
+    private fun broadcastProgress(filename: String, status: String, current: Int, total: Int) {
+        val progressIntent = Intent("com.voicenotes.motorcycle.BATCH_PROGRESS")
+        progressIntent.putExtra("filename", filename)
+        progressIntent.putExtra("status", status)
+        progressIntent.putExtra("current", current)
+        progressIntent.putExtra("total", total)
+        sendBroadcast(progressIntent)
     }
     
     private fun parseCoordinates(coords: String): Pair<Double, Double> {
         val parts = coords.split(",")
-        return Pair(parts[0].toDouble(), parts[1].toDouble())
+        if (parts.size < 2) {
+            throw IllegalArgumentException("Invalid coordinate format: expected 'latitude,longitude', got '$coords'")
+        }
+        try {
+            val lat = parts[0].trim().toDouble()
+            val lng = parts[1].trim().toDouble()
+            
+            // Validate coordinate ranges
+            if (lat < -90.0 || lat > 90.0) {
+                throw IllegalArgumentException("Invalid latitude: $lat (must be between -90 and 90)")
+            }
+            if (lng < -180.0 || lng > 180.0) {
+                throw IllegalArgumentException("Invalid longitude: $lng (must be between -180 and 180)")
+            }
+            
+            return Pair(lat, lng)
+        } catch (e: NumberFormatException) {
+            throw IllegalArgumentException("Invalid coordinate format: unable to parse '$coords' as numbers", e)
+        }
     }
     
     private fun createGpxWaypointFromRecording(recording: Recording, text: String, coords: String) {
