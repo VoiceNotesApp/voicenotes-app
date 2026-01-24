@@ -11,6 +11,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class DebugLogActivity : AppCompatActivity() {
 
@@ -117,19 +121,19 @@ class DebugLogActivity : AppCompatActivity() {
         buttonRunTests.isEnabled = false
         buttonRunTests.text = "Running Tests..."
         
-        // Run tests in background thread
-        Thread {
-            val testSuite = TestSuite(this)
+        // Run tests in background coroutine
+        lifecycleScope.launch(Dispatchers.IO) {
+            val testSuite = TestSuite(this@DebugLogActivity)
             testSuite.runAllTests()
             
             // Re-enable button on main thread
-            runOnUiThread {
+            withContext(Dispatchers.Main) {
                 buttonRunTests.isEnabled = true
                 buttonRunTests.text = "Run Tests"
                 updateLogDisplay()
-                Toast.makeText(this, "Tests complete", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@DebugLogActivity, "Tests complete", Toast.LENGTH_SHORT).show()
             }
-        }.start()
+        }
     }
     
     override fun onSupportNavigateUp(): Boolean {

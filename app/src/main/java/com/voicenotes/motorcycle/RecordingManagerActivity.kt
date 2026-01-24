@@ -118,7 +118,7 @@ class RecordingManagerActivity : AppCompatActivity() {
     }
     
     private fun processRecording(recording: Recording) {
-        // TODO: Implement processing - trigger TranscriptionService and OsmNotesService
+        // Trigger batch processing service to transcribe and create OSM notes
         Toast.makeText(this, "Processing: ${recording.filename}", Toast.LENGTH_SHORT).show()
         
         lifecycleScope.launch {
