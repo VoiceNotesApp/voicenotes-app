@@ -17,6 +17,38 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
+/**
+ * OsmOAuthManager handles OAuth 2.0 authentication with OpenStreetMap.
+ * 
+ * OAuth Redirect URI Configuration:
+ * =================================
+ * This manager uses the redirect URI: app.voicenotes.motorcycle://oauth
+ * 
+ * The redirect URI must match:
+ * 1. The REDIRECT_URI constant below
+ * 2. The intent-filter in AndroidManifest.xml (SettingsActivity)
+ * 3. The redirect URI registered in your OSM OAuth application
+ * 
+ * For Secondary Apps or Debug Variants:
+ * ======================================
+ * If you're building a separate "manage" app or debug variant that also needs
+ * OpenStreetMap OAuth, you should:
+ * 
+ * 1. Change the REDIRECT_URI below to a unique scheme for that variant:
+ *    Example: "app.voicenotes-manage.motorcycle://oauth"
+ *             "app.voicenotes.debug.motorcycle://oauth"
+ * 
+ * 2. Update the AndroidManifest.xml intent-filter for that variant to match
+ * 
+ * 3. Register a separate OAuth application on OpenStreetMap with the new redirect URI
+ * 
+ * 4. Use build variants or product flavors to maintain separate configurations
+ * 
+ * This ensures each app has its own OAuth handler, preventing Android from showing
+ * multiple app options during the OAuth flow (the "two icons" problem).
+ * 
+ * See AndroidManifest.xml for more details on the intent-filter configuration.
+ */
 class OsmOAuthManager(private val context: Context) {
     
     companion object {
@@ -24,6 +56,19 @@ class OsmOAuthManager(private val context: Context) {
         private const val OSM_TOKEN_ENDPOINT = "https://www.openstreetmap.org/oauth2/token"
         private const val OSM_USER_DETAILS_ENDPOINT = "https://api.openstreetmap.org/api/0.6/user/details.json"
         private val CLIENT_ID = BuildConfig.OSM_CLIENT_ID
+        
+        /**
+         * OAuth 2.0 Redirect URI
+         * 
+         * This MUST match:
+         * - The intent-filter scheme/host in AndroidManifest.xml (SettingsActivity)
+         * - The redirect URI configured in your OpenStreetMap OAuth application
+         * 
+         * Current value: app.voicenotes.motorcycle://oauth
+         * 
+         * For different app variants (debug, manage, etc.), change this to a unique
+         * scheme to avoid conflicts. See class documentation for details.
+         */
         private const val REDIRECT_URI = "app.voicenotes.motorcycle://oauth"
         const val DEFAULT_CLIENT_ID_PLACEHOLDER = "your_osm_client_id"
         
