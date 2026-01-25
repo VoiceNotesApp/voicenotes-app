@@ -55,7 +55,8 @@ class RecordingManagerActivity : AppCompatActivity() {
             onTranscribeClick = { recording -> transcribeRecording(recording) },
             onCreateOsmClick = { recording -> createOsmNote(recording) },
             onDeleteClick = { recording -> deleteRecording(recording) },
-            onDownloadClick = { recording -> downloadRecording(recording) }
+            onDownloadClick = { recording -> downloadRecording(recording) },
+            onChangeTextClick = { recording -> changeTranscriptionText(recording) }
         )
         recyclerView.adapter = adapter
 
@@ -208,6 +209,51 @@ class RecordingManagerActivity : AppCompatActivity() {
                 Toast.makeText(this@RecordingManagerActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun changeTranscriptionText(recording: Recording) {
+        // Create an EditText for the dialog
+        val editText = EditText(this).apply {
+            setText(recording.v2sResult ?: "")
+            hint = "Enter transcription text"
+            setSingleLine(false)
+            maxLines = 5
+            setPadding(50, 20, 50, 20)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Edit Transcription")
+            .setMessage("Modify the transcribed text:")
+            .setView(editText)
+            .setPositiveButton("Save") { _, _ ->
+                val newText = editText.text.toString().trim()
+                if (newText.isNotEmpty()) {
+                    lifecycleScope.launch {
+                        try {
+                            val db = RecordingDatabase.getDatabase(this@RecordingManagerActivity)
+                            val updated = recording.copy(
+                                v2sResult = newText,
+                                v2sStatus = V2SStatus.COMPLETED,
+                                updatedAt = System.currentTimeMillis()
+                            )
+                            db.recordingDao().updateRecording(updated)
+
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(this@RecordingManagerActivity, "Transcription updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("RecordingManager", "Error updating transcription", e)
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(this@RecordingManagerActivity, "Error updating: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "Transcription cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun deleteRecording(recording: Recording) {
@@ -470,7 +516,8 @@ class RecordingAdapter(
     private val onTranscribeClick: (Recording) -> Unit,
     private val onCreateOsmClick: (Recording) -> Unit,
     private val onDeleteClick: (Recording) -> Unit,
-    private val onDownloadClick: (Recording) -> Unit
+    private val onDownloadClick: (Recording) -> Unit,
+    private val onChangeTextClick: (Recording) -> Unit
 ) : RecyclerView.Adapter<RecordingAdapter.ViewHolder>() {
 
     private var recordings = listOf<Recording>()
@@ -498,6 +545,7 @@ class RecordingAdapter(
         private val playIcon: ImageView = view.findViewById(R.id.playIcon)
 
         private val transcriptionText: TextView = view.findViewById(R.id.transcriptionText)
+        private val changeTextButton: Button = view.findViewById(R.id.changeTextButton)
         private val v2sStatusIcon: ImageView = view.findViewById(R.id.v2sStatusIcon)
         private val v2sProgressBar: ProgressBar = view.findViewById(R.id.v2sProgressBar)
         private val transcribeButton: Button = view.findViewById(R.id.transcribeButton)
@@ -539,10 +587,15 @@ class RecordingAdapter(
                 transcriptionText.text = recording.v2sResult
                 transcriptionText.setTextColor(itemView.context.getColor(android.R.color.black))
                 transcriptionText.setTypeface(null, android.graphics.Typeface.NORMAL)
+                // Show Change Text button when there is transcription
+                changeTextButton.visibility = View.VISIBLE
+                changeTextButton.setOnClickListener { onChangeTextClick(recording) }
             } else {
                 transcriptionText.text = "No transcription yet"
                 transcriptionText.setTextColor(itemView.context.getColor(android.R.color.darker_gray))
                 transcriptionText.setTypeface(null, android.graphics.Typeface.ITALIC)
+                // Hide Change Text button when there's no transcription
+                changeTextButton.visibility = View.GONE
             }
 
             // Update status and button based on V2S status
@@ -560,6 +613,8 @@ class RecordingAdapter(
                     v2sProgressBar.visibility = View.VISIBLE
                     transcribeButton.text = "Processing..."
                     transcribeButton.isEnabled = false
+                    // Hide Change Text button during processing
+                    changeTextButton.visibility = View.GONE
                 }
                 V2SStatus.COMPLETED -> {
                     v2sStatusIcon.setImageResource(android.R.drawable.checkbox_on_background)
@@ -592,6 +647,8 @@ class RecordingAdapter(
                         transcriptionText.text = "Error: ${recording.errorMsg}"
                         transcriptionText.setTextColor(itemView.context.getColor(android.R.color.holo_red_dark))
                     }
+                    // Hide Change Text button on error
+                    changeTextButton.visibility = View.GONE
                 }
                 V2SStatus.DISABLED -> {
                     v2sStatusIcon.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
@@ -600,6 +657,8 @@ class RecordingAdapter(
                     v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Disabled"
                     transcribeButton.isEnabled = false
+                    // Hide Change Text button when disabled
+                    changeTextButton.visibility = View.GONE
                 }
             }
         }
