@@ -557,8 +557,10 @@ class RecordingAdapter(
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.PROCESSING -> {
-                    v2sStatusIcon.visibility = View.GONE
-                    v2sProgressBar.visibility = View.VISIBLE
+                    v2sStatusIcon.setImageResource(R.drawable.ic_status_processing)
+                    v2sStatusIcon.clearColorFilter()
+                    v2sStatusIcon.visibility = View.VISIBLE
+                    v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Processing..."
                     transcribeButton.isEnabled = false
                 }
@@ -629,8 +631,10 @@ class RecordingAdapter(
                     createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
                 }
                 OsmStatus.PROCESSING -> {
-                    osmStatusIcon.visibility = View.GONE
-                    osmProgressBar.visibility = View.VISIBLE
+                    osmStatusIcon.setImageResource(R.drawable.ic_status_processing)
+                    osmStatusIcon.clearColorFilter()
+                    osmStatusIcon.visibility = View.VISIBLE
+                    osmProgressBar.visibility = View.GONE
                     createOsmButton.text = "Creating..."
                     createOsmButton.isEnabled = false
                 }
