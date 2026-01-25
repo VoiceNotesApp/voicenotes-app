@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Motorcycle Voice Notes</string>
-    <string name="settings_title">Configuration</string>
-    <string name="settings_launcher_name">Voice Notes Settings</string>
+    <string name="app_name">Voice Notes</string>
+    <string name="settings_title">Voice Notes Manager</string>
+    <string name="settings_launcher_name">Voice Notes Manager</string>
     <string name="location_acquired">Location acquired</string>
     <string name="recording_stopped">Recording stopped</string>
     <string name="permission_required">Permissions Required</string>
@@ -12,7 +12,7 @@
     <string name="choose_directory">Choose Folder</string>
     <string name="save_directory">Storage Location</string>
     <string name="not_set">Not Configured</string>
-    <string name="open_settings">Open Configuration</string>
+    <string name="open_settings">Open Voice Notes Manager</string>
     <string name="grant_all_permissions">Grant Required Permissions</string>
     <string name="configuration_info">Configure recording storage location and duration</string>
     <string name="quit_app">Quit</string>
@@ -41,8 +41,8 @@
     <string name="permission_overlay">Overlay</string>
     <string name="permission_storage">Storage</string>
     <string name="permissions_description">Grant all required permissions for the app to function</string>
-    <string name="shortcut_settings_short">Settings</string>
-    <string name="shortcut_settings_long">Open Settings</string>
+    <string name="shortcut_settings_short">Manager</string>
+    <string name="shortcut_settings_long">Voice Notes Manager</string>
     <string name="online_transcribing">Online: Transcribing:</string>
     <string name="online_transcribing_failed">Online: Transcribing: failed :-(</string>
     <string name="online_creating_osm_note">Online: Creating OSM Note</string>
@@ -50,4 +50,7 @@
     <string name="online_osm_note_failed">Online: OSM Note creation failed :(</string>
     <string name="processing_complete">Processing complete</string>
     <string name="overlay_permission_missing">Overlay permission is required to use this app</string>
+    <string name="app_unconfigured_title">App Not Configured</string>
+    <string name="app_unconfigured_message">Please use Voice Notes Manager to configure permissions and settings</string>
+    <string name="closing_in">Closing in %d seconds...</string>
 </resources>

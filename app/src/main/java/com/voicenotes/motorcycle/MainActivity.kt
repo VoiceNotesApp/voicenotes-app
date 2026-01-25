@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
@@ -24,7 +23,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.voicenotes.motorcycle.database.RecordingMigration
 import kotlinx.coroutines.launch
-import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
@@ -83,8 +81,12 @@ class MainActivity : AppCompatActivity() {
         // Check if user is coming from settings or explicitly opening the app UI
         val fromSettings = intent?.getBooleanExtra("fromSettings", false) ?: false
 
-        // Ensure save directory is configured
-        ensureSaveDirectoryConfigured()
+        // Check if app is configured
+        if (!isAppConfigured()) {
+            Log.d(TAG, "App not configured, showing unconfigured screen")
+            showUnconfiguredScreen()
+            return
+        }
 
         // If launched from launcher without explicit UI request, try background launch
         if (!shouldShowUI && !fromSettings && checkPermissions() && Settings.canDrawOverlays(this)) {
@@ -133,50 +135,47 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun ensureSaveDirectoryConfigured() {
-        Log.d(TAG, "ensureSaveDirectoryConfigured() called")
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val saveDir = prefs.getString("saveDirectory", null)
+    private fun isAppConfigured(): Boolean {
+        Log.d(TAG, "isAppConfigured() called")
 
-        Log.d(TAG, "Save directory from prefs: $saveDir")
+        // Check if all required permissions are granted
+        val hasPermissions = checkPermissions()
+        Log.d(TAG, "Has permissions: $hasPermissions")
 
-        // Always use fixed internal storage path
-        val defaultPath = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_MUSIC
-        ).absolutePath + "/VoiceNotes"
+        // Check if overlay permission is granted
+        val hasOverlay = Settings.canDrawOverlays(this)
+        Log.d(TAG, "Has overlay permission: $hasOverlay")
 
-        // If no directory configured, set it now
-        if (saveDir.isNullOrEmpty()) {
-            Log.d(TAG, "No directory configured, setting default: $defaultPath")
-            prefs.edit().putString("saveDirectory", defaultPath).apply()
+        return hasPermissions && hasOverlay
+    }
 
-            // Try to create directory
-            try {
-                val dir = File(defaultPath)
-                if (!dir.exists()) {
-                    val created = dir.mkdirs()
-                    Log.d(TAG, "Created directory: $created")
+    private fun showUnconfiguredScreen() {
+        setContentView(R.layout.activity_main)
+
+        infoText = findViewById(R.id.infoText)
+        progressBar = findViewById(R.id.progressBar)
+
+        // Hide progress bar
+        progressBar.visibility = View.GONE
+
+        // Show unconfigured message
+        infoText.text = getString(R.string.app_unconfigured_message)
+
+        // Start countdown
+        var secondsRemaining = 3
+        val countdownHandler = Handler(Looper.getMainLooper())
+        val countdownRunnable = object : Runnable {
+            override fun run() {
+                if (secondsRemaining > 0) {
+                    infoText.text = "${getString(R.string.app_unconfigured_message)}\n\n${getString(R.string.closing_in, secondsRemaining)}"
+                    secondsRemaining--
+                    countdownHandler.postDelayed(this, 1000)
+                } else {
+                    finish()
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to create directory", e)
             }
         }
-
-        // Directory should now be configured
-        val finalSaveDir = prefs.getString("saveDirectory", null)
-        val dir = File(finalSaveDir ?: defaultPath)
-
-        Log.d(TAG, "Final save directory: ${dir.absolutePath}")
-
-        // Check if directory exists or can be created
-        if (!dir.exists()) {
-            Log.d(TAG, "Directory doesn't exist, attempting to create")
-            try {
-                dir.mkdirs()
-            } catch (e: Exception) {
-                Log.e(TAG, "Cannot create directory", e)
-            }
-        }
+        countdownHandler.post(countdownRunnable)
     }
     
     private fun checkOverlayPermission() {
