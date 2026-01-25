@@ -895,7 +895,7 @@ OsmNotesService
 3. Open browser with authorization URL
    https://www.openstreetmap.org/oauth2/authorize
    ?client_id=...
-   &redirect_uri=voicenotes://oauth-callback
+   &redirect_uri=app.voicenotes.motorcycle://oauth
    &response_type=code
    &scope=write_notes
         │
@@ -903,7 +903,7 @@ OsmNotesService
 4. User logs in and grants permission
         │
         ▼
-5. Browser redirects: voicenotes://oauth-callback?code=AUTH_CODE
+5. Browser redirects: app.voicenotes.motorcycle://oauth?code=AUTH_CODE
         │
         ▼
 6. OsmOAuthManager.handleCallback(code)
@@ -914,7 +914,7 @@ OsmNotesService
    {
      "grant_type": "authorization_code",
      "code": "AUTH_CODE",
-     "redirect_uri": "voicenotes://oauth-callback",
+     "redirect_uri": "app.voicenotes.motorcycle://oauth",
      "client_id": "...",
      "client_secret": "..."
    }

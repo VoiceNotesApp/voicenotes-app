@@ -601,7 +601,8 @@ class RecordingAdapter(
             // Update status and button based on V2S status
             when (recording.v2sStatus) {
                 V2SStatus.NOT_STARTED -> {
-                    v2sStatusIcon.setImageResource(android.R.drawable.ic_menu_help)
+                    v2sStatusIcon.setImageResource(R.drawable.ic_status_not_started)
+                    v2sStatusIcon.clearColorFilter()
                     v2sStatusIcon.visibility = View.VISIBLE
                     v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Transcribe"
@@ -609,24 +610,26 @@ class RecordingAdapter(
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.PROCESSING -> {
-                    v2sStatusIcon.visibility = View.GONE
-                    v2sProgressBar.visibility = View.VISIBLE
+                    v2sStatusIcon.setImageResource(R.drawable.ic_status_processing)
+                    v2sStatusIcon.clearColorFilter()
+                    v2sStatusIcon.visibility = View.VISIBLE
+                    v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Processing..."
                     transcribeButton.isEnabled = false
                     // Hide Change Text button during processing
                     changeTextButton.visibility = View.GONE
                 }
                 V2SStatus.COMPLETED -> {
-                    v2sStatusIcon.setImageResource(android.R.drawable.checkbox_on_background)
-                    v2sStatusIcon.setColorFilter(itemView.context.getColor(android.R.color.holo_green_dark))
+                    v2sStatusIcon.setImageResource(R.drawable.ic_status_completed)
+                    v2sStatusIcon.clearColorFilter()
                     v2sStatusIcon.visibility = View.VISIBLE
                     v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Completed"
                     transcribeButton.isEnabled = false
                 }
                 V2SStatus.FALLBACK -> {
-                    v2sStatusIcon.setImageResource(android.R.drawable.ic_dialog_alert)
-                    v2sStatusIcon.setColorFilter(itemView.context.getColor(android.R.color.holo_orange_dark))
+                    v2sStatusIcon.setImageResource(R.drawable.ic_status_error)
+                    v2sStatusIcon.clearColorFilter()
                     v2sStatusIcon.visibility = View.VISIBLE
                     v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Retry"
@@ -634,8 +637,8 @@ class RecordingAdapter(
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.ERROR -> {
-                    v2sStatusIcon.setImageResource(android.R.drawable.ic_delete)
-                    v2sStatusIcon.setColorFilter(itemView.context.getColor(android.R.color.holo_red_dark))
+                    v2sStatusIcon.setImageResource(R.drawable.ic_status_error)
+                    v2sStatusIcon.clearColorFilter()
                     v2sStatusIcon.visibility = View.VISIBLE
                     v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Retry"
@@ -651,8 +654,8 @@ class RecordingAdapter(
                     changeTextButton.visibility = View.GONE
                 }
                 V2SStatus.DISABLED -> {
-                    v2sStatusIcon.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
-                    v2sStatusIcon.setColorFilter(itemView.context.getColor(android.R.color.darker_gray))
+                    v2sStatusIcon.setImageResource(R.drawable.ic_status_not_started)
+                    v2sStatusIcon.clearColorFilter()
                     v2sStatusIcon.visibility = View.VISIBLE
                     v2sProgressBar.visibility = View.GONE
                     transcribeButton.text = "Disabled"
@@ -678,7 +681,8 @@ class RecordingAdapter(
             // Update status and button based on OSM status
             when (recording.osmStatus) {
                 OsmStatus.NOT_STARTED -> {
-                    osmStatusIcon.setImageResource(android.R.drawable.ic_menu_help)
+                    osmStatusIcon.setImageResource(R.drawable.ic_status_not_started)
+                    osmStatusIcon.clearColorFilter()
                     osmStatusIcon.visibility = View.VISIBLE
                     osmProgressBar.visibility = View.GONE
                     createOsmButton.text = "Create Note"
@@ -686,14 +690,16 @@ class RecordingAdapter(
                     createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
                 }
                 OsmStatus.PROCESSING -> {
-                    osmStatusIcon.visibility = View.GONE
-                    osmProgressBar.visibility = View.VISIBLE
+                    osmStatusIcon.setImageResource(R.drawable.ic_status_processing)
+                    osmStatusIcon.clearColorFilter()
+                    osmStatusIcon.visibility = View.VISIBLE
+                    osmProgressBar.visibility = View.GONE
                     createOsmButton.text = "Creating..."
                     createOsmButton.isEnabled = false
                 }
                 OsmStatus.COMPLETED -> {
-                    osmStatusIcon.setImageResource(android.R.drawable.checkbox_on_background)
-                    osmStatusIcon.setColorFilter(itemView.context.getColor(android.R.color.holo_green_dark))
+                    osmStatusIcon.setImageResource(R.drawable.ic_status_completed)
+                    osmStatusIcon.clearColorFilter()
                     osmStatusIcon.visibility = View.VISIBLE
                     osmProgressBar.visibility = View.GONE
                     createOsmButton.text = "View Note"
@@ -701,8 +707,8 @@ class RecordingAdapter(
                     createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
                 }
                 OsmStatus.ERROR -> {
-                    osmStatusIcon.setImageResource(android.R.drawable.ic_delete)
-                    osmStatusIcon.setColorFilter(itemView.context.getColor(android.R.color.holo_red_dark))
+                    osmStatusIcon.setImageResource(R.drawable.ic_status_error)
+                    osmStatusIcon.clearColorFilter()
                     osmStatusIcon.visibility = View.VISIBLE
                     osmProgressBar.visibility = View.GONE
                     createOsmButton.text = "Retry"
@@ -710,8 +716,8 @@ class RecordingAdapter(
                     createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
                 }
                 OsmStatus.DISABLED -> {
-                    osmStatusIcon.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
-                    osmStatusIcon.setColorFilter(itemView.context.getColor(android.R.color.darker_gray))
+                    osmStatusIcon.setImageResource(R.drawable.ic_status_not_started)
+                    osmStatusIcon.clearColorFilter()
                     osmStatusIcon.visibility = View.VISIBLE
                     osmProgressBar.visibility = View.GONE
                     createOsmButton.text = "Disabled"

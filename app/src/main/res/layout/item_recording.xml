@@ -27,7 +27,7 @@
                 android:src="@android:drawable/ic_menu_recent_history"
                 android:contentDescription="Time"
                 android:layout_marginEnd="8dp"
-                android:tint="#757575" />
+                app:tint="#757575" />
 
             <TextView
                 android:id="@+id/dateTimeText"
@@ -47,7 +47,7 @@
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Play recording"
                 android:padding="4dp"
-                android:tint="#1976D2" />
+                app:tint="#1976D2" />
 
         </LinearLayout>
 
@@ -65,7 +65,7 @@
                 android:src="@android:drawable/ic_menu_mylocation"
                 android:contentDescription="Location"
                 android:layout_marginEnd="8dp"
-                android:tint="#757575" />
+                app:tint="#757575" />
 
             <TextView
                 android:id="@+id/locationText"
@@ -93,36 +93,38 @@
             android:orientation="vertical"
             android:layout_marginBottom="12dp">
 
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="Speech-to-Text"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#424242"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/transcriptionText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No transcription yet"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:fontStyle="italic"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="#F5F5F5"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Button with Status Icon -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Speech-to-Text"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#424242" />
-
-                <ImageView
-                    android:id="@+id/v2sStatusIcon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:contentDescription="Transcription Status"
-                    android:layout_marginEnd="8dp" />
-
-                <ProgressBar
-                    android:id="@+id/v2sProgressBar"
-                    style="?android:attr/progressBarStyleSmall"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:visibility="gone"
-                    android:layout_marginEnd="8dp" />
+                android:gravity="center_vertical">
 
                 <Button
                     android:id="@+id/transcribeButton"
@@ -130,35 +132,26 @@
                     android:layout_height="36dp"
                     android:text="Transcribe"
                     android:textSize="12sp"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
                     style="?android:attr/buttonBarButtonStyle"
                     android:backgroundTint="#1976D2"
                     android:textColor="#FFFFFF" />
 
-            </LinearLayout>
+                <ImageView
+                    android:id="@+id/v2sStatusIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="Transcription Status"
+                    android:layout_marginStart="8dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/transcriptionText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="No transcription yet"
-                    android:textSize="14sp"
-                    android:textColor="#757575"
-                    android:fontStyle="italic"
-                    android:maxLines="3"
-                    android:ellipsize="end"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp"
-                    android:background="#F5F5F5" />
+                <ProgressBar
+                    android:id="@+id/v2sProgressBar"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:visibility="gone"
+                    android:layout_marginStart="8dp" />
 
                 <Button
                     android:id="@+id/changeTextButton"
@@ -166,9 +159,9 @@
                     android:layout_height="36dp"
                     android:text="Change Text"
                     android:textSize="11sp"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    android:layout_marginStart="4dp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:layout_marginStart="8dp"
                     style="?android:attr/buttonBarButtonStyle"
                     android:backgroundTint="#757575"
                     android:textColor="#FFFFFF"
@@ -183,46 +176,54 @@
             android:id="@+id/osmSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
+            android:orientation="vertical"
             android:layout_marginBottom="12dp"
             android:visibility="visible">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="OSM Note"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#424242" />
+                android:textColor="#424242"
+                android:layout_marginBottom="8dp" />
 
-            <ImageView
-                android:id="@+id/osmStatusIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="OSM Status"
-                android:layout_marginEnd="8dp" />
-
-            <ProgressBar
-                android:id="@+id/osmProgressBar"
-                style="?android:attr/progressBarStyleSmall"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:visibility="gone"
-                android:layout_marginEnd="8dp" />
-
-            <Button
-                android:id="@+id/createOsmButton"
+            <!-- Button with Status Icon -->
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="Create Note"
-                android:textSize="12sp"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                style="?android:attr/buttonBarButtonStyle"
-                android:backgroundTint="#7CB342"
-                android:textColor="#FFFFFF" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/createOsmButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Create Note"
+                    android:textSize="12sp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:backgroundTint="#7CB342"
+                    android:textColor="#FFFFFF" />
+
+                <ImageView
+                    android:id="@+id/osmStatusIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="OSM Status"
+                    android:layout_marginStart="8dp" />
+
+                <ProgressBar
+                    android:id="@+id/osmProgressBar"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:visibility="gone"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
