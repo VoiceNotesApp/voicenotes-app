@@ -437,11 +437,14 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         }
     }
 
-    private fun startCountdown() {
+    private fun startCountdown(resetTimer: Boolean = true) {
         // Cancel any existing countdown first to prevent duplicates
         countdownRunnable?.let { handler.removeCallbacks(it) }
         
-        remainingSeconds = recordingDuration
+        // Only reset the timer if starting a new recording, not when resuming
+        if (resetTimer) {
+            remainingSeconds = recordingDuration
+        }
         
         countdownRunnable = object : Runnable {
             override fun run() {
@@ -464,8 +467,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Add additional seconds to remaining time
         remainingSeconds += additionalSeconds
         
-        // Restart countdown with new duration
-        startCountdown()
+        // Restart countdown without resetting the timer
+        startCountdown(resetTimer = false)
         
         // Update bubble to show extension
         updateOverlay("Recording extended! ${remainingSeconds}s remaining")
