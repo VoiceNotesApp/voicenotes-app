@@ -51,6 +51,6 @@
     <string name="processing_complete">Processing complete</string>
     <string name="overlay_permission_missing">Overlay permission is required to use this app</string>
     <string name="app_unconfigured_title">App Not Configured</string>
-    <string name="app_unconfigured_message">Please use Voice Notes Manager to configure permissions and settings</string>
+    <string name="app_unconfigured_message">Please use Voice Notes Manager to configure permissions and manage recordings.</string>
     <string name="closing_in">Closing in %d seconds...</string>
 </resources>
