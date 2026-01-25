@@ -1,129 +1,83 @@
-# Motorcycle Voice Notes
+# Voice Notes
 
-A lightweight Android app for motorcyclists to quickly record voice notes with GPS location tracking while riding.
+A lightweight Android app for motorcyclists to record GPS-tagged voice notes while riding - hands-free and automatic.
 
 ## What It Does
 
-Motorcycle Voice Notes is designed for hands-free operation while riding. When you launch the app:
+Launch the app and it automatically:
+1. Shows a small overlay bubble
+2. Announces location via text-to-speech
+3. Records audio (10 seconds default)
+4. Saves with GPS coordinates
+5. Quits automatically
 
-1. **Shows a small overlay bubble** at the top of the screen
-2. **Announces location acquired** via text-to-speech
-3. **Records audio** (configurable 1-99 seconds, default 10 seconds)
-4. **Saves the recording** with GPS coordinates in the filename
-5. **Transcribes your voice message** using Google Cloud Speech-to-Text (optional, during or after ride)
-6. **Creates a GPX waypoint** with your transcribed message
-7. **Optional OSM Note creation** if enabled and authenticated
-8. **Quits automatically** so you stay in your current app
+All processing (transcription, waypoints, OSM notes) happens later in the **Recording Manager**.
 
 ## Key Features
 
-- **GPS Tagging**: Every recording is named with precise coordinates and timestamp
-- **Speech-to-Text**: Your spoken words become waypoint descriptions in the GPX file
-- **GPX Waypoint Management**: Duplicate coordinates are replaced, not added twice
-- **OpenStreetMap Integration**: Optionally create OSM notes with your voice recordings
-- **Online Processing**: During ride transcription with Google Cloud Speech-to-Text API
-- **Batch Processing**: Process all recorded files later with manual button
-- **Bluetooth Support**: Automatically uses your Bluetooth headset/helmet system
-- **Customizable**: Set recording duration and storage location
-- **GPX Export**: All locations saved to `voicenote_waypoint_collection.gpx` for easy import into mapping apps
-- **Minimal Interaction**: Launch once, everything happens automatically
-- **Overlay Bubble**: Visual feedback during recording with transcribed text display
-- **Background Operation**: Works while other apps are in the foreground
-
-## Perfect For
-
-- Recording riding observations and directions
-- Making quick voice memos without stopping
-- Tagging interesting locations with voice notes
-- Building route waypoints for future reference
-- Hands-free operation with Bluetooth helmet systems
-- Contributing notes to OpenStreetMap while riding
+- **GPS Tagging** - Every recording includes precise coordinates and timestamp
+- **Hands-Free** - Launch once, everything else is automatic
+- **Bluetooth Support** - Works with helmet communication systems
+- **Recording Manager** - Review, process, and export recordings
+- **Speech-to-Text** - Optional Google Cloud transcription
+- **GPX Waypoints** - Export locations for mapping apps
+- **OSM Integration** - Optional OpenStreetMap note creation
+- **Configurable** - Set recording duration (1-99 seconds)
 
 ## Quick Start
 
 ### Installation
 
-1. Download the APK from [Releases](https://github.com/c0dev0id/autorecord-app/releases) or [Actions](https://github.com/c0dev0id/autorecord-app/actions)
-2. Install on your Android device (Android 8.0+)
-3. Launch the app and complete initial setup:
-   - Grant permissions (microphone, location, Bluetooth, overlay)
-   - Choose recording storage location
-   - Optionally set recording duration (default: 10 seconds)
-
-> **Note:** Pre-built APKs may not have Google Cloud or OSM credentials configured. See **[CONFIGURATION.md](CONFIGURATION.md)** to understand which features require setup.
+1. Download APK from [Releases](https://github.com/c0dev0id/autorecord-app/releases)
+2. Install on Android 8.0+ device
+3. Grant permissions (microphone, location, Bluetooth, overlay)
+4. Configure recording duration in Voice Notes Manager
 
 ### Usage
 
-Just launch the app whenever you want to record a note. A small overlay bubble will appear showing recording status, and the app will quit automatically when done, leaving you in whatever app you were using.
+**Two launcher icons:**
+- **Voice Notes** - Records audio and GPS automatically
+- **Voice Notes Manager** - Configure settings and manage recordings
 
-### Online Processing Options
+Just tap "Voice Notes" whenever you want to record. The app quits automatically when done.
 
-- **During Ride**: Enable "Try Online processing during ride" in settings (default: on)
-  - Transcribes audio immediately after recording
-  - Creates GPX waypoint with transcribed text
-  - Optionally creates OSM note if authenticated
-  - Skips processing if offline
+## Documentation
 
-- **Manual Batch Processing**: Use "Run Online Processing" button in settings
-  - Processes all m4a files in your recording directory
-  - Transcribes each file and creates/updates GPX waypoints
-  - Creates OSM notes if enabled and authenticated
-  - Perfect for processing recordings made while offline
-
-## File Format
-
-- **Audio**: OGG files with Opus encoding (32 kbps, 48 kHz) on Android 10+, or MPEG-4 files with AAC encoding (128 kbps, 44.1 kHz) on older devices
-- **Naming**: `latitude,longitude_timestamp.ogg` (or `.m4a` on Android 8-9)
-- **Example**: `34.052235,-118.243683_20260120_143022.ogg`
-- **GPX File**: `voicenote_waypoint_collection.gpx` with waypoints containing your transcribed voice notes
+- **[User Guide](docs/USER_GUIDE.md)** - How to use the app
+- **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Build and contribute
+- **[Architecture](docs/ARCHITECTURE.md)** - Technical deep-dive
 
 ## Requirements
 
 - Android 8.0 (API 26) or higher
-- GPS capability
-- Microphone
-- Storage access
-- Bluetooth (optional, for headset support)
+- GPS and microphone
+- Bluetooth (optional, for headsets)
 
 ### Optional Online Features
 
-The app includes optional features that require configuration:
-
-- **Internet connection** - Required for transcription and OSM features
-- **Google Cloud credentials** - For Speech-to-Text transcription ([setup guide](CONFIGURATION.md))
-- **OSM OAuth account** - For creating OpenStreetMap notes ([setup guide](CONFIGURATION.md))
-
-> **Note:** The app works perfectly without these features - it will still record audio and capture GPS coordinates. See **[CONFIGURATION.md](CONFIGURATION.md)** for setup instructions.
-
-## OpenStreetMap Integration
-
-The app can create OSM notes with your voice recordings. This requires configuration:
-
-1. **For developers**: See **[CONFIGURATION.md](CONFIGURATION.md)** for complete setup instructions
-2. **For users**: Pre-built APKs may not have OSM credentials - build from source if you need this feature
-
-Quick overview:
-- Register an OAuth 2.0 application at https://www.openstreetmap.org/oauth2/applications
-- Set redirect URI to: `app.voicenotes.motorcycle://oauth`
-- Request scopes: `read_prefs write_notes`
-- Configure your Client ID (see [CONFIGURATION.md](CONFIGURATION.md))
-- Bind your OSM account in the app settings
-- Enable "Add OSM Note" checkbox
+Works perfectly offline! Optional features require:
+- Internet connection
+- [Google Cloud credentials](docs/DEVELOPER_GUIDE.md#google-cloud-setup) for transcription
+- [OSM account](docs/DEVELOPER_GUIDE.md#osm-setup) for creating map notes
 
 ## Building from Source
 
-See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete build setup and instructions.
+See [Developer Guide](docs/DEVELOPER_GUIDE.md) for complete build instructions.
 
-## Technical Details
+```bash
+git clone https://github.com/c0dev0id/autorecord-app.git
+cd autorecord-app
+./gradlew assembleDebug
+```
 
-- **Language**: Kotlin
-- **Build System**: Gradle
-- **Location**: Google Play Services Location API
-- **Audio**: MediaRecorder with Opus encoding (OGG container, .ogg files) on Android 10+, or AAC encoding (MPEG-4 container, .m4a files) on older devices
-- **Text-to-Speech**: Android TTS Engine (for status announcements)
-- **Speech-to-Text**: Google Cloud Speech-to-Text API (for transcription)
-- **OAuth**: AppAuth library for OpenStreetMap OAuth 2.0
-- **HTTP**: OkHttp for OSM API calls
+## Technology
+
+- **Language:** Kotlin
+- **Location:** Google Play Services
+- **Audio:** MediaRecorder (Opus/OGG on Android 10+, AAC/M4A on Android 8-9)
+- **Database:** Room (SQLite)
+- **Speech-to-Text:** Google Cloud Speech-to-Text API (optional)
+- **OAuth:** AppAuth for OpenStreetMap (optional)
 
 ## License
 
@@ -131,4 +85,4 @@ This project is provided as-is for personal use.
 
 ---
 
-**Safety First**: Never manipulate your phone while riding. Configure the app before you start riding, and use voice commands or pull over safely to launch it.
+**Safety First:** Never manipulate your phone while riding. Configure the app before you start, and use voice commands or pull over safely to launch it.
