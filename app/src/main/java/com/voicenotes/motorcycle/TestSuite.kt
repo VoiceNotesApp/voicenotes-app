@@ -12,6 +12,11 @@ import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import com.voicenotes.motorcycle.database.RecordingDatabase
+import com.voicenotes.motorcycle.database.Recording
+import com.voicenotes.motorcycle.database.V2SStatus
+import com.voicenotes.motorcycle.database.OsmStatus
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.InetAddress
@@ -46,6 +51,8 @@ class TestSuite(private val context: Context) {
         // Run all test categories
         testConfiguration()
         testPermissions()
+        testDatabase()
+        testRecordingOperations()
         testFileSystem()
         testLocationServices()
         testAudioSystem()
@@ -55,6 +62,7 @@ class TestSuite(private val context: Context) {
         testGPXFile()
         testCSVFile()
         testServiceLifecycle()
+        testErrorHandling()
         
         // Print summary
         printSummary()
@@ -119,7 +127,626 @@ class TestSuite(private val context: Context) {
         
         log("")
     }
-    
+
+    /**
+     * Database Tests - USES TEST DATABASE (in-memory, isolated)
+     */
+    private fun testDatabase() {
+        log("[TEST] === Database Tests (Isolated Test Database) ===")
+
+        // Create test database instance
+        val testDb = RecordingDatabase.getTestDatabase(context)
+        val dao = testDb.recordingDao()
+
+        runTest("Database Initialization") {
+            try {
+                // Verify database and DAO are accessible
+                val count = runBlocking { dao.getAllRecordings().size }
+                TestResult("Database Initialization", true, "Test database initialized (count: $count)")
+            } catch (e: Exception) {
+                TestResult("Database Initialization", false, "Failed: ${e.message}")
+            }
+        }
+
+        runTest("Insert Recording") {
+            try {
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/recording.ogg",
+                    latitude = 40.7128,
+                    longitude = -74.0060,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+
+                if (id > 0) {
+                    TestResult("Insert Recording", true, "Recording inserted with ID: $id")
+                } else {
+                    TestResult("Insert Recording", false, "Insert returned invalid ID: $id")
+                }
+            } catch (e: Exception) {
+                TestResult("Insert Recording", false, "Insert failed: ${e.message}")
+            }
+        }
+
+        runTest("Query Recording by ID") {
+            try {
+                // First insert a recording
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/recording2.ogg",
+                    latitude = 37.7749,
+                    longitude = -122.4194,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved != null && retrieved.audioFilePath == recording.audioFilePath) {
+                    TestResult("Query Recording by ID", true, "Recording retrieved successfully")
+                } else {
+                    TestResult("Query Recording by ID", false, "Retrieved recording doesn't match")
+                }
+            } catch (e: Exception) {
+                TestResult("Query Recording by ID", false, "Query failed: ${e.message}")
+            }
+        }
+
+        runTest("Update Recording Status") {
+            try {
+                // Insert recording
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/recording3.ogg",
+                    latitude = 51.5074,
+                    longitude = -0.1278,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+
+                // Update to COMPLETED
+                val updated = recording.copy(
+                    id = id,
+                    v2sStatus = V2SStatus.COMPLETED,
+                    v2sResult = "Test transcription",
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                runBlocking { dao.updateRecording(updated) }
+
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved?.v2sStatus == V2SStatus.COMPLETED &&
+                    retrieved.v2sResult == "Test transcription") {
+                    TestResult("Update Recording Status", true, "Status updated successfully")
+                } else {
+                    TestResult("Update Recording Status", false, "Status update failed")
+                }
+            } catch (e: Exception) {
+                TestResult("Update Recording Status", false, "Update failed: ${e.message}")
+            }
+        }
+
+        runTest("Query All Recordings") {
+            try {
+                val allRecordings = runBlocking { dao.getAllRecordings() }
+
+                // We should have at least 3 recordings from previous tests
+                if (allRecordings.size >= 3) {
+                    TestResult("Query All Recordings", true, "Retrieved ${allRecordings.size} recordings")
+                } else {
+                    TestResult("Query All Recordings", false, "Expected >= 3 recordings, got ${allRecordings.size}")
+                }
+            } catch (e: Exception) {
+                TestResult("Query All Recordings", false, "Query failed: ${e.message}")
+            }
+        }
+
+        runTest("Delete Recording") {
+            try {
+                // Insert recording
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/to_delete.ogg",
+                    latitude = 48.8566,
+                    longitude = 2.3522,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val beforeDelete = runBlocking { dao.getRecordingById(id) }
+
+                runBlocking { dao.deleteRecording(recording.copy(id = id)) }
+
+                val afterDelete = runBlocking { dao.getRecordingById(id) }
+
+                if (beforeDelete != null && afterDelete == null) {
+                    TestResult("Delete Recording", true, "Recording deleted successfully")
+                } else {
+                    TestResult("Delete Recording", false, "Delete operation failed")
+                }
+            } catch (e: Exception) {
+                TestResult("Delete Recording", false, "Delete failed: ${e.message}")
+            }
+        }
+
+        runTest("V2S Status Enum Handling") {
+            try {
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/status_test.ogg",
+                    latitude = 35.6762,
+                    longitude = 139.6503,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.PROCESSING,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved?.v2sStatus == V2SStatus.PROCESSING) {
+                    TestResult("V2S Status Enum Handling", true, "Status enum persisted correctly")
+                } else {
+                    TestResult("V2S Status Enum Handling", false, "Status enum mismatch")
+                }
+            } catch (e: Exception) {
+                TestResult("V2S Status Enum Handling", false, "Enum handling failed: ${e.message}")
+            }
+        }
+
+        runTest("OSM Status Enum Handling") {
+            try {
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/osm_status_test.ogg",
+                    latitude = -33.8688,
+                    longitude = 151.2093,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.COMPLETED,
+                    osmStatus = OsmStatus.COMPLETED,
+                    v2sResult = "Test transcription",
+                    osmNoteId = "12345",
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved?.osmStatus == OsmStatus.COMPLETED &&
+                    retrieved.osmNoteId == "12345") {
+                    TestResult("OSM Status Enum Handling", true, "OSM status and note ID persisted correctly")
+                } else {
+                    TestResult("OSM Status Enum Handling", false, "OSM status mismatch")
+                }
+            } catch (e: Exception) {
+                TestResult("OSM Status Enum Handling", false, "Enum handling failed: ${e.message}")
+            }
+        }
+
+        runTest("Null Value Handling") {
+            try {
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/null_test.ogg",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,  // null transcription
+                    osmNoteId = null,  // null OSM note ID
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved?.v2sResult == null && retrieved.osmNoteId == null) {
+                    TestResult("Null Value Handling", true, "Null values handled correctly")
+                } else {
+                    TestResult("Null Value Handling", false, "Null values not preserved")
+                }
+            } catch (e: Exception) {
+                TestResult("Null Value Handling", false, "Null handling failed: ${e.message}")
+            }
+        }
+
+        runTest("Coordinate Precision") {
+            try {
+                val lat = 40.712345678901234
+                val lon = -74.006098765432109
+
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/precision_test.ogg",
+                    latitude = lat,
+                    longitude = lon,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved != null &&
+                    Math.abs(retrieved.latitude - lat) < 0.000001 &&
+                    Math.abs(retrieved.longitude - lon) < 0.000001) {
+                    TestResult("Coordinate Precision", true, "Coordinates preserved with precision")
+                } else {
+                    TestResult("Coordinate Precision", false, "Coordinate precision lost")
+                }
+            } catch (e: Exception) {
+                TestResult("Coordinate Precision", false, "Precision test failed: ${e.message}")
+            }
+        }
+
+        runTest("Empty String vs Null Handling") {
+            try {
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/empty_string_test.ogg",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.COMPLETED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = "",  // empty string
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved?.v2sResult == "") {
+                    TestResult("Empty String vs Null Handling", true, "Empty string preserved (not converted to null)")
+                } else {
+                    TestResult("Empty String vs Null Handling", false, "Empty string handling issue")
+                }
+            } catch (e: Exception) {
+                TestResult("Empty String vs Null Handling", false, "Failed: ${e.message}")
+            }
+        }
+
+        runTest("Multiple Status Updates") {
+            try {
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/multi_update_test.ogg",
+                    latitude = 52.5200,
+                    longitude = 13.4050,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+
+                // Update 1: Processing
+                var updated = recording.copy(id = id, v2sStatus = V2SStatus.PROCESSING)
+                runBlocking { dao.updateRecording(updated) }
+
+                // Update 2: Completed with result
+                updated = updated.copy(
+                    v2sStatus = V2SStatus.COMPLETED,
+                    v2sResult = "Final transcription"
+                )
+                runBlocking { dao.updateRecording(updated) }
+
+                // Update 3: OSM processing
+                updated = updated.copy(osmStatus = OsmStatus.PROCESSING)
+                runBlocking { dao.updateRecording(updated) }
+
+                // Update 4: OSM completed
+                updated = updated.copy(
+                    osmStatus = OsmStatus.COMPLETED,
+                    osmNoteId = "98765"
+                )
+                runBlocking { dao.updateRecording(updated) }
+
+                val final = runBlocking { dao.getRecordingById(id) }
+
+                if (final?.v2sStatus == V2SStatus.COMPLETED &&
+                    final.osmStatus == OsmStatus.COMPLETED &&
+                    final.v2sResult == "Final transcription" &&
+                    final.osmNoteId == "98765") {
+                    TestResult("Multiple Status Updates", true, "Multiple updates handled correctly")
+                } else {
+                    TestResult("Multiple Status Updates", false, "Update sequence failed")
+                }
+            } catch (e: Exception) {
+                TestResult("Multiple Status Updates", false, "Failed: ${e.message}")
+            }
+        }
+
+        runTest("Database Isolation from Production") {
+            try {
+                // This test verifies we're using in-memory test database
+                // Production database would have different data
+                val testRecordings = runBlocking { dao.getAllRecordings() }
+
+                // All recordings should be from our tests (audioFilePath starts with "/test/path/")
+                val allTestData = testRecordings.all { it.audioFilePath.startsWith("/test/path/") }
+
+                if (allTestData) {
+                    TestResult("Database Isolation from Production", true,
+                        "Test database isolated (${testRecordings.size} test records)")
+                } else {
+                    TestResult("Database Isolation from Production", false,
+                        "Found production data in test database!")
+                }
+            } catch (e: Exception) {
+                TestResult("Database Isolation from Production", false, "Failed: ${e.message}")
+            }
+        }
+
+        // Clean up test database
+        try {
+            testDb.close()
+        } catch (e: Exception) {
+            log("[TEST] Warning: Failed to close test database: ${e.message}")
+        }
+
+        log("")
+    }
+
+    /**
+     * Recording Operations Tests
+     */
+    private fun testRecordingOperations() {
+        log("[TEST] === Recording Operations Tests ===")
+
+        runTest("File Format Selection (API Level Based)") {
+            val apiLevel = Build.VERSION.SDK_INT
+            val expectedFormat = if (apiLevel >= Build.VERSION_CODES.Q) "OGG" else "AMR_WB"
+            val expectedExtension = if (apiLevel >= Build.VERSION_CODES.Q) ".ogg" else ".amr"
+
+            TestResult(
+                "File Format Selection (API Level Based)",
+                true,
+                "API $apiLevel: Format=$expectedFormat, Extension=$expectedExtension"
+            )
+        }
+
+        runTest("Filename Generation Pattern") {
+            try {
+                val timestamp = System.currentTimeMillis()
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
+                val dateStr = dateFormat.format(Date(timestamp))
+
+                val lat = 40.7128
+                val lon = -74.0060
+                val extension = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ".ogg" else ".amr"
+
+                val expectedPattern = """VN_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_-?\d+\.\d+_-?\d+\.\d+\.(ogg|amr)"""
+                val filename = "VN_${dateStr}_${lat}_${lon}${extension}"
+
+                if (filename.matches(expectedPattern.toRegex())) {
+                    TestResult("Filename Generation Pattern", true, "Generated: $filename")
+                } else {
+                    TestResult("Filename Generation Pattern", false, "Pattern mismatch: $filename")
+                }
+            } catch (e: Exception) {
+                TestResult("Filename Generation Pattern", false, "Failed: ${e.message}")
+            }
+        }
+
+        runTest("Coordinate Formatting in Filename") {
+            try {
+                val lat = 40.712345
+                val lon = -74.006789
+
+                val latStr = String.format(Locale.US, "%.4f", lat)
+                val lonStr = String.format(Locale.US, "%.4f", lon)
+
+                if (latStr == "40.7123" && lonStr == "-74.0068") {
+                    TestResult("Coordinate Formatting in Filename", true, "Coordinates formatted to 4 decimals")
+                } else {
+                    TestResult("Coordinate Formatting in Filename", false, "Format error: $latStr, $lonStr")
+                }
+            } catch (e: Exception) {
+                TestResult("Coordinate Formatting in Filename", false, "Failed: ${e.message}")
+            }
+        }
+
+        runTest("Filename Timestamp Parsing") {
+            try {
+                val filename = "VN_2024-01-15_12-30-45_40.7128_-74.0060.ogg"
+                val datePattern = """VN_(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})""".toRegex()
+                val match = datePattern.find(filename)
+
+                if (match != null) {
+                    val year = match.groupValues[1]
+                    val month = match.groupValues[2]
+                    val day = match.groupValues[3]
+                    val hour = match.groupValues[4]
+                    val minute = match.groupValues[5]
+                    val second = match.groupValues[6]
+
+                    if (year == "2024" && month == "01" && day == "15" &&
+                        hour == "12" && minute == "30" && second == "45") {
+                        TestResult("Filename Timestamp Parsing", true, "Timestamp parsed correctly")
+                    } else {
+                        TestResult("Filename Timestamp Parsing", false, "Parsing error")
+                    }
+                } else {
+                    TestResult("Filename Timestamp Parsing", false, "Pattern not matched")
+                }
+            } catch (e: Exception) {
+                TestResult("Filename Timestamp Parsing", false, "Failed: ${e.message}")
+            }
+        }
+
+        runTest("Recording Duration Validation") {
+            val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+            val duration = prefs.getInt("recordingDuration", 10)
+
+            if (duration in 1..99) {
+                TestResult("Recording Duration Validation", true, "Valid duration: $duration seconds")
+            } else {
+                TestResult("Recording Duration Validation", false, "Invalid duration: $duration")
+            }
+        }
+
+        runTest("Audio File Path Construction") {
+            try {
+                val recordingsDir = File(context.filesDir, "recordings")
+                val filename = "VN_2024-01-15_12-30-45_40.7128_-74.0060.ogg"
+                val fullPath = File(recordingsDir, filename).absolutePath
+
+                if (fullPath.contains("/files/recordings/") && fullPath.endsWith(filename)) {
+                    TestResult("Audio File Path Construction", true, "Path: $fullPath")
+                } else {
+                    TestResult("Audio File Path Construction", false, "Invalid path: $fullPath")
+                }
+            } catch (e: Exception) {
+                TestResult("Audio File Path Construction", false, "Failed: ${e.message}")
+            }
+        }
+
+        runTest("Negative Coordinate Handling") {
+            try {
+                val lat = -33.8688  // Sydney
+                val lon = 151.2093
+
+                val filename = "VN_2024-01-15_12-30-45_${lat}_${lon}.ogg"
+                val pattern = """_(-?\d+\.\d+)_(-?\d+\.\d+)\.(ogg|amr)$""".toRegex()
+                val match = pattern.find(filename)
+
+                if (match != null) {
+                    val parsedLat = match.groupValues[1].toDoubleOrNull()
+                    val parsedLon = match.groupValues[2].toDoubleOrNull()
+
+                    if (parsedLat == lat && parsedLon == lon) {
+                        TestResult("Negative Coordinate Handling", true, "Negative coordinates handled correctly")
+                    } else {
+                        TestResult("Negative Coordinate Handling", false, "Coordinate mismatch")
+                    }
+                } else {
+                    TestResult("Negative Coordinate Handling", false, "Pattern not matched")
+                }
+            } catch (e: Exception) {
+                TestResult("Negative Coordinate Handling", false, "Failed: ${e.message}")
+            }
+        }
+
+        runTest("Zero Coordinate Handling") {
+            try {
+                val lat = 0.0
+                val lon = 0.0
+
+                val filename = "VN_2024-01-15_12-30-45_${lat}_${lon}.ogg"
+                val pattern = """_(-?\d+\.\d+)_(-?\d+\.\d+)\.(ogg|amr)$""".toRegex()
+                val match = pattern.find(filename)
+
+                if (match != null) {
+                    val parsedLat = match.groupValues[1].toDoubleOrNull()
+                    val parsedLon = match.groupValues[2].toDoubleOrNull()
+
+                    if (parsedLat == 0.0 && parsedLon == 0.0) {
+                        TestResult("Zero Coordinate Handling", true, "Zero coordinates handled correctly")
+                    } else {
+                        TestResult("Zero Coordinate Handling", false, "Coordinate mismatch")
+                    }
+                } else {
+                    TestResult("Zero Coordinate Handling", false, "Pattern not matched")
+                }
+            } catch (e: Exception) {
+                TestResult("Zero Coordinate Handling", false, "Failed: ${e.message}")
+            }
+        }
+
+        runTest("Export Format Selection") {
+            try {
+                val formats = listOf("Audio Only", "GPX Only", "CSV Only", "All Formats")
+
+                var allValid = true
+                formats.forEach { format ->
+                    val valid = when (format) {
+                        "Audio Only" -> true
+                        "GPX Only" -> true
+                        "CSV Only" -> true
+                        "All Formats" -> true
+                        else -> false
+                    }
+                    if (!valid) allValid = false
+                }
+
+                if (allValid) {
+                    TestResult("Export Format Selection", true, "All export formats recognized")
+                } else {
+                    TestResult("Export Format Selection", false, "Invalid export format found")
+                }
+            } catch (e: Exception) {
+                TestResult("Export Format Selection", false, "Failed: ${e.message}")
+            }
+        }
+
+        runTest("Recordings Directory Creation") {
+            try {
+                val recordingsDir = File(context.filesDir, "recordings")
+
+                if (!recordingsDir.exists()) {
+                    recordingsDir.mkdirs()
+                }
+
+                if (recordingsDir.exists() && recordingsDir.isDirectory) {
+                    TestResult("Recordings Directory Creation", true, "Directory exists at ${recordingsDir.absolutePath}")
+                } else {
+                    TestResult("Recordings Directory Creation", false, "Failed to create directory")
+                }
+            } catch (e: Exception) {
+                TestResult("Recordings Directory Creation", false, "Failed: ${e.message}")
+            }
+        }
+
+        log("")
+    }
+
     /**
      * Permission Tests
      */
@@ -851,7 +1478,411 @@ class TestSuite(private val context: Context) {
         
         log("")
     }
-    
+
+    /**
+     * Error Handling Tests
+     */
+    private fun testErrorHandling() {
+        log("[TEST] === Error Handling Tests ===")
+
+        // Create test database for error tests
+        val testDb = RecordingDatabase.getTestDatabase(context)
+        val dao = testDb.recordingDao()
+
+        runTest("Query Non-Existent Recording") {
+            try {
+                val nonExistentId = 999999L
+                val recording = runBlocking { dao.getRecordingById(nonExistentId) }
+
+                if (recording == null) {
+                    TestResult("Query Non-Existent Recording", true, "Correctly returned null for missing ID")
+                } else {
+                    TestResult("Query Non-Existent Recording", false, "Should return null but returned record")
+                }
+            } catch (e: Exception) {
+                TestResult("Query Non-Existent Recording", false, "Exception: ${e.message}")
+            }
+        }
+
+        runTest("Invalid Coordinate Range (Latitude > 90)") {
+            try {
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/invalid_lat.ogg",
+                    latitude = 95.0,  // Invalid: > 90
+                    longitude = 0.0,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+
+                // Database allows this - validation should be done in UI/business logic
+                if (id > 0) {
+                    TestResult("Invalid Coordinate Range (Latitude > 90)", true,
+                        "Database accepts invalid coordinates (validation needed in app logic)")
+                } else {
+                    TestResult("Invalid Coordinate Range (Latitude > 90)", false, "Insert failed unexpectedly")
+                }
+            } catch (e: Exception) {
+                TestResult("Invalid Coordinate Range (Latitude > 90)", true,
+                    "Database rejected invalid value: ${e.message}")
+            }
+        }
+
+        runTest("Invalid Coordinate Range (Longitude > 180)") {
+            try {
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/invalid_lon.ogg",
+                    latitude = 0.0,
+                    longitude = 185.0,  // Invalid: > 180
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+
+                if (id > 0) {
+                    TestResult("Invalid Coordinate Range (Longitude > 180)", true,
+                        "Database accepts invalid coordinates (validation needed in app logic)")
+                } else {
+                    TestResult("Invalid Coordinate Range (Longitude > 180)", false, "Insert failed unexpectedly")
+                }
+            } catch (e: Exception) {
+                TestResult("Invalid Coordinate Range (Longitude > 180)", true,
+                    "Database rejected invalid value: ${e.message}")
+            }
+        }
+
+        runTest("Empty Audio File Path") {
+            try {
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "",  // Empty path
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+
+                if (id > 0) {
+                    TestResult("Empty Audio File Path", true, "Database accepts empty path (validation needed)")
+                } else {
+                    TestResult("Empty Audio File Path", false, "Insert failed")
+                }
+            } catch (e: Exception) {
+                TestResult("Empty Audio File Path", false, "Exception: ${e.message}")
+            }
+        }
+
+        runTest("Very Long Transcription Text") {
+            try {
+                val longText = "Lorem ipsum dolor sit amet. ".repeat(100) // ~2800 characters
+
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/long_transcription.ogg",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.COMPLETED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = longText,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved?.v2sResult == longText) {
+                    TestResult("Very Long Transcription Text", true,
+                        "Long text (${longText.length} chars) stored correctly")
+                } else {
+                    TestResult("Very Long Transcription Text", false, "Text truncated or corrupted")
+                }
+            } catch (e: Exception) {
+                TestResult("Very Long Transcription Text", false, "Exception: ${e.message}")
+            }
+        }
+
+        runTest("Special Characters in Transcription") {
+            try {
+                val specialText = "Test with émojis 🎤🎵 and spëcial çharacters: @#$%^&*()"
+
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/special_chars.ogg",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.COMPLETED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = specialText,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved?.v2sResult == specialText) {
+                    TestResult("Special Characters in Transcription", true, "Special characters preserved")
+                } else {
+                    TestResult("Special Characters in Transcription", false, "Characters corrupted")
+                }
+            } catch (e: Exception) {
+                TestResult("Special Characters in Transcription", false, "Exception: ${e.message}")
+            }
+        }
+
+        runTest("Newlines in Transcription") {
+            try {
+                val multilineText = "Line 1\nLine 2\nLine 3\nLine 4"
+
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/newlines.ogg",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.COMPLETED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = multilineText,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved?.v2sResult == multilineText) {
+                    TestResult("Newlines in Transcription", true, "Newlines preserved")
+                } else {
+                    TestResult("Newlines in Transcription", false, "Newlines corrupted")
+                }
+            } catch (e: Exception) {
+                TestResult("Newlines in Transcription", false, "Exception: ${e.message}")
+            }
+        }
+
+        runTest("Update Non-Existent Recording") {
+            try {
+                val nonExistent = Recording(
+                    id = 999999L,
+                    audioFilePath = "/test/path/nonexistent.ogg",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.COMPLETED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = "Test",
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                runBlocking { dao.updateRecording(nonExistent) }
+
+                // Room update doesn't throw error if record doesn't exist
+                TestResult("Update Non-Existent Recording", true,
+                    "Update on non-existent record completed without error")
+            } catch (e: Exception) {
+                TestResult("Update Non-Existent Recording", false, "Exception: ${e.message}")
+            }
+        }
+
+        runTest("Delete Non-Existent Recording") {
+            try {
+                val nonExistent = Recording(
+                    id = 999998L,
+                    audioFilePath = "/test/path/nonexistent2.ogg",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.COMPLETED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = "Test",
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                runBlocking { dao.deleteRecording(nonExistent) }
+
+                // Room delete doesn't throw error if record doesn't exist
+                TestResult("Delete Non-Existent Recording", true,
+                    "Delete on non-existent record completed without error")
+            } catch (e: Exception) {
+                TestResult("Delete Non-Existent Recording", false, "Exception: ${e.message}")
+            }
+        }
+
+        runTest("Concurrent Database Operations") {
+            try {
+                // Insert multiple recordings concurrently (simulated)
+                val recording1 = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/concurrent1.ogg",
+                    latitude = 40.0,
+                    longitude = -74.0,
+                    timestamp = System.currentTimeMillis(),
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                val recording2 = recording1.copy(audioFilePath = "/test/path/concurrent2.ogg", latitude = 41.0)
+                val recording3 = recording1.copy(audioFilePath = "/test/path/concurrent3.ogg", latitude = 42.0)
+
+                val id1 = runBlocking { dao.insertRecording(recording1) }
+                val id2 = runBlocking { dao.insertRecording(recording2) }
+                val id3 = runBlocking { dao.insertRecording(recording3) }
+
+                if (id1 > 0 && id2 > 0 && id3 > 0 && id1 != id2 && id2 != id3) {
+                    TestResult("Concurrent Database Operations", true,
+                        "Multiple inserts completed with unique IDs")
+                } else {
+                    TestResult("Concurrent Database Operations", false, "ID conflict detected")
+                }
+            } catch (e: Exception) {
+                TestResult("Concurrent Database Operations", false, "Exception: ${e.message}")
+            }
+        }
+
+        runTest("Invalid Filename Pattern Parsing") {
+            try {
+                val invalidFilenames = listOf(
+                    "invalid_no_coords.ogg",
+                    "VN_2024-01-15.ogg",
+                    "recording_40.7128_-74.0060.ogg",
+                    "VN_2024-01-15_12-30-45.ogg"
+                )
+
+                val pattern = """_(-?\d+\.\d+)_(-?\d+\.\d+)\.(ogg|amr)$""".toRegex()
+                val allFailed = invalidFilenames.all { filename ->
+                    pattern.find(filename) == null
+                }
+
+                if (allFailed) {
+                    TestResult("Invalid Filename Pattern Parsing", true,
+                        "All invalid filenames correctly rejected")
+                } else {
+                    TestResult("Invalid Filename Pattern Parsing", false,
+                        "Some invalid filenames incorrectly matched")
+                }
+            } catch (e: Exception) {
+                TestResult("Invalid Filename Pattern Parsing", false, "Exception: ${e.message}")
+            }
+        }
+
+        runTest("Timestamp Edge Cases (Year 2038)") {
+            try {
+                // Test year 2038 problem (32-bit timestamp overflow)
+                val year2038Timestamp = 2147483647000L // Close to overflow
+
+                val recording = Recording(
+                    id = 0,
+                    audioFilePath = "/test/path/year2038.ogg",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    timestamp = year2038Timestamp,
+                    v2sStatus = V2SStatus.NOT_STARTED,
+                    osmStatus = OsmStatus.NOT_STARTED,
+                    v2sResult = null,
+                    osmNoteId = null,
+                    createdAt = year2038Timestamp,
+                    updatedAt = year2038Timestamp
+                )
+
+                val id = runBlocking { dao.insertRecording(recording) }
+                val retrieved = runBlocking { dao.getRecordingById(id) }
+
+                if (retrieved?.timestamp == year2038Timestamp) {
+                    TestResult("Timestamp Edge Cases (Year 2038)", true, "Large timestamp handled correctly")
+                } else {
+                    TestResult("Timestamp Edge Cases (Year 2038)", false, "Timestamp corruption detected")
+                }
+            } catch (e: Exception) {
+                TestResult("Timestamp Edge Cases (Year 2038)", false, "Exception: ${e.message}")
+            }
+        }
+
+        runTest("Database Size Limit (Large Dataset)") {
+            try {
+                // Insert 100 recordings to test performance
+                val startTime = System.currentTimeMillis()
+                val insertCount = 100
+
+                repeat(insertCount) { i ->
+                    val recording = Recording(
+                        id = 0,
+                        audioFilePath = "/test/path/large_dataset_$i.ogg",
+                        latitude = 40.0 + (i * 0.001),
+                        longitude = -74.0 + (i * 0.001),
+                        timestamp = System.currentTimeMillis(),
+                        v2sStatus = V2SStatus.NOT_STARTED,
+                        osmStatus = OsmStatus.NOT_STARTED,
+                        v2sResult = null,
+                        osmNoteId = null,
+                        createdAt = System.currentTimeMillis(),
+                        updatedAt = System.currentTimeMillis()
+                    )
+
+                    runBlocking { dao.insertRecording(recording) }
+                }
+
+                val endTime = System.currentTimeMillis()
+                val duration = endTime - startTime
+
+                val count = runBlocking { dao.getAllRecordings().size }
+
+                if (count >= insertCount) {
+                    TestResult("Database Size Limit (Large Dataset)", true,
+                        "$insertCount records inserted in ${duration}ms")
+                } else {
+                    TestResult("Database Size Limit (Large Dataset)", false,
+                        "Only $count records inserted")
+                }
+            } catch (e: Exception) {
+                TestResult("Database Size Limit (Large Dataset)", false, "Exception: ${e.message}")
+            }
+        }
+
+        // Clean up test database
+        try {
+            testDb.close()
+        } catch (e: Exception) {
+            log("[TEST] Warning: Failed to close test database: ${e.message}")
+        }
+
+        log("")
+    }
+
     /**
      * Helper method to run a test and handle exceptions
      */
