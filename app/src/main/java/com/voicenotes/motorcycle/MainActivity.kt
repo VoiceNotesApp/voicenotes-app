@@ -82,9 +82,12 @@ class MainActivity : AppCompatActivity() {
         
         // Check if user is coming from settings or explicitly opening the app UI
         val fromSettings = intent?.getBooleanExtra("fromSettings", false) ?: false
-        
+
+        // Ensure save directory is configured
+        ensureSaveDirectoryConfigured()
+
         // If launched from launcher without explicit UI request, try background launch
-        if (!shouldShowUI && !fromSettings && !isFirstRun() && checkPermissions() && Settings.canDrawOverlays(this)) {
+        if (!shouldShowUI && !fromSettings && checkPermissions() && Settings.canDrawOverlays(this)) {
             Log.d(TAG, "Background launch mode - starting OverlayService directly")
             startBackgroundRecording()
             return
@@ -113,16 +116,10 @@ class MainActivity : AppCompatActivity() {
         
         // Set 10-second timeout for initialization
         timeoutHandler.postDelayed(initializationTimeout, 10000)
-        
-        // Check if first run
-        if (isFirstRun()) {
-            Log.d(TAG, "First run detected, showing setup dialog")
-            showSetupDialog()
-        } else {
-            // Check overlay permission
-            Log.d(TAG, "Not first run, checking overlay permission")
-            checkOverlayPermission()
-        }
+
+        // Check overlay permission and start recording
+        Log.d(TAG, "Checking overlay permission")
+        checkOverlayPermission()
     }
     
     override fun onNewIntent(intent: Intent?) {
@@ -136,23 +133,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isFirstRun(): Boolean {
-        Log.d(TAG, "isFirstRun() called")
+    private fun ensureSaveDirectoryConfigured() {
+        Log.d(TAG, "ensureSaveDirectoryConfigured() called")
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         val saveDir = prefs.getString("saveDirectory", null)
-        
+
         Log.d(TAG, "Save directory from prefs: $saveDir")
-        
+
         // Always use fixed internal storage path
         val defaultPath = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_MUSIC
         ).absolutePath + "/VoiceNotes"
-        
+
         // If no directory configured, set it now
         if (saveDir.isNullOrEmpty()) {
             Log.d(TAG, "No directory configured, setting default: $defaultPath")
             prefs.edit().putString("saveDirectory", defaultPath).apply()
-            
+
             // Try to create directory
             try {
                 val dir = File(defaultPath)
@@ -164,13 +161,13 @@ class MainActivity : AppCompatActivity() {
                 Log.e(TAG, "Failed to create directory", e)
             }
         }
-        
+
         // Directory should now be configured
         val finalSaveDir = prefs.getString("saveDirectory", null)
         val dir = File(finalSaveDir ?: defaultPath)
-        
+
         Log.d(TAG, "Final save directory: ${dir.absolutePath}")
-        
+
         // Check if directory exists or can be created
         if (!dir.exists()) {
             Log.d(TAG, "Directory doesn't exist, attempting to create")
@@ -180,25 +177,6 @@ class MainActivity : AppCompatActivity() {
                 Log.e(TAG, "Cannot create directory", e)
             }
         }
-        
-        Log.d(TAG, "Checking permissions")
-        
-        val permissionsMissing = !checkPermissions()
-        Log.d(TAG, "Permissions missing: $permissionsMissing")
-        
-        return permissionsMissing
-    }
-    
-    private fun showSetupDialog() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.setup_required)
-            .setMessage(R.string.complete_setup)
-            .setPositiveButton(R.string.open_settings) { _, _ ->
-                val intent = Intent(this, SettingsActivity::class.java)
-                startActivity(intent)
-            }
-            .setCancelable(false)
-            .show()
     }
     
     private fun checkOverlayPermission() {
@@ -401,17 +379,14 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume() called")
-        
-        // Check if coming back from settings
-        if (!isFirstRun()) {
-            Log.d(TAG, "Setup complete in onResume, checking overlay")
-            progressBar.visibility = View.GONE
-            infoText.text = "Ready"
-            
-            if (Settings.canDrawOverlays(this)) {
-                Log.d(TAG, "Ready to record in onResume")
-                // Don't auto-start, just update UI
-            }
+
+        // Update UI status
+        progressBar.visibility = View.GONE
+        infoText.text = "Ready"
+
+        if (Settings.canDrawOverlays(this)) {
+            Log.d(TAG, "Ready to record in onResume")
+            // Don't auto-start, just update UI
         }
     }
 }
