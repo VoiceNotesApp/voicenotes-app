@@ -58,7 +58,15 @@ Just tap "Voice Notes" whenever you want to record. The app quits automatically 
 Works perfectly offline! Optional features require:
 - Internet connection
 - [Google Cloud credentials](docs/DEVELOPER_GUIDE.md#google-cloud-setup) for transcription
-- [OSM account](docs/DEVELOPER_GUIDE.md#osm-setup) for creating map notes
+- [OSM account](docs/DEVELOPER_GUIDE.md#openstreetmap-oauth) for creating map notes
+
+#### OpenStreetMap OAuth Configuration
+
+The app uses OAuth 2.0 for OpenStreetMap authentication. When registering your OAuth application:
+- **Redirect URI:** `app.voicenotes.motorcycle://oauth`
+- This ensures the OAuth callback is handled exclusively by the main SettingsActivity
+- For multiple app variants (debug, manage), use unique redirect URI schemes per variant
+- See [Developer Guide](docs/DEVELOPER_GUIDE.md#openstreetmap-oauth) for detailed configuration instructions
 
 ## Building from Source
 

@@ -335,7 +335,7 @@ Voice Note (YYYY-MM-DD HH:MM:SS)
 1. **Register OAuth application**:
    - Go to https://www.openstreetmap.org/oauth2/applications
    - Create new application
-   - Set redirect URI: `voicenotes://oauth-callback`
+   - Set redirect URI: `app.voicenotes.motorcycle://oauth`
    - Get Client ID and Client Secret
 
 2. **Add to `gradle.properties`**:
@@ -343,6 +343,48 @@ Voice Note (YYYY-MM-DD HH:MM:SS)
    OSM_CLIENT_ID=your_client_id_here
    OSM_CLIENT_SECRET=your_client_secret_here
    ```
+
+#### Configuring OAuth for Secondary Apps or Variants
+
+If you're building multiple app variants (e.g., a separate "manage" app, debug builds, or product flavors), each should use a **unique redirect URI scheme** to prevent OAuth redirect conflicts:
+
+**Main app:**
+- Redirect URI: `app.voicenotes.motorcycle://oauth`
+- Configuration in: `app/src/main/AndroidManifest.xml`
+- OsmOAuthManager: Uses `REDIRECT_URI = "app.voicenotes.motorcycle://oauth"`
+
+**Example: Debug variant:**
+- Redirect URI: `app.voicenotes.debug.motorcycle://oauth`
+- Configuration in: `app/src/debug/AndroidManifest.xml` (create if needed)
+- OsmOAuthManager: Override `REDIRECT_URI` for debug build variant
+
+**Example: "Manage" app variant:**
+- Redirect URI: `app.voicenotes-manage.motorcycle://oauth`
+- Configuration in: `app/src/manage/AndroidManifest.xml` (if using product flavors)
+- OsmOAuthManager: Override `REDIRECT_URI` for manage product flavor
+
+**Steps for each variant:**
+
+1. Create a variant-specific `AndroidManifest.xml` (e.g., `app/src/debug/AndroidManifest.xml`)
+2. Add the OAuth intent-filter with your unique scheme:
+   ```xml
+   <activity
+       android:name=".SettingsActivity">
+       <intent-filter>
+           <action android:name="android.intent.action.VIEW" />
+           <category android:name="android.intent.category.DEFAULT" />
+           <category android:name="android.intent.category.BROWSABLE" />
+           <data
+               android:scheme="app.voicenotes.debug.motorcycle"
+               android:host="oauth" />
+       </intent-filter>
+   </activity>
+   ```
+3. Update the `REDIRECT_URI` constant in `OsmOAuthManager.kt` for that build variant
+4. Register a separate OAuth application on OpenStreetMap with the variant's redirect URI
+5. Add the OAuth client ID to `gradle.properties` or use variant-specific configuration
+
+This ensures Android will only show the appropriate app for each OAuth redirect, eliminating the "two icons" selection problem.
 
 ### Build Configuration
 
