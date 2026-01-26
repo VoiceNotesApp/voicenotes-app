@@ -113,14 +113,10 @@ class RecordingManagerActivity : AppCompatActivity() {
             oauthManager.handleOAuthResponse(
                 intent,
                 onSuccess = { username ->
-                    runOnUiThread {
-                        Toast.makeText(this, "Account bound: $username", Toast.LENGTH_SHORT).show()
-                    }
+                    Toast.makeText(this, "Account bound: $username", Toast.LENGTH_SHORT).show()
                 },
                 onFailure = { error ->
-                    runOnUiThread {
-                        Toast.makeText(this, "OAuth failed: ${error.message}", Toast.LENGTH_SHORT).show()
-                    }
+                    Toast.makeText(this, "OAuth failed: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             )
         }
