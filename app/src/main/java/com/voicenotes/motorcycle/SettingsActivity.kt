@@ -177,9 +177,9 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun getDefaultSavePath(): String {
-        return Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_MUSIC
-        ).absolutePath + "/VoiceNotes"
+        // Use app-specific external files directory (doesn't require storage permissions)
+        // This directory is cleared when the app is uninstalled
+        return getExternalFilesDir(null)?.absolutePath + "/VoiceNotes"
     }
     
     private fun showDebugLog() {

@@ -1150,11 +1150,12 @@ TestSuite
 │   ├── Recording Duration Setting
 │   └── OSM Note Creation Toggle
 │
-├── testPermissions() - 4 tests
+├── testPermissions() - 5 tests
 │   ├── RECORD_AUDIO Permission
 │   ├── ACCESS_FINE_LOCATION Permission
 │   ├── BLUETOOTH_CONNECT Permission
-│   └── Overlay Permission
+│   ├── Overlay Permission
+│   └── Notification Permission
 │
 ├── testDatabase() - 13 tests ★NEW★
 │   ├── Database Initialization
