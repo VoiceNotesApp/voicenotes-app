@@ -45,7 +45,7 @@
         android:id="@+id/openManagerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Open Manager"
+        android:text="@string/open_manager"
         android:layout_marginTop="16dp"
         android:visibility="gone" />
 
