@@ -152,22 +152,15 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun getAppVersion(): String {
         return try {
-            // Try to get git tag or commit hash from BuildConfig
             val buildConfigVersion = BuildConfig.VERSION_NAME
             
-            // Handle null or empty VERSION_NAME
             if (buildConfigVersion.isNullOrEmpty()) {
                 return "Version 1.0.0"
             }
             
-            // Check if VERSION_NAME is set to a git value
-            if (buildConfigVersion.startsWith("v") || buildConfigVersion.contains("dev-")) {
-                "Version $buildConfigVersion"
-            } else {
-                // Fallback to package version
-                val packageInfo = packageManager.getPackageInfo(packageName, 0)
-                "Version ${packageInfo.versionName ?: "1.0.0"}"
-            }
+            // Use BuildConfig version directly (it's already processed by build.gradle)
+            "Version $buildConfigVersion"
+            
         } catch (e: Exception) {
             "Version 1.0.0"
         }
