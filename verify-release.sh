@@ -145,10 +145,13 @@ fi
 # Try to run lint
 if command -v ./gradlew &> /dev/null; then
     echo "   Running lint checks..."
-    if ./gradlew lintRelease --quiet > /dev/null 2>&1; then
+    LINT_OUTPUT=$(./gradlew lintRelease --quiet 2>&1)
+    LINT_EXIT=$?
+    if [ $LINT_EXIT -eq 0 ]; then
         success "Lint checks passed"
     else
         warning "Lint checks failed or have warnings - review lint report"
+        echo "   Run './gradlew lintRelease' for details"
     fi
 else
     warning "Unable to run lint checks"
@@ -165,10 +168,13 @@ if [ -d "app/src/test" ]; then
         # Try to run tests
         if command -v ./gradlew &> /dev/null; then
             echo "   Running unit tests..."
-            if ./gradlew test --quiet > /dev/null 2>&1; then
+            TEST_OUTPUT=$(./gradlew test --quiet 2>&1)
+            TEST_EXIT=$?
+            if [ $TEST_EXIT -eq 0 ]; then
                 success "All tests passed"
             else
                 error "Some tests failed - review test report"
+                echo "   Run './gradlew test' for details"
             fi
         else
             warning "Unable to run tests"

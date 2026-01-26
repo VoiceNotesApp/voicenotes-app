@@ -88,8 +88,7 @@
     *;
 }
 
-# Keep all Room annotations
--keepattributes *Annotation*
+# Keep Room framework classes
 -keep class androidx.room.** { *; }
 
 # ============================================
@@ -251,14 +250,7 @@
 }
 
 # ============================================
-# Optimization Configuration
-# ============================================
-
-# R8 automatically optimizes with selective exclusions
-# No additional configuration needed - R8 is more efficient than classic ProGuard
-
-# ============================================
-# Debugging (remove in final production)
+# Debugging
 # ============================================
 
 # Print mapping to understand obfuscation
