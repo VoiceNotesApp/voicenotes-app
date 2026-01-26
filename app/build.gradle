@@ -25,7 +25,7 @@ def getVersionName() {
                     // No tags exist, prepend base version to commit hash
                     // Use first 7 characters of the hash (or less if shorter)
                     def shortHash = versionWithoutDirty.substring(0, Math.min(7, versionWithoutDirty.length()))
-                    version = "0.0.0-" + shortHash
+                    version = "1.0.0-" + shortHash
                     // Re-add -dirty suffix if it was present
                     if (isDirty) {
                         version = version + '-dirty'
@@ -42,7 +42,7 @@ def getVersionName() {
         if (hashProcess.exitValue() == 0) {
             def hash = hashProcess.text.trim()
             if (hash && !hash.isEmpty()) {
-                def versionFromHash = "0.0.0-${hash}"
+                def versionFromHash = "1.0.0-${hash}"
                 // Check if working tree is dirty
                 def dirtyCheck = 'git diff-index --quiet HEAD'.execute()
                 dirtyCheck.waitFor()
@@ -57,7 +57,7 @@ def getVersionName() {
     }
 
     // Final fallback when git is completely unavailable
-    return "0.0.0-unknown"
+    return "1.0.0-unknown"
 }
 
 def getVersionCode() {
@@ -116,7 +116,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             
             // Sign the release APK if keystore is configured

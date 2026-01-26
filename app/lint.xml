@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Critical issues that should fail the build -->
+    <issue id="HardcodedText" severity="warning" />
+    <issue id="MissingPermission" severity="error" />
+    <issue id="InvalidPackage" severity="ignore" />
+    
+    <!-- Security issues -->
+    <issue id="HardcodedDebugMode" severity="error" />
+    <issue id="SetJavaScriptEnabled" severity="error" />
+    <issue id="ExportedReceiver" severity="warning" />
+    <issue id="ExportedService" severity="warning" />
+    
+    <!-- Performance issues -->
+    <issue id="UnusedResources" severity="warning" />
+    <issue id="Overdraw" severity="warning" />
+    <issue id="UselessParent" severity="warning" />
+    <issue id="TooManyViews" severity="warning" />
+    <issue id="TooDeepLayout" severity="warning" />
+    
+    <!-- Correctness issues -->
+    <issue id="MissingConstraints" severity="error" />
+    <issue id="ScrollViewSize" severity="warning" />
+    <issue id="Deprecated" severity="warning" />
+    <issue id="NewApi" severity="error" />
+    <issue id="InlinedApi" severity="warning" />
+    
+    <!-- Accessibility -->
+    <issue id="ContentDescription" severity="warning" />
+    <issue id="ClickableViewAccessibility" severity="warning" />
+    
+    <!-- Internationalization -->
+    <issue id="MissingTranslation" severity="ignore" />
+    <issue id="ExtraTranslation" severity="ignore" />
+    
+    <!-- Disable checks for generated code -->
+    <issue id="all">
+        <ignore path="**/build/**" />
+        <ignore path="**/generated/**" />
+    </issue>
+    
+    <!-- Ignore specific warnings for Google Cloud libraries -->
+    <issue id="InvalidPackage">
+        <ignore regexp=".*google.*" />
+        <ignore regexp=".*grpc.*" />
+        <ignore regexp=".*protobuf.*" />
+    </issue>
+    
+    <!-- Ignore warnings for OkHttp -->
+    <issue id="InvalidPackage">
+        <ignore regexp=".*okhttp.*" />
+        <ignore regexp=".*okio.*" />
+    </issue>
+    
+    <!-- Custom suppressions for known issues -->
+    <issue id="UnusedResources">
+        <ignore path="res/drawable/ic_*.xml" />
+    </issue>
+    
+    <!-- Disable ObsoleteLintCustomCheck for compatibility -->
+    <issue id="ObsoleteLintCustomCheck" severity="ignore" />
+    
+    <!-- Suppress Kotlin-specific warnings -->
+    <issue id="SyntheticAccessor" severity="ignore" />
+    
+    <!-- Resource shrinking warnings -->
+    <issue id="UnusedIds" severity="ignore" />
+    
+    <!-- Allow usage of recent APIs with proper version checks -->
+    <issue id="ObsoleteSdkInt" severity="warning" />
+    
+    <!-- Disable StringFormatMatches for now -->
+    <issue id="StringFormatMatches" severity="ignore" />
+    
+    <!-- Ignore lint warnings in test code -->
+    <issue id="all">
+        <ignore path="**/test/**" />
+        <ignore path="**/androidTest/**" />
+    </issue>
+</lint>
