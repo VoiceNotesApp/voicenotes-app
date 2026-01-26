@@ -70,6 +70,21 @@ class OsmOAuthManager(private val context: Context) {
          * scheme to avoid conflicts. See class documentation for details.
          */
         private const val REDIRECT_URI = "app.voicenotes.motorcycle://oauth"
+        
+        /**
+         * OAuth 2.0 Redirect URI for Recording Manager
+         * 
+         * Alternative redirect URI that opens RecordingManagerActivity instead of SettingsActivity.
+         * To use this redirect URI, you must register a separate OAuth application on OpenStreetMap
+         * with this redirect URI, then call startOAuthFlow with this URI as the redirectUri parameter.
+         */
+        const val REDIRECT_URI_MANAGER = "app.voicenotes.motorcycle://oauth/manager"
+        
+        // Redirect URI components for easy validation
+        const val REDIRECT_SCHEME = "app.voicenotes.motorcycle"
+        const val REDIRECT_HOST = "oauth"
+        const val REDIRECT_PATH_MANAGER = "/manager"
+        
         const val DEFAULT_CLIENT_ID_PLACEHOLDER = "your_osm_client_id"
         
         private const val PREF_ACCESS_TOKEN = "osm_access_token"
@@ -85,13 +100,17 @@ class OsmOAuthManager(private val context: Context) {
         .build()
     
     fun startOAuthFlow(launcher: ActivityResultLauncher<Intent>) {
+        startOAuthFlow(launcher, REDIRECT_URI)
+    }
+    
+    fun startOAuthFlow(launcher: ActivityResultLauncher<Intent>, redirectUri: String) {
         if (CLIENT_ID.isBlank() || CLIENT_ID == DEFAULT_CLIENT_ID_PLACEHOLDER) {
             throw IllegalStateException("OSM Client ID not configured")
         }
         
         DebugLogger.logInfo(
             service = "OSM OAuth",
-            message = "Starting OAuth flow with client ID: ${CLIENT_ID.take(10)}..."
+            message = "Starting OAuth flow with client ID: ${CLIENT_ID.take(10)}... and redirect URI: $redirectUri"
         )
         
         val serviceConfig = AuthorizationServiceConfiguration(
@@ -106,7 +125,7 @@ class OsmOAuthManager(private val context: Context) {
             serviceConfig,
             CLIENT_ID,
             ResponseTypeValues.CODE,
-            Uri.parse(REDIRECT_URI)
+            Uri.parse(redirectUri)
         )
             .setScope("read_prefs write_notes")
             .setCodeVerifier(codeVerifier)  // Enable PKCE
@@ -116,7 +135,7 @@ class OsmOAuthManager(private val context: Context) {
             service = "OSM OAuth",
             method = "GET",
             url = OSM_AUTH_ENDPOINT,
-            headers = mapOf("scope" to "read_prefs write_notes")
+            headers = mapOf("scope" to "read_prefs write_notes", "redirect_uri" to redirectUri)
         )
         
         val authIntent = authService.getAuthorizationRequestIntent(authRequest)
