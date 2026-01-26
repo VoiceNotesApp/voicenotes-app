@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.voicenotes.motorcycle.database.Recording
@@ -579,9 +580,50 @@ class RecordingAdapter(
 
     private var recordings = listOf<Recording>()
 
+    // Add RecordingDiffCallback
+    private class RecordingDiffCallback(
+        private val oldList: List<Recording>,
+        private val newList: List<Recording>
+    ) : DiffUtil.Callback() {
+        
+        override fun getOldListSize(): Int = oldList.size
+        override fun getNewListSize(): Int = newList.size
+        
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+        
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val old = oldList[oldItemPosition]
+            val new = newList[newItemPosition]
+            return old.v2sResult == new.v2sResult &&
+                   old.v2sStatus == new.v2sStatus &&
+                   old.osmStatus == new.osmStatus &&
+                   old.osmNoteId == new.osmNoteId &&
+                   old.updatedAt == new.updatedAt
+        }
+        
+        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+            val old = oldList[oldItemPosition]
+            val new = newList[newItemPosition]
+            
+            val changes = mutableMapOf<String, Any?>()
+            if (old.v2sResult != new.v2sResult) changes["v2sResult"] = new.v2sResult
+            if (old.v2sStatus != new.v2sStatus) changes["v2sStatus"] = new.v2sStatus
+            if (old.osmStatus != new.osmStatus) changes["osmStatus"] = new.osmStatus
+            if (old.osmNoteId != new.osmNoteId) changes["osmNoteId"] = new.osmNoteId
+            
+            return if (changes.isNotEmpty()) changes else null
+        }
+    }
+
     fun submitList(newRecordings: List<Recording>) {
-        recordings = newRecordings.sortedByDescending { it.timestamp }
-        notifyDataSetChanged()
+        val sorted = newRecordings.sortedByDescending { it.timestamp }
+        val diffCallback = RecordingDiffCallback(recordings, sorted)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        
+        recordings = sorted
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -592,6 +634,27 @@ class RecordingAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(recordings[position])
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+        } else {
+            val recording = recordings[position]
+            for (payload in payloads) {
+                if (payload is Map<*, *>) {
+                    if (payload.containsKey("v2sResult")) {
+                        holder.updateTranscriptionText(recording.v2sResult ?: "")
+                    }
+                    if (payload.containsKey("v2sStatus")) {
+                        holder.updateTranscriptionUI(recording)
+                    }
+                    if (payload.containsKey("osmStatus")) {
+                        holder.updateOsmUI(recording)
+                    }
+                }
+            }
+        }
     }
 
     override fun getItemCount() = recordings.size
@@ -652,12 +715,19 @@ class RecordingAdapter(
             downloadButton.visibility = if (shouldShowDownloadButton(recording)) View.VISIBLE else View.GONE
         }
         
+        fun updateTranscriptionText(text: String) {
+            // Only update if the EditText doesn't have focus (user isn't editing)
+            if (!transcriptionEditText.hasFocus()) {
+                transcriptionEditText.setText(text)
+            }
+        }
+        
         private fun shouldShowDownloadButton(recording: Recording): Boolean {
             // Show download button if transcription is completed or if there's transcribed text
             return recording.v2sStatus == V2SStatus.COMPLETED && !recording.v2sResult.isNullOrBlank()
         }
 
-        private fun updateTranscriptionUI(recording: Recording) {
+        fun updateTranscriptionUI(recording: Recording) {
             // Update button text and drawable based on V2S status
             when (recording.v2sStatus) {
                 V2SStatus.NOT_STARTED -> {
@@ -696,7 +766,7 @@ class RecordingAdapter(
             }
         }
 
-        private fun updateOsmUI(recording: Recording) {
+        fun updateOsmUI(recording: Recording) {
             // Update button text and drawable based on OSM status
             when (recording.osmStatus) {
                 OsmStatus.NOT_STARTED -> {
