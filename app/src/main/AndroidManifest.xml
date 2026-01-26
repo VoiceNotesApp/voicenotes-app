@@ -136,9 +136,20 @@
         
         <activity
             android:name=".RecordingManagerActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="Recording Manager"
-            android:parentActivityName=".SettingsActivity" />
+            android:parentActivityName=".SettingsActivity">
+            <!-- OAuth 2.0 Redirect Handler for Recording Manager -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="app.voicenotes.motorcycle"
+                    android:host="oauth"
+                    android:path="/manager" />
+            </intent-filter>
+        </activity>
         
         <service
             android:name=".OverlayService"

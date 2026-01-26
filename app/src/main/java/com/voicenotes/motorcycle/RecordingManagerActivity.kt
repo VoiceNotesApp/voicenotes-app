@@ -46,6 +46,9 @@ class RecordingManagerActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Recording Manager"
 
+        // Handle OAuth redirect if present
+        handleOAuthRedirect(intent)
+
         recyclerView = findViewById(R.id.recyclerView)
         emptyView = findViewById(R.id.emptyView)
 
@@ -95,6 +98,31 @@ class RecordingManagerActivity : AppCompatActivity() {
                     adapter.submitList(recordings)
                 }
             }
+        }
+    }
+
+    private fun handleOAuthRedirect(intent: Intent?) {
+        val data = intent?.data
+        if (data != null && data.scheme == "app.voicenotes.motorcycle" && 
+            data.host == "oauth" && data.path == "/manager") {
+            
+            // Initialize OAuth manager
+            val oauthManager = OsmOAuthManager(this)
+            
+            // Handle the OAuth response
+            oauthManager.handleOAuthResponse(
+                intent,
+                onSuccess = { username ->
+                    runOnUiThread {
+                        Toast.makeText(this, "Account bound: $username", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                onFailure = { error ->
+                    runOnUiThread {
+                        Toast.makeText(this, "OAuth failed: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
         }
     }
 
