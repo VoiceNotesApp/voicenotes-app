@@ -861,6 +861,117 @@ Latitude,Longitude,Timestamp,Transcription
 
 ## Security Architecture
 
+### Credential Management
+
+**Google Cloud API credentials** are handled securely:
+
+1. **Build-time configuration**:
+   ```gradle
+   // In app/build.gradle
+   buildConfigField "String", "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64",
+       "\"${encoded_credentials}\""
+   ```
+
+2. **Credentials never in source code**:
+   - Stored in `gradle.properties` (in `.gitignore`)
+   - Encoded at build time
+   - Embedded in BuildConfig class
+
+3. **Protection layers**:
+   - Not in version control
+   - Obfuscated by ProGuard/R8 in release builds
+   - API key restrictions in Google Cloud Console
+
+**See [docs/SECURITY.md](SECURITY.md) for complete credential management guide.**
+
+### ProGuard/R8 Configuration
+
+Release builds use ProGuard/R8 for security and optimization:
+
+#### Enabled Features
+
+```gradle
+// In app/build.gradle - buildTypes.release
+minifyEnabled true          // Code obfuscation and optimization
+shrinkResources true        // Remove unused resources
+proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+```
+
+#### Security Benefits
+
+1. **Code Obfuscation**:
+   - Class names shortened: `RecordingManagerActivity` → `a`
+   - Method names obfuscated: `transcribeRecording()` → `b()`
+   - Makes reverse engineering difficult
+
+2. **Dead Code Elimination**:
+   - Removes unused classes and methods
+   - Reduces attack surface
+   - Smaller APK size
+
+3. **String Encryption**:
+   - Basic string obfuscation (not full encryption)
+   - Harder to find API endpoints and keys
+
+4. **Control Flow Obfuscation**:
+   - Makes code logic harder to follow
+   - Prevents easy decompilation
+
+#### ProGuard Rules Strategy
+
+**Comprehensive rules in `app/proguard-rules.pro`:**
+
+1. **Keep Critical Classes**:
+   ```proguard
+   # Room Database
+   -keep @androidx.room.Entity class * { *; }
+   -keep @androidx.room.Dao class * { *; }
+   
+   # Application classes
+   -keep class com.voicenotes.motorcycle.database.** { *; }
+   ```
+
+2. **Library-Specific Rules**:
+   - Google Cloud Speech-to-Text
+   - Kotlin coroutines
+   - OkHttp networking
+   - gRPC and Protobuf
+
+3. **Debugging Support**:
+   ```proguard
+   -keepattributes SourceFile,LineNumberTable
+   -renamesourcefileattribute SourceFile
+   ```
+
+4. **Mapping File**:
+   - Generated at: `app/build/outputs/mapping/release/mapping.txt`
+   - Required for crash report deobfuscation
+   - Must be saved for each release version
+
+#### Testing ProGuard
+
+ProGuard can break functionality if not configured correctly:
+
+```bash
+# Build release APK
+./build-release.sh
+
+# Test all features:
+# - Recording and playback
+# - Database operations
+# - Transcription
+# - Export functionality
+# - Settings persistence
+```
+
+**Common ProGuard issues:**
+- Reflection-based code breaks
+- Serialization fails
+- Native method calls fail
+- Library initialization issues
+
+**Solution:** Add specific `-keep` rules for affected classes.
+
 ### Permission Model
 
 **Runtime permissions** (dangerous):
@@ -890,7 +1001,7 @@ Latitude,Longitude,Timestamp,Transcription
 
 **Note:** Storage and notification permissions are NOT required. The app uses `getExternalFilesDir()` which provides app-specific storage without requiring storage permissions on Android 10+.
 
-### Data Protection
+### Data Storage Security
 
 **1. Internal Storage** (app-private):
 - Audio files stored in `/data/data/com.voicenotes.motorcycle/files/`

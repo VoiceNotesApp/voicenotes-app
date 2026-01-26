@@ -339,38 +339,78 @@ android {
 ```bash
 # Build release APK (requires signing configuration)
 ./gradlew assembleRelease
+
+# Or use the release build script (recommended)
+./build-release.sh
 ```
 
-**Signing configuration** (add to `build.gradle`):
-```gradle
-android {
-    signingConfigs {
-        release {
-            storeFile file("path/to/keystore.jks")
-            storePassword "keystore_password"
-            keyAlias "key_alias"
-            keyPassword "key_password"
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-        }
-    }
-}
+**Important:** Release builds use ProGuard/R8 for code optimization and obfuscation. See [ProGuard Configuration](#proguard-configuration) section below.
+
+**Signing configuration** (required for distribution):
+
+Create `keystore.properties` file (not in version control):
+```properties
+storeFile=path/to/keystore.jks
+storePassword=your_keystore_password
+keyAlias=your_key_alias
+keyPassword=your_key_password
 ```
+
+See [docs/SECURITY.md](SECURITY.md) for detailed security and signing instructions.
 
 ### Running Tests
 
+#### Unit Tests
+
+The project includes JUnit unit tests for core functionality:
+
 ```bash
-# Run unit tests
+# Run all unit tests
 ./gradlew test
 
+# Run tests for specific module
+./gradlew app:testDebugUnitTest
+
+# Run tests with coverage
+./gradlew testDebugUnitTest jacocoTestReport
+```
+
+**Unit test files** (in `app/src/test/java/com/voicenotes/motorcycle/`):
+- `CoordinateUtilsTest.kt` - Coordinate parsing and validation
+- `FilenameUtilsTest.kt` - Filename generation and parsing
+- `RecordingValidationTest.kt` - Recording data validation
+- `V2SStatusTest.kt` - Enum conversions and transitions
+- `DateTimeUtilsTest.kt` - Date/time formatting and timezone handling
+
+#### On-Device Integration Tests
+
+```bash
 # Run on-device tests (via app UI)
 # 1. Install app
 # 2. Open Settings → Debug Log
 # 3. Tap "Run Tests" button
 ```
+
+The on-device test suite includes 82 tests covering database operations, file system, permissions, and API integrations.
+
+### Running Lint
+
+```bash
+# Run lint on debug build
+./gradlew lintDebug
+
+# Run lint on release build
+./gradlew lintRelease
+
+# View lint report
+open app/build/reports/lint-results-debug.html
+```
+
+**Lint configuration** is in `app/lint.xml` with custom rules for:
+- Security issues (errors)
+- Performance warnings
+- Correctness checks
+- Accessibility guidelines
 
 ---
 
@@ -547,31 +587,147 @@ fun runAllTests() {
 
 ---
 
+## ProGuard Configuration
+
+### Overview
+
+Release builds use ProGuard/R8 for:
+- **Code obfuscation**: Makes reverse engineering harder
+- **Minification**: Reduces APK size by removing unused code
+- **Resource shrinking**: Removes unused resources
+- **Optimization**: Improves runtime performance
+
+### Configuration File
+
+ProGuard rules are defined in `app/proguard-rules.pro` with comprehensive rules for:
+
+**Android & AndroidX:**
+- Preserve native methods
+- Keep custom view constructors
+- Maintain Parcelables and Serializables
+
+**Room Database:**
+- Keep `@Entity`, `@Dao`, `@Database` annotations
+- Preserve type converters
+- Maintain migration classes
+
+**Kotlin:**
+- Keep Kotlin metadata for reflection
+- Preserve coroutines
+- Maintain data class copy() methods
+
+**Google Cloud & APIs:**
+- Keep Google Cloud Speech-to-Text classes
+- Preserve gRPC and Protobuf
+- Maintain Google Auth libraries
+
+**OkHttp:**
+- Keep OkHttp platform classes
+- Preserve Okio
+
+### Testing ProGuard Builds
+
+**Always test release builds** before distribution:
+
+```bash
+# Build release APK
+./build-release.sh
+
+# Install on device
+adb install app/build/outputs/apk/release/app-release.apk
+
+# Test all features:
+# - Recording with GPS
+# - Audio playback
+# - Transcription
+# - Export functionality
+# - Settings changes
+```
+
+### ProGuard Mapping File
+
+After each release build, save the mapping file:
+
+```bash
+# Location
+app/build/outputs/mapping/release/mapping.txt
+
+# This file is needed to:
+# - Deobfuscate crash reports
+# - Debug production issues
+# - Understand stack traces
+```
+
+**Important:** Store mapping files for each release version. Without it, crash reports will be unreadable.
+
+### Troubleshooting ProGuard Issues
+
+**Symptom:** App crashes in release but works in debug
+
+**Common causes:**
+1. Missing ProGuard rules for a library
+2. Reflection-based code not preserved
+3. Serialization issues
+
+**Solutions:**
+```bash
+# Check ProGuard output
+cat app/build/outputs/mapping/release/usage.txt
+
+# Add keep rules for missing classes
+-keep class com.example.MissingClass { *; }
+
+# Enable debugging (temporarily)
+-dontobfuscate
+```
+
+---
+
 ## Release Process
 
 ### Pre-release Checklist
 
 1. **Run all tests**:
+   - [ ] Unit tests pass: `./gradlew test`
    - [ ] On-device test suite passes (82/82)
    - [ ] Manual testing of all features
    - [ ] Test on multiple Android versions (8, 10, 12, 14)
 
 2. **Code quality**:
    - [ ] No compiler warnings
-   - [ ] No lint errors
+   - [ ] Lint checks pass: `./gradlew lintRelease`
    - [ ] Code reviewed
+   - [ ] ProGuard mapping file saved
 
-3. **Documentation**:
+3. **Security**:
+   - [ ] No credentials in source code
+   - [ ] gradle.properties and keystore.properties in .gitignore
+   - [ ] Release APK signed with production keystore
+   - [ ] Keystore backed up securely
+   - [ ] API keys restricted in Google Cloud Console
+
+4. **ProGuard**:
+   - [ ] ProGuard enabled (minifyEnabled true)
+   - [ ] Resource shrinking enabled (shrinkResources true)
+   - [ ] Release APK tested with all features
+   - [ ] ProGuard mapping file saved for this version
+   - [ ] No crashes with ProGuard enabled
+
+5. **Documentation**:
    - [ ] README.md updated
    - [ ] USER_GUIDE.md updated
    - [ ] DEVELOPER_GUIDE.md updated (this file)
    - [ ] ARCHITECTURE.md updated
    - [ ] CHANGELOG.md updated
+   - [ ] SECURITY.md reviewed
 
-4. **Configuration**:
-   - [ ] API credentials configured
-   - [ ] Release signing configured
-   - [ ] ProGuard rules tested
+6. **Verification**:
+   - [ ] Run verification script: `./verify-release.sh`
+   - [ ] Build release APK: `./build-release.sh`
+   - [ ] Install on clean device (not development device)
+   - [ ] Test all features on release build
+   - [ ] Check app size is reasonable
+   - [ ] Verify version number is correct
 
 ### Version Numbering
 

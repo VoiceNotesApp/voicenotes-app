@@ -34,6 +34,11 @@ chmod +x gradlew
 
 echo "Starting build..."
 echo ""
+echo "Note: For release builds with ProGuard and code signing,"
+echo "      use ./build-release.sh instead."
+echo ""
+echo "Tip: Run './gradlew lintDebug' to check for code quality issues."
+echo ""
 
 # Clean and build
 ./gradlew clean assembleDebug
