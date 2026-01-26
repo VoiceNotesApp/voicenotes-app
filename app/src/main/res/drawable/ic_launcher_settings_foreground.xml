@@ -10,92 +10,87 @@
         android:translateX="10.8"
         android:translateY="10.8">
 
-        <!-- Microphone body -->
+        <!-- Large prominent settings gear icon -->
+        <!-- Outer gear teeth -->
         <path
             android:fillColor="#FFFFFF"
-            android:pathData="M54,35
-                             C49.58,35 46,38.58 46,43
-                             L46,55
-                             C46,59.42 49.58,63 54,63
-                             C58.42,63 62,59.42 62,55
-                             L62,43
-                             C62,38.58 58.42,35 54,35
+            android:pathData="M54,30
+                             L58,32
+                             L60,28
+                             L66,28
+                             L68,32
+                             L72,30
+                             L76,34
+                             L74,38
+                             L78,40
+                             L78,46
+                             L74,48
+                             L76,52
+                             L72,56
+                             L68,54
+                             L66,58
+                             L60,58
+                             L58,54
+                             L54,56
+                             L50,52
+                             L52,48
+                             L48,46
+                             L48,40
+                             L52,38
+                             L50,34
                              Z"/>
 
-        <!-- Microphone stand -->
+        <!-- Inner gear circle (creates the gear teeth effect) -->
         <path
-            android:strokeColor="#FFFFFF"
-            android:strokeWidth="3"
-            android:strokeLineCap="round"
-            android:pathData="M54,63 L54,73"/>
-        <path
-            android:strokeColor="#FFFFFF"
-            android:strokeWidth="3"
-            android:strokeLineCap="round"
-            android:pathData="M46,73 L62,73"/>
-
-        <!-- Microphone arc -->
-        <path
-            android:strokeColor="#FFFFFF"
-            android:strokeWidth="3"
-            android:fillColor="@android:color/transparent"
-            android:strokeLineCap="round"
-            android:pathData="M40,55 C40,63 46,70 54,70 C62,70 68,63 68,55"/>
-
-        <!-- Sound waves -->
-        <path
-            android:strokeColor="#FFFFFF"
-            android:strokeWidth="2.5"
-            android:strokeAlpha="0.7"
-            android:strokeLineCap="round"
-            android:fillColor="@android:color/transparent"
-            android:pathData="M36,49 C36,40 43,33 51,31"/>
-        <path
-            android:strokeColor="#FFFFFF"
-            android:strokeWidth="2.5"
-            android:strokeAlpha="0.7"
-            android:strokeLineCap="round"
-            android:fillColor="@android:color/transparent"
-            android:pathData="M72,49 C72,40 65,33 57,31"/>
-
-        <!-- Settings gear icon overlay -->
-        <!-- Outer gear circle -->
-        <path
-            android:fillColor="#FFA726"
-            android:pathData="M73,78
-                             L74.5,75.5
-                             L77,75
-                             L78.5,72.5
-                             L78,70
-                             L80.5,68.5
-                             L80.5,65.5
-                             L78,64
-                             L78.5,61.5
-                             L77,59
-                             L74.5,58.5
-                             L73,56
-                             L70.5,56
-                             L68,58.5
-                             L65.5,59
-                             L64,61.5
-                             L64.5,64
-                             L62,65.5
-                             L62,68.5
-                             L64.5,70
-                             L64,72.5
-                             L65.5,75
-                             L68,75.5
-                             L70.5,78
+            android:fillColor="#2196F3"
+            android:pathData="M63,36
+                             C57.48,36 53,40.48 53,46
+                             C53,51.52 57.48,56 63,56
+                             C68.52,56 73,51.52 73,46
+                             C73,40.48 68.52,36 63,36
                              Z"/>
 
-        <!-- Inner gear circle (center) -->
+        <!-- Center hole of gear -->
         <path
             android:fillColor="#FFFFFF"
-            android:pathData="M71.5,66
-                             C69.57,66 68,67.57 68,69.5
-                             C68,71.43 69.57,73 71.5,73
-                             C73.43,73 75,71.43 75,69.5
-                             C75,67.57 73.43,66 71.5,66
+            android:pathData="M63,40
+                             C59.69,40 57,42.69 57,46
+                             C57,49.31 59.69,52 63,52
+                             C66.31,52 69,49.31 69,46
+                             C69,42.69 66.31,40 63,40
                              Z"/>
+
+        <!-- Small microphone icon in bottom-left corner -->
+        <!-- Microphone body (smaller) -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M40,62
+                             C38.34,62 37,63.34 37,65
+                             L37,70
+                             C37,71.66 38.34,73 40,73
+                             C41.66,73 43,71.66 43,70
+                             L43,65
+                             C43,63.34 41.66,62 40,62
+                             Z"/>
+
+        <!-- Microphone stand (smaller) -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:pathData="M40,73 L40,78"/>
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:pathData="M36,78 L44,78"/>
+
+        <!-- Microphone arc (smaller) -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:fillColor="@android:color/transparent"
+            android:strokeLineCap="round"
+            android:pathData="M34,70 C34,74 36.5,77 40,77 C43.5,77 46,74 46,70"/>
     </group>
 </vector>

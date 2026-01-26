@@ -464,8 +464,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Stop current countdown
         countdownRunnable?.let { handler.removeCallbacks(it) }
         
-        // Add additional seconds to remaining time
-        remainingSeconds += additionalSeconds
+        // Set remaining time to the configured duration (reset, don't add)
+        remainingSeconds = additionalSeconds
         
         // Restart countdown without resetting the timer
         startCountdown(resetTimer = false)

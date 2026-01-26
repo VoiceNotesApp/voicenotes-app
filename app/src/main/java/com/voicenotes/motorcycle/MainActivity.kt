@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity() {
 
         // Set click listener for the button
         openManagerButton.setOnClickListener {
-            val intent = Intent(this, RecordingManagerActivity::class.java)
+            val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
             finish()
         }
@@ -318,24 +318,15 @@ class MainActivity : AppCompatActivity() {
     
     private fun extendRecording() {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val startTime = prefs.getLong("recordingStartTime", 0)
-        val initialDuration = prefs.getInt("initialRecordingDuration", 10)
         val configuredDuration = prefs.getInt("recordingDuration", 10)
         
-        // Calculate elapsed time in seconds
-        val elapsed = (System.currentTimeMillis() - startTime) / 1000
-        val remaining = maxOf(0, initialDuration - elapsed.toInt())
-        
-        // Calculate new extended duration for tracking
-        val extendedDuration = remaining + configuredDuration
-        
-        // Update the initial duration for this recording session (keep the original start time)
+        // Update the initial duration to the configured duration (reset, don't add)
         prefs.edit().apply {
-            putInt("initialRecordingDuration", extendedDuration)
+            putInt("initialRecordingDuration", configuredDuration)
             apply()
         }
         
-        // Send intent to OverlayService with configured duration to add
+        // Send intent to OverlayService with configured duration to reset to
         val serviceIntent = Intent(this, OverlayService::class.java)
         serviceIntent.putExtra("additionalDuration", configuredDuration)
         startService(serviceIntent)
