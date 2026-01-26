@@ -134,6 +134,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        // Intent extra key "additionalDuration" kept for backward compatibility
+        // Variable named resetDuration to reflect actual behavior (reset, not add)
         val resetDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
         
         if (resetDuration > 0) {
