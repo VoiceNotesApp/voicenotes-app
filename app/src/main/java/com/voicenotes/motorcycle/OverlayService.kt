@@ -134,11 +134,13 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        val additionalDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
+        // Intent extra key "additionalDuration" kept for backward compatibility
+        // Variable named resetDuration to reflect actual behavior (reset, not add)
+        val resetDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
         
-        if (additionalDuration > 0) {
-            // This is an extension request - use the duration from the intent
-            extendRecordingDuration(additionalDuration)
+        if (resetDuration > 0) {
+            // This is an extension request - reset timer to the duration from the intent
+            extendRecordingDuration(resetDuration)
             return START_NOT_STICKY
         }
         
@@ -460,14 +462,14 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         handler.post(countdownRunnable!!)
     }
     
-    private fun extendRecordingDuration(additionalSeconds: Int) {
+    private fun extendRecordingDuration(resetSeconds: Int) {
         // Stop current countdown
         countdownRunnable?.let { handler.removeCallbacks(it) }
         
-        // Add additional seconds to remaining time
-        remainingSeconds += additionalSeconds
+        // Set remaining time to the configured duration (reset, don't add)
+        remainingSeconds = resetSeconds
         
-        // Restart countdown without resetting the timer
+        // Restart countdown (resetTimer=false means don't reset recording start time)
         startCountdown(resetTimer = false)
         
         // Update bubble to show extension
