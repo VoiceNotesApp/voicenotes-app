@@ -1015,9 +1015,6 @@ Latitude,Longitude,Timestamp,Transcription
 
 <!-- Bluetooth audio (Android 12+) -->
 <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-
-<!-- Notifications (Android 13+) -->
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 ```
 
 **Install-time permissions** (normal):
@@ -1032,6 +1029,8 @@ Latitude,Longitude,Timestamp,Transcription
 <!-- Overlay window -->
 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 ```
+
+**Note:** Storage and notification permissions are NOT required. The app uses `getExternalFilesDir()` which provides app-specific storage without requiring storage permissions on Android 10+.
 
 ### Data Protection
 
@@ -1148,12 +1147,11 @@ TestSuite
 │   ├── Recording Duration Setting
 │   └── OSM Note Creation Toggle
 │
-├── testPermissions() - 5 tests
+├── testPermissions() - 4 tests
 │   ├── RECORD_AUDIO Permission
 │   ├── ACCESS_FINE_LOCATION Permission
 │   ├── BLUETOOTH_CONNECT Permission
-│   ├── Overlay Permission
-│   └── Notification Permission
+│   └── Overlay Permission
 │
 ├── testDatabase() - 13 tests ★NEW★
 │   ├── Database Initialization

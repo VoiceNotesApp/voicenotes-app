@@ -39,9 +39,7 @@
     <string name="permission_microphone">Microphone</string>
     <string name="permission_location">Location</string>
     <string name="permission_bluetooth">Bluetooth</string>
-    <string name="permission_notification">Notification</string>
     <string name="permission_overlay">Overlay</string>
-    <string name="permission_storage">Storage</string>
     <string name="permissions_description">Grant all required permissions for the app to function</string>
     <string name="shortcut_settings_short">Manager</string>
     <string name="shortcut_settings_long">Voice Notes Manager</string>

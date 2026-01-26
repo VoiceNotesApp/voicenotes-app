@@ -27,7 +27,6 @@ Welcome to Voice Notes! This guide will help you get the most out of your GPS-ta
    - Location (to capture GPS coordinates)
    - Bluetooth (to use helmet communication system)
    - Overlay (to show recording status)
-   - Storage (to save recordings)
 
 ### First-Time Setup
 
@@ -252,7 +251,6 @@ Access settings through **Voice Notes Manager**.
 - Fine Location
 - Bluetooth
 - Overlay
-- Storage (on Android 11+)
 
 **Permission Status List** shows which permissions are granted.
 
