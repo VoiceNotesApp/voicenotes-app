@@ -24,6 +24,10 @@ import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
 
+    companion object {
+        private const val FALLBACK_VERSION = "Version 0.0.0-unknown"
+    }
+
     private lateinit var durationValueText: TextView
     private lateinit var durationNumberPicker: NumberPicker
     private lateinit var requestPermissionsButton: Button
@@ -168,11 +172,11 @@ class SettingsActivity : AppCompatActivity() {
             }
             
             // Final fallback
-            "Version 0.0.0-unknown"
+            FALLBACK_VERSION
             
         } catch (e: Exception) {
             android.util.Log.e("SettingsActivity", "Error getting version", e)
-            "Version 0.0.0-unknown"
+            FALLBACK_VERSION
         }
     }
 
