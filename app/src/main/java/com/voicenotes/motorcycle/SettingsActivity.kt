@@ -179,7 +179,13 @@ class SettingsActivity : AppCompatActivity() {
     private fun getDefaultSavePath(): String {
         // Use app-specific external files directory (doesn't require storage permissions)
         // This directory is cleared when the app is uninstalled
-        return getExternalFilesDir(null)?.absolutePath + "/VoiceNotes"
+        val externalDir = getExternalFilesDir(null)
+        return if (externalDir != null) {
+            "${externalDir.absolutePath}/VoiceNotes"
+        } else {
+            // Fallback to internal files directory if external is not available
+            "${filesDir.absolutePath}/VoiceNotes"
+        }
     }
     
     private fun showDebugLog() {
