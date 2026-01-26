@@ -53,11 +53,11 @@
         <!-- Center hole of gear -->
         <path
             android:fillColor="#FFFFFF"
-            android:pathData="M63,40
-                             C59.69,40 57,42.69 57,46
-                             C57,49.31 59.69,52 63,52
-                             C66.31,52 69,49.31 69,46
-                             C69,42.69 66.31,40 63,40
+            android:pathData="M63,41
+                             C60.24,41 58,43.24 58,46
+                             C58,48.76 60.24,51 63,51
+                             C65.76,51 68,48.76 68,46
+                             C68,43.24 65.76,41 63,41
                              Z"/>
 
         <!-- Small microphone icon in bottom-left corner -->
