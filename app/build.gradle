@@ -30,6 +30,13 @@ def getVersionName() {
                     if (isDirty) {
                         version = version + '-dirty'
                     }
+                // Check if we got a tag-based version or just a commit hash
+                // git describe returns just a hash when no tags exist (e.g., "bc2753f")
+                // tag-based versions contain a dot (e.g., "1.0.0" or "1.0.0-17-gfc5d7f2")
+                if (!version.contains('.')) {
+                    // We got just a commit hash, no tags exist
+                    // Format as: 0.0.0-<hash>
+                    return "0.0.0-${version}"
                 }
                 
                 // git describe format: tag-commits-ghash or tag if on exact tag
@@ -53,6 +60,8 @@ def getVersionName() {
                     versionFromHash = versionFromHash + '-dirty'
                 }
                 return versionFromHash
+            if (hash && !hash.isEmpty()) {
+                return "0.0.0-${hash}"
             }
         }
     } catch (Exception ignored) {
