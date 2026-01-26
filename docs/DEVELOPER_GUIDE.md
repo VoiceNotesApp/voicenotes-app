@@ -670,33 +670,57 @@ fun runAllTests() {
 
 ### Version Numbering
 
-Follow semantic versioning: `MAJOR.MINOR.PATCH`
+The app uses **automated git-based versioning** - versions are automatically derived from git tags and commit history.
+
+#### Semantic Versioning
+
+Follow semantic versioning for git tags: `vMAJOR.MINOR.PATCH`
 
 - **MAJOR**: Breaking changes
 - **MINOR**: New features (backward compatible)
 - **PATCH**: Bug fixes
 
-Update in `build.gradle`:
+#### How It Works
+
+**versionName** (from `git describe --tags`):
+- On exact tag: `1.0.0` (strips 'v' prefix from tag `v1.0.0`)
+- Between tags: `0.0.3-18-gd10b8b8` (format: `tag-commits-hash`)
+  - `0.0.3`: Last tag
+  - `18`: Number of commits since tag
+  - `gd10b8b8`: Git commit hash
+- With uncommitted changes: adds `-dirty` suffix
+- Fallback: `1.0.0` (when git unavailable)
+
+**versionCode** (from `git rev-list --count HEAD`):
+- Automatically increments with each commit
+- Ensures Google Play accepts updates (requires increasing versionCode)
+- Current approach: Total commit count in branch history
+- Fallback: `1` (when git unavailable)
+
+**No manual version editing required** - both values are computed automatically in `app/build.gradle`:
+
 ```gradle
+def getVersionName() {
+    // Uses git describe --tags --always --dirty
+}
+
+def getVersionCode() {
+    // Counts commits: git rev-list --count HEAD
+}
+
 android {
     defaultConfig {
-        versionCode 1
-        versionName "1.0.0"
+        versionCode getVersionCode()    // Auto: 116, 117, 118...
+        versionName getVersionName()    // Auto: "0.0.3-18-gd10b8b8"
     }
 }
 ```
 
 ### Creating Release
 
-1. **Update version**:
-   ```gradle
-   versionCode 2
-   versionName "1.1.0"
-   ```
-
-2. **Update CHANGELOG.md**:
+1. **Update CHANGELOG.md**:
    ```markdown
-   ## [1.1.0] - 2024-01-15
+   ## [1.1.0] - 2026-01-26
 
    ### Added
    - New export format: JSON
@@ -706,21 +730,43 @@ android {
    - GPS timeout issue
    ```
 
-3. **Build release APK**:
+2. **Commit all changes**:
    ```bash
-   ./gradlew assembleRelease
+   git add .
+   git commit -m "Prepare release v1.1.0"
+   git push
    ```
 
-4. **Test release build**:
-   - Install on clean device
-   - Run through all workflows
-   - Check for crashes
-
-5. **Tag release**:
+3. **Create and push git tag** (this automatically sets the version):
    ```bash
    git tag -a v1.1.0 -m "Release version 1.1.0"
    git push origin v1.1.0
    ```
+
+   The tag will automatically set:
+   - `versionName` = `1.1.0` (tag stripped of 'v' prefix)
+   - `versionCode` = commit count at that tag
+
+4. **Build release APK** (checkout the tag first):
+   ```bash
+   git checkout v1.1.0
+   ./gradlew assembleRelease
+   ```
+
+   The built APK will have version `1.1.0` from the tag.
+
+5. **Test release build**:
+   - Install on clean device: `adb install app/build/outputs/apk/release/app-release.apk`
+   - Run through all workflows
+   - Check for crashes
+   - Verify version in Settings → About
+
+6. **Return to development**:
+   ```bash
+   git checkout main  # or your development branch
+   ```
+
+   Development builds will show version like `1.1.0-5-gabc1234` (5 commits after v1.1.0).
 
 6. **Create GitHub release**:
    - Upload APK
