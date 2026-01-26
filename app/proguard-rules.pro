@@ -254,13 +254,10 @@
 # Optimization Configuration
 # ============================================
 
-# Optimization iterations
+# Number of optimization passes
 -optimizationpasses 5
 
-# Don't optimize certain patterns
--dontoptimize
-
-# Allow optimization
+# Allow optimization with selective exclusions
 -optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
 
 # ============================================
