@@ -45,7 +45,14 @@ def getVersionName() {
         if (hashProcess.exitValue() == 0) {
             def hash = hashProcess.text.trim()
             if (hash && !hash.isEmpty()) {
-                return "0.0.0-${hash}"
+                def versionFromHash = "0.0.0-${hash}"
+                // Check if working tree is dirty
+                def dirtyCheck = 'git diff-index --quiet HEAD'.execute()
+                dirtyCheck.waitFor()
+                if (dirtyCheck.exitValue() != 0) {
+                    versionFromHash = versionFromHash + '-dirty'
+                }
+                return versionFromHash
             }
         }
     } catch (Exception ignored) {
