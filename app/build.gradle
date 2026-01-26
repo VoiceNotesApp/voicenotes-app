@@ -38,11 +38,21 @@ def getVersionName() {
                 return version
             }
         }
+        
+        // If git command failed but didn't throw exception, try to get short hash
+        def hashProcess = 'git rev-parse --short=7 HEAD'.execute()
+        hashProcess.waitFor()
+        if (hashProcess.exitValue() == 0) {
+            def hash = hashProcess.text.trim()
+            if (hash && !hash.isEmpty()) {
+                return "0.0.0-${hash}"
+            }
+        }
     } catch (Exception ignored) {
         // Git not available
     }
 
-    // Fallback when git is not available
+    // Final fallback when git is completely unavailable
     return "0.0.0-unknown"
 }
 
