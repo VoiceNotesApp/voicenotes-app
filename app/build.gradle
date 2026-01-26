@@ -39,12 +39,12 @@ def getVersionName() {
             }
         }
         
-        // If git command failed but didn't throw exception, try to get short hash
+        // If git describe command failed with non-zero exit, try to get short hash directly
         def hashProcess = 'git rev-parse --short=7 HEAD'.execute()
         hashProcess.waitFor()
         if (hashProcess.exitValue() == 0) {
             def hash = hashProcess.text.trim()
-            if (hash && !hash.isEmpty()) {
+            if (hash) {
                 def versionFromHash = "0.0.0-${hash}"
                 // Check if working tree is dirty
                 def dirtyCheck = 'git diff-index --quiet HEAD'.execute()
