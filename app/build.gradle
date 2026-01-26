@@ -17,6 +17,19 @@ def getVersionName() {
                     version = version.substring(1)
                 }
                 
+                // Check if the result is just a commit hash (no tags exist)
+                // A commit hash is typically 7-40 hex characters without dashes (except for -dirty suffix)
+                def isDirty = version.endsWith('-dirty')
+                def versionWithoutDirty = version.replace('-dirty', '')
+                if (versionWithoutDirty.matches('^[0-9a-f]{7,40}$')) {
+                    // No tags exist, prepend base version to commit hash
+                    // Use first 7 characters of the hash (or less if shorter)
+                    def shortHash = versionWithoutDirty.substring(0, Math.min(7, versionWithoutDirty.length()))
+                    version = "0.0.0-" + shortHash
+                    // Re-add -dirty suffix if it was present
+                    if (isDirty) {
+                        version = version + '-dirty'
+                    }
                 // Check if we got a tag-based version or just a commit hash
                 // git describe returns just a hash when no tags exist (e.g., "bc2753f")
                 // tag-based versions contain a dot (e.g., "1.0.0" or "1.0.0-17-gfc5d7f2")
@@ -28,15 +41,25 @@ def getVersionName() {
                 
                 // git describe format: tag-commits-ghash or tag if on exact tag
                 // Examples: "1.0.0" (on tag) or "0.0.3-17-gfc5d7f2" (17 commits after tag)
+                // Or: "0.0.0-bc2753f" (no tags, constructed version)
                 return version
             }
         }
         
-        // If git command failed but didn't throw exception, try to get short hash
+        // If git describe command failed with non-zero exit, try to get short hash directly
         def hashProcess = 'git rev-parse --short=7 HEAD'.execute()
         hashProcess.waitFor()
         if (hashProcess.exitValue() == 0) {
             def hash = hashProcess.text.trim()
+            if (hash) {
+                def versionFromHash = "0.0.0-${hash}"
+                // Check if working tree is dirty
+                def dirtyCheck = 'git diff-index --quiet HEAD'.execute()
+                dirtyCheck.waitFor()
+                if (dirtyCheck.exitValue() != 0) {
+                    versionFromHash = versionFromHash + '-dirty'
+                }
+                return versionFromHash
             if (hash && !hash.isEmpty()) {
                 return "0.0.0-${hash}"
             }
