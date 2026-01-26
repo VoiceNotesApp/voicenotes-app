@@ -131,13 +131,12 @@
                 <Button
                     android:id="@+id/saveTranscriptionButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:text="Save"
                     android:textSize="13sp"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:layout_marginStart="8dp"
-                    style="?android:attr/buttonBarButtonStyle"
                     android:backgroundTint="#757575"
                     android:textColor="#FFFFFF" />
 
@@ -153,64 +152,59 @@
                 <Button
                     android:id="@+id/deleteButton"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Delete"
                     android:textSize="13sp"
                     android:layout_marginEnd="8dp"
-                    style="?android:attr/buttonBarButtonStyle"
                     android:backgroundTint="#D32F2F"
                     android:textColor="#FFFFFF" />
 
                 <Button
                     android:id="@+id/downloadButton"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Download"
                     android:textSize="13sp"
                     android:layout_marginEnd="8dp"
                     android:visibility="gone"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:backgroundTint="#000000"
+                    android:backgroundTint="#424242"
                     android:textColor="#FFFFFF" />
 
                 <Button
                     android:id="@+id/transcribeButton"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Transcode"
                     android:textSize="13sp"
                     android:drawableEnd="@drawable/ic_status_not_started"
                     android:drawablePadding="4dp"
                     android:layout_marginEnd="8dp"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:backgroundTint="#000000"
+                    android:backgroundTint="#424242"
                     android:textColor="#FFFFFF" />
 
                 <Button
                     android:id="@+id/createOsmButton"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="OSM Note"
                     android:textSize="13sp"
                     android:drawableEnd="@drawable/ic_status_not_started"
                     android:drawablePadding="4dp"
                     android:layout_marginEnd="8dp"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:backgroundTint="#000000"
+                    android:backgroundTint="#424242"
                     android:textColor="#FFFFFF" />
 
                 <Button
                     android:id="@+id/playButton"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Play"
                     android:textSize="13sp"
-                    style="?android:attr/buttonBarButtonStyle"
                     android:backgroundTint="#1976D2"
                     android:textColor="#FFFFFF" />
 
