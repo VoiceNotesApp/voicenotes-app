@@ -263,10 +263,16 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             updateOverlay(getString(R.string.location_acquired_coords, coords))
         }
         
-        // Speak both announcements BEFORE recording starts
+        // First, prepare the MediaRecorder (but don't start yet)
+        prepareRecording()
+        
+        // THEN speak announcements
         speakText(getString(R.string.location_acquired)) {
+            Log.d("OverlayService", "TTS: 'Location acquired' completed")
             speakText(getString(R.string.recording_started)) {
-                startRecording()
+                Log.d("OverlayService", "TTS: 'Recording started' completed")
+                // ONLY start recording AFTER TTS completes
+                startRecordingAndCountdown()
             }
         }
     }
@@ -282,14 +288,20 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             return
         }
         
+        Log.d("OverlayService", "TTS: Starting to speak: '$text'")
+        
         textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onStart(utteranceId: String?) {}
+            override fun onStart(utteranceId: String?) {
+                Log.d("OverlayService", "TTS: onStart for: '$text'")
+            }
 
             override fun onDone(utteranceId: String?) {
+                Log.d("OverlayService", "TTS: onDone for: '$text'")
                 handler.post { onComplete() }
             }
 
             override fun onError(utteranceId: String?) {
+                Log.e("OverlayService", "TTS: onError for: '$text'")
                 handler.post { onComplete() }
             }
         })
@@ -300,7 +312,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
     }
 
-    private fun startRecording() {
+    private fun prepareRecording() {
         try {
             val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
             recordingDuration = prefs.getInt("recordingDuration", 10)
@@ -365,11 +377,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 
                 setOutputFile(recordingFilePath)
                 prepare()
-                start()
             }
             
-            // Start countdown immediately
-            startCountdown()
+            Log.d("OverlayService", "MediaRecorder prepared successfully, waiting for TTS to complete before starting")
 
         } catch (e: IllegalStateException) {
             e.printStackTrace()
@@ -403,6 +413,55 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "MediaRecorder error: ${e.message ?: "Unknown error"}",
+                exception = e
+            )
+            handler.postDelayed({ stopSelfAndFinish() }, 3000)
+        }
+    }
+    
+    private fun startRecordingAndCountdown() {
+        try {
+            // NOW actually start the recording
+            Log.d("OverlayService", "Starting MediaRecorder.start() - TTS announcements completed")
+            mediaRecorder?.start()
+            Log.d("OverlayService", "MediaRecorder started successfully")
+            
+            // And start the countdown
+            Log.d("OverlayService", "Starting countdown for $recordingDuration seconds")
+            startCountdown()
+
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
+            updateOverlay("Recording failed: Invalid state")
+            Log.e("OverlayService", "MediaRecorder illegal state on start", e)
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "MediaRecorder illegal state - recording start failed",
+                exception = e
+            )
+            handler.postDelayed({ stopSelfAndFinish() }, 3000)
+        } catch (e: RuntimeException) {
+            e.printStackTrace()
+            val errorMsg = when {
+                e.message?.contains("start failed") == true -> "Recording failed: Microphone in use"
+                e.message?.contains("audio") == true -> "Recording failed: Audio source unavailable"
+                else -> "Recording failed: ${e.message ?: "Unknown error"}"
+            }
+            updateOverlay(errorMsg)
+            Log.e("OverlayService", "MediaRecorder runtime error on start", e)
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "MediaRecorder runtime error on start: $errorMsg",
+                exception = e
+            )
+            handler.postDelayed({ stopSelfAndFinish() }, 3000)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            updateOverlay("Recording failed: ${e.message ?: "Unknown error"}")
+            Log.e("OverlayService", "MediaRecorder error on start", e)
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "MediaRecorder error on start: ${e.message ?: "Unknown error"}",
                 exception = e
             )
             handler.postDelayed({ stopSelfAndFinish() }, 3000)
