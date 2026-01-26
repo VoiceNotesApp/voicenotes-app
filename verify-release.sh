@@ -145,7 +145,7 @@ fi
 # Try to run lint
 if command -v ./gradlew &> /dev/null; then
     echo "   Running lint checks..."
-    if ./gradlew lintRelease --quiet 2>&1 | grep -q "BUILD SUCCESSFUL"; then
+    if ./gradlew lintRelease --quiet > /dev/null 2>&1; then
         success "Lint checks passed"
     else
         warning "Lint checks failed or have warnings - review lint report"
@@ -165,7 +165,7 @@ if [ -d "app/src/test" ]; then
         # Try to run tests
         if command -v ./gradlew &> /dev/null; then
             echo "   Running unit tests..."
-            if ./gradlew test --quiet 2>&1 | grep -q "BUILD SUCCESSFUL"; then
+            if ./gradlew test --quiet > /dev/null 2>&1; then
                 success "All tests passed"
             else
                 error "Some tests failed - review test report"

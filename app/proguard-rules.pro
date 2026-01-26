@@ -254,11 +254,8 @@
 # Optimization Configuration
 # ============================================
 
-# Number of optimization passes
--optimizationpasses 5
-
-# Allow optimization with selective exclusions
--optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
+# R8 automatically optimizes with selective exclusions
+# No additional configuration needed - R8 is more efficient than classic ProGuard
 
 # ============================================
 # Debugging (remove in final production)
