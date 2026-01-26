@@ -1,5 +1,7 @@
 # Voice Notes
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A lightweight Android app for motorcyclists to record GPS-tagged voice notes while riding - hands-free and automatic.
 
 ## What It Does
@@ -62,11 +64,27 @@ Works perfectly offline! Optional features require:
 
 See [Developer Guide](docs/DEVELOPER_GUIDE.md) for complete build instructions.
 
+### Debug Build
+
 ```bash
 git clone https://github.com/c0dev0id/autorecord-app.git
 cd autorecord-app
 ./gradlew assembleDebug
 ```
+
+### Building for Production
+
+Production builds use ProGuard/R8 for code optimization and obfuscation:
+
+```bash
+# Build optimized release APK
+./gradlew assembleRelease
+
+# Or use the build script
+./build-release.sh
+```
+
+See [Developer Guide](docs/DEVELOPER_GUIDE.md#release-process) for signing configuration and release process.
 
 ## Technology
 
@@ -78,7 +96,15 @@ cd autorecord-app
 
 ## License
 
-This project is provided as-is for personal use.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+The MIT License allows you to:
+- ✓ Use commercially
+- ✓ Modify
+- ✓ Distribute
+- ✓ Use privately
+
+With the requirement to include the license and copyright notice.
 
 ---
 
