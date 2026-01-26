@@ -80,6 +80,11 @@ class OsmOAuthManager(private val context: Context) {
          */
         const val REDIRECT_URI_MANAGER = "app.voicenotes.motorcycle://oauth/manager"
         
+        // Redirect URI components for easy validation
+        const val REDIRECT_SCHEME = "app.voicenotes.motorcycle"
+        const val REDIRECT_HOST = "oauth"
+        const val REDIRECT_PATH_MANAGER = "/manager"
+        
         const val DEFAULT_CLIENT_ID_PLACEHOLDER = "your_osm_client_id"
         
         private const val PREF_ACCESS_TOKEN = "osm_access_token"

@@ -103,13 +103,17 @@ class RecordingManagerActivity : AppCompatActivity() {
 
     private fun handleOAuthRedirect(intent: Intent?) {
         val data = intent?.data
-        if (data != null && data.scheme == "app.voicenotes.motorcycle" && 
-            data.host == "oauth" && data.path == "/manager") {
+        if (data != null && 
+            data.scheme == OsmOAuthManager.REDIRECT_SCHEME && 
+            data.host == OsmOAuthManager.REDIRECT_HOST && 
+            data.path == OsmOAuthManager.REDIRECT_PATH_MANAGER) {
             
             // Initialize OAuth manager
             val oauthManager = OsmOAuthManager(this)
             
             // Handle the OAuth response
+            // Note: runOnUiThread is not needed here because OsmOAuthManager's callbacks
+            // already execute on the main thread via withContext(Dispatchers.Main)
             oauthManager.handleOAuthResponse(
                 intent,
                 onSuccess = { username ->
