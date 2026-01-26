@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.Settings
 import android.view.View
 import android.widget.Button
@@ -152,17 +151,27 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun getAppVersion(): String {
         return try {
+            // Try BuildConfig first
             val buildConfigVersion = BuildConfig.VERSION_NAME
             
-            if (buildConfigVersion.isNullOrEmpty()) {
-                return "Version 1.0.0"
+            if (!buildConfigVersion.isNullOrEmpty() && buildConfigVersion != "null") {
+                return "Version $buildConfigVersion"
             }
             
-            // Use BuildConfig version directly (it's already processed by build.gradle)
-            "Version $buildConfigVersion"
+            // Fallback: Try to get from PackageManager
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            val versionName = packageInfo.versionName
+            
+            if (!versionName.isNullOrEmpty() && versionName != "null") {
+                return "Version $versionName"
+            }
+            
+            // Final fallback
+            "Version 0.0.0-unknown"
             
         } catch (e: Exception) {
-            "Version 1.0.0"
+            android.util.Log.e("SettingsActivity", "Error getting version", e)
+            "Version 0.0.0-unknown"
         }
     }
 
@@ -175,15 +184,6 @@ class SettingsActivity : AppCompatActivity() {
     private fun showDebugLog() {
         val intent = Intent(this, DebugLogActivity::class.java)
         startActivity(intent)
-    }
-
-    private fun checkStoragePermissions() {
-        // Check if we need MANAGE_EXTERNAL_STORAGE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                showManageStorageDialog()
-            }
-        }
     }
 
     private fun loadCurrentSettings() {
@@ -244,19 +244,6 @@ class SettingsActivity : AppCompatActivity() {
             getString(R.string.permission_not_granted, getString(R.string.permission_bluetooth))
         })
         
-        // Check storage permission
-        val hasStorage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Environment.isExternalStorageManager()
-        } else {
-            // For API < 30, consider storage permission granted
-            true
-        }
-        statusLines.add(if (hasStorage) {
-            getString(R.string.permission_granted, getString(R.string.permission_storage))
-        } else {
-            getString(R.string.permission_not_granted, getString(R.string.permission_storage))
-        })
-        
         // Check overlay permission
         val hasOverlay = Settings.canDrawOverlays(this)
         statusLines.add(if (hasOverlay) {
@@ -275,8 +262,6 @@ class SettingsActivity : AppCompatActivity() {
             updatePermissionStatusList()
             if (Settings.canDrawOverlays(this)) {
                 Toast.makeText(this, "Overlay permission granted", Toast.LENGTH_SHORT).show()
-                // Continue permission flow - check storage permissions
-                checkStoragePermissions()
             } else {
                 Toast.makeText(this, "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
             }
@@ -342,8 +327,6 @@ class SettingsActivity : AppCompatActivity() {
                 }
                 .show()
         } else {
-            // Check storage permissions next
-            checkStoragePermissions()
             Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show()
             updatePermissionStatusList()
         }
