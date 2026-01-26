@@ -34,7 +34,6 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.voicenotes.motorcycle.database.Recording
 import com.voicenotes.motorcycle.database.RecordingDatabase
 import com.voicenotes.motorcycle.database.V2SStatus
-import com.voicenotes.motorcycle.database.OsmStatus
 import kotlinx.coroutines.*
 import kotlin.coroutines.coroutineContext
 import java.io.File
@@ -522,8 +521,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                     timestamp = System.currentTimeMillis(),
                     latitude = location.latitude,
                     longitude = location.longitude,
-                    v2sStatus = V2SStatus.NOT_STARTED,
-                    osmStatus = OsmStatus.NOT_STARTED
+                    v2sStatus = V2SStatus.NOT_STARTED
                 )
                 db.recordingDao().insertRecording(recording)
                 Log.d("OverlayService", "Recording saved to database: $fileName")
