@@ -469,7 +469,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Set remaining time to the configured duration (reset, don't add)
         remainingSeconds = resetSeconds
         
-        // Restart countdown without resetting the timer
+        // Restart countdown (resetTimer=false means don't reset recording start time)
         startCountdown(resetTimer = false)
         
         // Update bubble to show extension
