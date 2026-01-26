@@ -46,6 +46,9 @@ class RecordingManagerActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Recording Manager"
 
+        // Handle OAuth redirect if present
+        handleOAuthRedirect(intent)
+
         recyclerView = findViewById(R.id.recyclerView)
         emptyView = findViewById(R.id.emptyView)
 
@@ -95,6 +98,31 @@ class RecordingManagerActivity : AppCompatActivity() {
                     adapter.submitList(recordings)
                 }
             }
+        }
+    }
+
+    private fun handleOAuthRedirect(intent: Intent?) {
+        val data = intent?.data
+        if (data != null && 
+            data.scheme == OsmOAuthManager.REDIRECT_SCHEME && 
+            data.host == OsmOAuthManager.REDIRECT_HOST && 
+            data.path == OsmOAuthManager.REDIRECT_PATH_MANAGER) {
+            
+            // Initialize OAuth manager
+            val oauthManager = OsmOAuthManager(this)
+            
+            // Handle the OAuth response
+            // Note: runOnUiThread is not needed here because OsmOAuthManager's callbacks
+            // already execute on the main thread via withContext(Dispatchers.Main)
+            oauthManager.handleOAuthResponse(
+                intent,
+                onSuccess = { username ->
+                    Toast.makeText(this, "Account bound: $username", Toast.LENGTH_SHORT).show()
+                },
+                onFailure = { error ->
+                    Toast.makeText(this, "OAuth failed: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            )
         }
     }
 
