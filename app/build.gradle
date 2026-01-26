@@ -23,15 +23,9 @@ def getVersionName() {
                 def versionWithoutDirty = version.replace('-dirty', '')
                 if (versionWithoutDirty.matches('^[0-9a-f]{7,40}$')) {
                     // No tags exist, prepend base version to commit hash
-                    // Get short commit hash (7 characters)
-                    def shortHashProcess = 'git rev-parse --short=7 HEAD'.execute()
-                    shortHashProcess.waitFor()
-                    if (shortHashProcess.exitValue() == 0) {
-                        def shortHash = shortHashProcess.text.trim()
-                        version = "0.0.0-" + shortHash
-                    } else {
-                        version = "0.0.0-" + versionWithoutDirty
-                    }
+                    // Use first 7 characters of the hash (or less if shorter)
+                    def shortHash = versionWithoutDirty.substring(0, Math.min(7, versionWithoutDirty.length()))
+                    version = "0.0.0-" + shortHash
                     // Re-add -dirty suffix if it was present
                     if (isDirty) {
                         version = version + '-dirty'
