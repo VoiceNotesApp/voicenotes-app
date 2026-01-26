@@ -326,7 +326,9 @@ class MainActivity : AppCompatActivity() {
             apply()
         }
         
-        // Send intent to OverlayService with configured duration to reset to
+        // Send intent to OverlayService with configured duration
+        // Note: Intent extra is named "additionalDuration" for backward compatibility,
+        // but it now represents the duration to reset to, not add
         val serviceIntent = Intent(this, OverlayService::class.java)
         serviceIntent.putExtra("additionalDuration", configuredDuration)
         startService(serviceIntent)
