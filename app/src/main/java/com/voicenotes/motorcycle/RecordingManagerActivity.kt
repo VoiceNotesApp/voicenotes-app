@@ -53,6 +53,7 @@ class RecordingManagerActivity : AppCompatActivity() {
         adapter = RecordingAdapter(
             onPlayClick = { recording -> playRecording(recording) },
             onTranscribeClick = { recording -> transcribeRecording(recording) },
+            onOpenMapsClick = { recording -> openMaps(recording) },
             onDeleteClick = { recording -> deleteRecording(recording) },
             onDownloadClick = { recording -> downloadRecording(recording) },
             onSaveTranscriptionClick = { recording, newText -> saveTranscriptionText(recording, newText) }
@@ -153,6 +154,18 @@ class RecordingManagerActivity : AppCompatActivity() {
                 Log.e("RecordingManager", "Error starting transcription", e)
                 Toast.makeText(this@RecordingManagerActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private fun openMaps(recording: Recording) {
+        try {
+            // Create Google Maps URL with the recording's coordinates
+            val mapsUrl = "https://www.google.com/maps?q=${recording.latitude},${recording.longitude}"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mapsUrl))
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e("RecordingManager", "Error opening maps", e)
+            Toast.makeText(this, "Error opening maps: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -487,6 +500,7 @@ class RecordingManagerActivity : AppCompatActivity() {
 class RecordingAdapter(
     private val onPlayClick: (Recording) -> Unit,
     private val onTranscribeClick: (Recording) -> Unit,
+    private val onOpenMapsClick: (Recording) -> Unit,
     private val onDeleteClick: (Recording) -> Unit,
     private val onDownloadClick: (Recording) -> Unit,
     private val onSaveTranscriptionClick: (Recording, String) -> Unit
@@ -579,6 +593,7 @@ class RecordingAdapter(
 
         private val deleteButton: Button = view.findViewById(R.id.deleteButton)
         private val downloadButton: Button = view.findViewById(R.id.downloadButton)
+        private val openMapsButton: Button = view.findViewById(R.id.openMapsButton)
         private val playButton: Button = view.findViewById(R.id.playButton)
 
         private val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
@@ -608,6 +623,7 @@ class RecordingAdapter(
             // Action buttons
             deleteButton.setOnClickListener { onDeleteClick(recording) }
             downloadButton.setOnClickListener { onDownloadClick(recording) }
+            openMapsButton.setOnClickListener { onOpenMapsClick(recording) }
             playButton.setOnClickListener { onPlayClick(recording) }
             
             // Download button visibility: show if recording has been transcoded or has data

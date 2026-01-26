@@ -186,6 +186,17 @@
                     android:textColor="#FFFFFF" />
 
                 <Button
+                    android:id="@+id/openMapsButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Open Maps"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#4CAF50"
+                    android:textColor="#FFFFFF" />
+
+                <Button
                     android:id="@+id/playButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
