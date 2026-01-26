@@ -441,7 +441,7 @@ class TestSuite(private val context: Context) {
                 val final = runBlocking { dao.getRecordingById(id) }
 
                 if (final?.v2sStatus == V2SStatus.COMPLETED &&
-                    final.v2sResult == "Final transcription" &&
+                    final.v2sResult == "Final transcription") {
                     TestResult("Multiple Status Updates", true, "Multiple updates handled correctly")
                 } else {
                     TestResult("Multiple Status Updates", false, "Update sequence failed")
