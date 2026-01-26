@@ -694,7 +694,11 @@ class RecordingAdapter(
                     osmStatusIcon.clearColorFilter()
                     osmStatusIcon.visibility = View.VISIBLE
                     osmProgressBar.visibility = View.GONE
-                    createOsmButton.text = "View Note"
+                    createOsmButton.text = if (recording.osmNoteId != null) {
+                        "Open Note ${recording.osmNoteId}"
+                    } else {
+                        "View Note"
+                    }
                     createOsmButton.isEnabled = true
                     createOsmButton.setOnClickListener { onCreateOsmClick(recording) }
                 }
