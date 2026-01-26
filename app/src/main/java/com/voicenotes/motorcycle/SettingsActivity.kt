@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.Settings
 import android.view.View
 import android.widget.Button
@@ -266,24 +267,6 @@ class SettingsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
             }
         }
-    }
-
-    private fun showManageStorageDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Storage Permission Required")
-            .setMessage("This app needs permission to manage storage. Please grant 'All files access' permission.")
-            .setPositiveButton("Grant") { _, _ ->
-                try {
-                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    intent.data = Uri.parse("package:$packageName")
-                    startActivity(intent)
-                } catch (e: Exception) {
-                    val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-                    startActivity(intent)
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
     }
 
     private fun saveDuration() {
