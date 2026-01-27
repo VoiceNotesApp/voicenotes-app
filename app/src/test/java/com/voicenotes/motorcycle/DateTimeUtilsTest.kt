@@ -16,15 +16,15 @@ class DateTimeUtilsTest {
         // Test formatting with UTC timezone
         val timestamp = 1706284800000L // 2024-01-26 12:00:00 UTC
         
-        val formatted = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd'T'HH:mm:ss'Z'")
+        val formatted = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd'T'HH:mm:ss'Z'", "UTC", Locale.US)
         assertEquals("Timestamp should be formatted in ISO 8601", "2024-01-26T12:00:00Z", formatted)
         
         // Test formatting with different pattern
-        val formatted2 = DateTimeUtils.formatTimestamp(timestamp, "yyyyMMdd_HHmmss")
+        val formatted2 = DateTimeUtils.formatTimestamp(timestamp, "yyyyMMdd_HHmmss", "UTC", Locale.US)
         assertEquals("Timestamp should match filename pattern", "20240126_120000", formatted2)
         
         // Test formatting with human-readable pattern
-        val formatted3 = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd HH:mm:ss")
+        val formatted3 = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd HH:mm:ss", "UTC", Locale.US)
         assertEquals("Timestamp should be human-readable", "2024-01-26 12:00:00", formatted3)
     }
 
@@ -32,7 +32,7 @@ class DateTimeUtilsTest {
     fun testTimestampConversion() {
         // Test parsing timestamp from filename format
         val dateTimeStr = "20240126_120000"
-        val timestamp = DateTimeUtils.parseTimestamp(dateTimeStr, "yyyyMMdd_HHmmss")
+        val timestamp = DateTimeUtils.parseTimestamp(dateTimeStr, "yyyyMMdd_HHmmss", "UTC")
         
         assertNotNull("Timestamp should be parsed", timestamp)
         
@@ -47,7 +47,7 @@ class DateTimeUtilsTest {
         assertEquals("Second should be 0", 0, calendar.get(Calendar.SECOND))
         
         // Test round-trip conversion
-        val formatted = DateTimeUtils.formatTimestamp(timestamp, "yyyyMMdd_HHmmss")
+        val formatted = DateTimeUtils.formatTimestamp(timestamp, "yyyyMMdd_HHmmss", "UTC", Locale.US)
         assertEquals("Round-trip should preserve timestamp", dateTimeStr, formatted)
     }
 
@@ -56,7 +56,7 @@ class DateTimeUtilsTest {
         // Test that timestamps are handled consistently in UTC
         val timestamp = 1706284800000L // 2024-01-26 12:00:00 UTC
         
-        val formattedUtc = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd HH:mm:ss", "UTC")
+        val formattedUtc = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd HH:mm:ss", "UTC", Locale.US)
         assertEquals("UTC formatting", "2024-01-26 12:00:00", formattedUtc)
         
         // Test with explicit timezone
@@ -77,17 +77,17 @@ class DateTimeUtilsTest {
         // January 19, 2038, 03:14:07 UTC is the last second before overflow
         val maxTimestamp32Bit = 2147483647000L // 2038-01-19 03:14:07 UTC
         
-        val formatted = DateTimeUtils.formatTimestamp(maxTimestamp32Bit, "yyyy-MM-dd HH:mm:ss")
+        val formatted = DateTimeUtils.formatTimestamp(maxTimestamp32Bit, "yyyy-MM-dd HH:mm:ss", "UTC", Locale.US)
         assertEquals("Should handle year 2038", "2038-01-19 03:14:07", formatted)
         
         // Test beyond 2038 (64-bit timestamps should work fine)
         val futureTimestamp = 2147483648000L // 2038-01-19 03:14:08 UTC
-        val formattedFuture = DateTimeUtils.formatTimestamp(futureTimestamp, "yyyy-MM-dd HH:mm:ss")
+        val formattedFuture = DateTimeUtils.formatTimestamp(futureTimestamp, "yyyy-MM-dd HH:mm:ss", "UTC", Locale.US)
         assertEquals("Should handle beyond year 2038", "2038-01-19 03:14:08", formattedFuture)
         
         // Test year 2100 (leap year edge case)
         val year2100 = 4102444800000L // 2100-01-01 00:00:00 UTC
-        val formatted2100 = DateTimeUtils.formatTimestamp(year2100, "yyyy-MM-dd")
+        val formatted2100 = DateTimeUtils.formatTimestamp(year2100, "yyyy-MM-dd", "UTC", Locale.US)
         assertEquals("Should handle year 2100", "2100-01-01", formatted2100)
     }
 
@@ -95,11 +95,11 @@ class DateTimeUtilsTest {
     fun testLeapYearHandling() {
         // Test February 29, 2024 (leap year)
         val leapDay = 1709251200000L // 2024-02-29 00:00:00 UTC
-        val formatted = DateTimeUtils.formatTimestamp(leapDay, "yyyy-MM-dd")
+        val formatted = DateTimeUtils.formatTimestamp(leapDay, "yyyy-MM-dd", "UTC", Locale.US)
         assertEquals("Should handle leap year", "2024-02-29", formatted)
         
         // Test parsing leap year date
-        val parsed = DateTimeUtils.parseTimestamp("20240229_000000", "yyyyMMdd_HHmmss")
+        val parsed = DateTimeUtils.parseTimestamp("20240229_000000", "yyyyMMdd_HHmmss", "UTC")
         assertNotNull("Should parse leap year date", parsed)
         
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
@@ -112,17 +112,17 @@ class DateTimeUtilsTest {
     fun testEdgeCaseTimestamps() {
         // Test Unix epoch (0)
         val epoch = 0L
-        val formatted = DateTimeUtils.formatTimestamp(epoch, "yyyy-MM-dd HH:mm:ss")
+        val formatted = DateTimeUtils.formatTimestamp(epoch, "yyyy-MM-dd HH:mm:ss", "UTC", Locale.US)
         assertEquals("Unix epoch should be 1970-01-01", "1970-01-01 00:00:00", formatted)
         
         // Test very small timestamp
         val small = 1000L // 1 second after epoch
-        val formattedSmall = DateTimeUtils.formatTimestamp(small, "yyyy-MM-dd HH:mm:ss")
+        val formattedSmall = DateTimeUtils.formatTimestamp(small, "yyyy-MM-dd HH:mm:ss", "UTC", Locale.US)
         assertEquals("Small timestamp", "1970-01-01 00:00:01", formattedSmall)
         
         // Test current time (should not throw)
         val now = System.currentTimeMillis()
-        val formattedNow = DateTimeUtils.formatTimestamp(now, "yyyy-MM-dd HH:mm:ss")
+        val formattedNow = DateTimeUtils.formatTimestamp(now, "yyyy-MM-dd HH:mm:ss", "UTC", Locale.US)
         assertNotNull("Current time should format", formattedNow)
         assertTrue("Current year should be recent", formattedNow.startsWith("202"))
     }
@@ -133,16 +133,16 @@ class DateTimeUtilsTest {
         
         // Test various format patterns
         assertEquals("ISO 8601", "2024-01-26T12:00:00Z", 
-            DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd'T'HH:mm:ss'Z'"))
+            DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd'T'HH:mm:ss'Z'", "UTC", Locale.US))
         
         assertEquals("Date only", "2024-01-26", 
-            DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd"))
+            DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd", "UTC", Locale.US))
         
         assertEquals("Time only", "12:00:00", 
-            DateTimeUtils.formatTimestamp(timestamp, "HH:mm:ss"))
+            DateTimeUtils.formatTimestamp(timestamp, "HH:mm:ss", "UTC", Locale.US))
         
         assertEquals("Filename format", "20240126_120000", 
-            DateTimeUtils.formatTimestamp(timestamp, "yyyyMMdd_HHmmss"))
+            DateTimeUtils.formatTimestamp(timestamp, "yyyyMMdd_HHmmss", "UTC", Locale.US))
         
         assertEquals("Human readable", "January 26, 2024", 
             DateTimeUtils.formatTimestamp(timestamp, "MMMM dd, yyyy", "UTC", Locale.US))
@@ -154,19 +154,19 @@ class DateTimeUtilsTest {
     @Test
     fun testInvalidDateParsing() {
         // Test invalid date strings
-        val invalid1 = DateTimeUtils.parseTimestamp("invalid_date", "yyyyMMdd_HHmmss")
+        val invalid1 = DateTimeUtils.parseTimestamp("invalid_date", "yyyyMMdd_HHmmss", "UTC")
         assertNull("Invalid date string should return null", invalid1)
         
         // Test wrong format
-        val invalid2 = DateTimeUtils.parseTimestamp("2024-01-26", "yyyyMMdd_HHmmss")
+        val invalid2 = DateTimeUtils.parseTimestamp("2024-01-26", "yyyyMMdd_HHmmss", "UTC")
         assertNull("Wrong format should return null", invalid2)
         
         // Test empty string
-        val invalid3 = DateTimeUtils.parseTimestamp("", "yyyyMMdd_HHmmss")
+        val invalid3 = DateTimeUtils.parseTimestamp("", "yyyyMMdd_HHmmss", "UTC")
         assertNull("Empty string should return null", invalid3)
         
         // Test malformed date
-        val invalid4 = DateTimeUtils.parseTimestamp("20240231_120000", "yyyyMMdd_HHmmss") // Feb 31 doesn't exist
+        val invalid4 = DateTimeUtils.parseTimestamp("20240231_120000", "yyyyMMdd_HHmmss", "UTC") // Feb 31 doesn't exist
         // Note: SimpleDateFormat may or may not accept this depending on lenient setting
         // In lenient mode, it might roll over to March
     }
@@ -176,11 +176,11 @@ class DateTimeUtilsTest {
         // Test that milliseconds are preserved
         val timestamp = 1706284800123L // 2024-01-26 12:00:00.123 UTC
         
-        val formatted = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd HH:mm:ss.SSS")
+        val formatted = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd HH:mm:ss.SSS", "UTC", Locale.US)
         assertEquals("Milliseconds should be preserved", "2024-01-26 12:00:00.123", formatted)
         
         // Test parsing with milliseconds
-        val parsed = DateTimeUtils.parseTimestamp("20240126_120000123", "yyyyMMdd_HHmmssSSS")
+        val parsed = DateTimeUtils.parseTimestamp("20240126_120000123", "yyyyMMdd_HHmmssSSS", "UTC")
         assertNotNull("Should parse with milliseconds", parsed)
         assertEquals("Milliseconds should match", 123L, parsed!! % 1000)
     }
