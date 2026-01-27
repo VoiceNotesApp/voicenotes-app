@@ -115,7 +115,7 @@ class CoordinateUtilsTest {
         val result2 = parseCoordinateString(coords2)
         
         assertNotNull("Negative longitude should be valid", result2)
-        assertEquals("Negative longitude should be parsed", -74.0060, result2.second, 0.0001)
+        assertEquals("Negative longitude should be parsed", -74.0060, result2!!.second, 0.0001)
 
         // Both negative
         val coords3 = "-23.5505,-46.6333"
