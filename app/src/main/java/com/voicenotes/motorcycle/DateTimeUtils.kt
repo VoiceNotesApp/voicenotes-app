@@ -45,6 +45,7 @@ object DateTimeUtils {
         return try {
             val sdf = SimpleDateFormat(pattern, Locale.US)
             sdf.timeZone = TimeZone.getTimeZone(timezone)
+            sdf.isLenient = false
             sdf.parse(dateTimeStr)?.time
         } catch (e: Exception) {
             null

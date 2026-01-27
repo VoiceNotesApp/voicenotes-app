@@ -14,7 +14,7 @@ class DateTimeUtilsTest {
     @Test
     fun testDateFormatting() {
         // Test formatting with UTC timezone
-        val timestamp = 1706284800000L // 2024-01-26 12:00:00 UTC
+        val timestamp = 1706270400000L // 2024-01-26 12:00:00 UTC
         
         val formatted = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd'T'HH:mm:ss'Z'", "UTC", Locale.US)
         assertEquals("Timestamp should be formatted in ISO 8601", "2024-01-26T12:00:00Z", formatted)
@@ -54,7 +54,7 @@ class DateTimeUtilsTest {
     @Test
     fun testTimezoneHandling() {
         // Test that timestamps are handled consistently in UTC
-        val timestamp = 1706284800000L // 2024-01-26 12:00:00 UTC
+        val timestamp = 1706270400000L // 2024-01-26 12:00:00 UTC
         
         val formattedUtc = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd HH:mm:ss", "UTC", Locale.US)
         assertEquals("UTC formatting", "2024-01-26 12:00:00", formattedUtc)
@@ -94,7 +94,7 @@ class DateTimeUtilsTest {
     @Test
     fun testLeapYearHandling() {
         // Test February 29, 2024 (leap year)
-        val leapDay = 1709251200000L // 2024-02-29 00:00:00 UTC
+        val leapDay = 1709164800000L // 2024-02-29 00:00:00 UTC
         val formatted = DateTimeUtils.formatTimestamp(leapDay, "yyyy-MM-dd", "UTC", Locale.US)
         assertEquals("Should handle leap year", "2024-02-29", formatted)
         
@@ -129,7 +129,7 @@ class DateTimeUtilsTest {
 
     @Test
     fun testDateFormatPatterns() {
-        val timestamp = 1706284800000L // 2024-01-26 12:00:00 UTC
+        val timestamp = 1706270400000L // 2024-01-26 12:00:00 UTC
         
         // Test various format patterns
         assertEquals("ISO 8601", "2024-01-26T12:00:00Z", 
@@ -174,7 +174,7 @@ class DateTimeUtilsTest {
     @Test
     fun testMillisecondPrecision() {
         // Test that milliseconds are preserved
-        val timestamp = 1706284800123L // 2024-01-26 12:00:00.123 UTC
+        val timestamp = 1706270400123L // 2024-01-26 12:00:00.123 UTC
         
         val formatted = DateTimeUtils.formatTimestamp(timestamp, "yyyy-MM-dd HH:mm:ss.SSS", "UTC", Locale.US)
         assertEquals("Milliseconds should be preserved", "2024-01-26 12:00:00.123", formatted)
