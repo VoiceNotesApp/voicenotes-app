@@ -167,8 +167,7 @@ class DateTimeUtilsTest {
         
         // Test malformed date
         val invalid4 = DateTimeUtils.parseTimestamp("20240231_120000", "yyyyMMdd_HHmmss", "UTC") // Feb 31 doesn't exist
-        // Note: SimpleDateFormat may or may not accept this depending on lenient setting
-        // In lenient mode, it might roll over to March
+        assertNull("Invalid date (Feb 31) should return null with strict parsing", invalid4)
     }
 
     @Test
