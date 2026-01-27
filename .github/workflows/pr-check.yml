@@ -92,13 +92,21 @@ jobs:
       - name: Run ${{ matrix.task.name }}
         run: ./gradlew ${{ matrix.task.command }} --stacktrace --build-cache --parallel
 
-      - name: Upload Report
-        if: always()
+      - name: Upload Lint Report
+        if: always() && matrix.task.command == 'lint'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.task.command }}-report
+          name: lint-report
+          path: app/build/reports/lint-results*.html
+          retention-days: 7
+
+      - name: Upload Test Results
+        if: always() && matrix.task.command == 'test'
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
           path: |
-            app/build/reports/**
+            app/build/reports/tests/**
             app/build/test-results/**
           retention-days: 7
 
