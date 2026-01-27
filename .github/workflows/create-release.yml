@@ -195,11 +195,29 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          # Built-in Gradle cache is sufficient - handles dependencies, wrappers, and build-cache
-          cache: gradle
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Cache Build Outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/build
+            build
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-
 
       # Cache Android SDK components to avoid re-downloading (~1-2 GB)
       # This significantly speeds up workflow runs by caching SDK packages
@@ -224,6 +242,10 @@ jobs:
           echo "android.useAndroidX=true" >> gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
           echo "kotlin.code.style=official" >> gradle.properties
+          echo "org.gradle.caching=true" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.configureondemand=true" >> gradle.properties
 
       - name: Run Unit Tests
         run: ./gradlew test --stacktrace --build-cache --parallel

@@ -17,10 +17,18 @@ on:
       - 'LICENSE'                  # License changes
 
 jobs:
-  lint:
-    name: Lint Check
+  check:
+    name: ${{ matrix.task.name }}
     runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        task:
+          - name: Lint Check
+            command: lint
+          - name: Unit Tests
+            command: test
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,13 +38,30 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          # Built-in Gradle cache handles dependencies, wrappers, and build-cache
-          cache: gradle
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # Cache Android SDK components to avoid re-downloading (~1-2 GB)
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Cache Build Outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/build
+            build
+          key: ${{ runner.os }}-build-${{ matrix.task.command }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ matrix.task.command }}-
+
       - name: Cache Android SDK
         uses: actions/cache@v4
         with:
@@ -50,93 +75,44 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # Enable Gradle build cache for faster incremental builds
-      - name: Run Lint
-        run: ./gradlew lint --stacktrace --build-cache --parallel
+      - name: Create gradle.properties
+        run: |
+          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
+          echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
+          echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+          echo "kotlin.code.style=official" >> gradle.properties
+          echo "org.gradle.caching=true" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.configureondemand=true" >> gradle.properties
+
+      - name: Run ${{ matrix.task.name }}
+        run: ./gradlew ${{ matrix.task.command }} --stacktrace --build-cache --parallel
 
       - name: Upload Lint Report
-        if: always()
+        if: always() && matrix.task.command == 'lint'
         uses: actions/upload-artifact@v4
         with:
           name: lint-report
           path: app/build/reports/lint-results*.html
           retention-days: 7
 
-  test:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    needs: lint
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: gradle
-      
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      
-      - name: Cache Android SDK
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.android/build-cache
-            ~/.android/cache
-          key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-android-sdk-
-      
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-      
-      - name: Create gradle.properties
-        run: |
-          echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
-          echo "OSM_CLIENT_ID=${{ secrets.OSM_CLIENT_ID }}" >> gradle.properties
-          echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
-          echo "android.useAndroidX=true" >> gradle.properties
-          echo "android.enableJetifier=true" >> gradle.properties
-          echo "kotlin.code.style=official" >> gradle.properties
-      
-      - name: Run Unit Tests
-        run: ./gradlew test --stacktrace --build-cache --parallel
-      
       - name: Upload Test Results
-        if: always()
+        if: always() && matrix.task.command == 'test'
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-report
           path: |
             app/build/reports/tests/**
             app/build/test-results/**
           retention-days: 7
-      
-      - name: Generate Test Summary
-        if: always()
-        run: |
-          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
-          if [ -d "app/build/test-results/testDebugUnitTest" ]; then
-            TOTAL=$(find app/build/test-results/testDebugUnitTest -name "*.xml" -exec grep -oh 'tests="[0-9]*"' {} \; | grep -oh '[0-9]*' | awk '{s+=$1} END {print s}')
-            FAILURES=$(find app/build/test-results/testDebugUnitTest -name "*.xml" -exec grep -oh 'failures="[0-9]*"' {} \; | grep -oh '[0-9]*' | awk '{s+=$1} END {print s}')
-            ERRORS=$(find app/build/test-results/testDebugUnitTest -name "*.xml" -exec grep -oh 'errors="[0-9]*"' {} \; | grep -oh '[0-9]*' | awk '{s+=$1} END {print s}')
-            PASSED=$((TOTAL - FAILURES - ERRORS))
-            echo "- Total tests: $TOTAL" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Passed: $PASSED" >> $GITHUB_STEP_SUMMARY
-            echo "- ❌ Failed: $FAILURES" >> $GITHUB_STEP_SUMMARY
-            echo "- 💥 Errors: $ERRORS" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ No test results found" >> $GITHUB_STEP_SUMMARY
-          fi
 
   coverage:
     name: Test Coverage
     runs-on: ubuntu-latest
-    needs: test
+    needs: check
     
     steps:
       - name: Checkout code
@@ -147,10 +123,29 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
       
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Cache Build Outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/build
+            build
+          key: ${{ runner.os }}-build-coverage-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-coverage-
       
       - name: Cache Android SDK
         uses: actions/cache@v4
@@ -173,6 +168,10 @@ jobs:
           echo "android.useAndroidX=true" >> gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
           echo "kotlin.code.style=official" >> gradle.properties
+          echo "org.gradle.caching=true" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.configureondemand=true" >> gradle.properties
       
       - name: Generate Coverage Report
         run: ./gradlew testDebugUnitTest jacocoTestReport --stacktrace --build-cache
@@ -199,7 +198,7 @@ jobs:
   build:
     name: Build Check
     runs-on: ubuntu-latest
-    needs: [lint, test, coverage]
+    needs: [check, coverage]
     permissions:
       contents: read
       pull-requests: write
@@ -214,11 +213,29 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          # Built-in Gradle cache handles dependencies, wrappers, and build-cache
-          cache: gradle
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Cache Build Outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/build
+            build
+          key: ${{ runner.os }}-build-final-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-final-
 
       # Cache Android SDK components to avoid re-downloading (~1-2 GB)
       - name: Cache Android SDK
@@ -242,6 +259,10 @@ jobs:
           echo "android.useAndroidX=true" >> gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
           echo "kotlin.code.style=official" >> gradle.properties
+          echo "org.gradle.caching=true" >> gradle.properties
+          echo "org.gradle.parallel=true" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.configureondemand=true" >> gradle.properties
 
       # Enable Gradle build cache and parallel execution for faster builds
       - name: Build Debug APK
@@ -279,3 +300,4 @@ jobs:
               repo: context.repo.repo,
               body: `## Build Check Results\n\n${status}${size}\n\nCommit: ${context.sha.substring(0, 7)}`
             });
+
