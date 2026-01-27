@@ -195,8 +195,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          # Built-in Gradle cache is sufficient - handles dependencies, wrappers, and build-cache
-          cache: gradle
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
