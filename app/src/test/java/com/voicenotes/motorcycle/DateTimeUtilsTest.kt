@@ -145,10 +145,10 @@ class DateTimeUtilsTest {
             formatTimestamp(timestamp, "yyyyMMdd_HHmmss"))
         
         assertEquals("Human readable", "January 26, 2024", 
-            formatTimestamp(timestamp, "MMMM dd, yyyy", Locale.US))
+            formatTimestamp(timestamp, "MMMM dd, yyyy", "UTC", Locale.US))
         
         assertEquals("12-hour format", "12:00:00 PM", 
-            formatTimestamp(timestamp, "hh:mm:ss a", Locale.US))
+            formatTimestamp(timestamp, "hh:mm:ss a", "UTC", Locale.US))
     }
 
     @Test
