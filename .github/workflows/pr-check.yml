@@ -86,7 +86,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.ANDROID_SDK_ROOT }}/ndk
+            /usr/local/lib/android/sdk/ndk
           key: ${{ runner.os }}-ndk-${{ hashFiles('**/build.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-ndk-
@@ -106,9 +106,9 @@ jobs:
           path: |
             ~/.android/build-cache
             ~/.android/cache
-            ${{ env.ANDROID_SDK_ROOT }}/platforms
-            ${{ env.ANDROID_SDK_ROOT }}/platform-tools
-            ${{ env.ANDROID_SDK_ROOT }}/build-tools
+            /usr/local/lib/android/sdk/platforms
+            /usr/local/lib/android/sdk/platform-tools
+            /usr/local/lib/android/sdk/build-tools
           key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-android-sdk-
@@ -212,7 +212,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.ANDROID_SDK_ROOT }}/ndk
+            /usr/local/lib/android/sdk/ndk
           key: ${{ runner.os }}-ndk-${{ hashFiles('**/build.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-ndk-
@@ -232,9 +232,9 @@ jobs:
           path: |
             ~/.android/build-cache
             ~/.android/cache
-            ${{ env.ANDROID_SDK_ROOT }}/platforms
-            ${{ env.ANDROID_SDK_ROOT }}/platform-tools
-            ${{ env.ANDROID_SDK_ROOT }}/build-tools
+            /usr/local/lib/android/sdk/platforms
+            /usr/local/lib/android/sdk/platform-tools
+            /usr/local/lib/android/sdk/build-tools
           key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-android-sdk-
@@ -343,7 +343,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.ANDROID_SDK_ROOT }}/ndk
+            /usr/local/lib/android/sdk/ndk
           key: ${{ runner.os }}-ndk-${{ hashFiles('**/build.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-ndk-
@@ -364,9 +364,9 @@ jobs:
           path: |
             ~/.android/build-cache
             ~/.android/cache
-            ${{ env.ANDROID_SDK_ROOT }}/platforms
-            ${{ env.ANDROID_SDK_ROOT }}/platform-tools
-            ${{ env.ANDROID_SDK_ROOT }}/build-tools
+            /usr/local/lib/android/sdk/platforms
+            /usr/local/lib/android/sdk/platform-tools
+            /usr/local/lib/android/sdk/build-tools
           key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-android-sdk-
