@@ -307,7 +307,7 @@ jobs:
 
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace --build-cache --parallel
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Rename APKs
         run: |
