@@ -300,3 +300,24 @@
 # -keepclassmembers,allowobfuscation class * {
 #     public <init>(...);
 # }
+
+# =========================
+# Suppress server/framework logging warnings (not present on Android)
+-dontwarn javax.servlet.**
+-dontwarn org.ietf.jgss.**
+-dontwarn org.apache.commons.logging.impl.ServletContextCleaner
+-dontwarn org.apache.http.impl.auth.GGSSchemeBase
+
+# Suppress logging API classes R8 is warning about
+-dontwarn org.apache.avalon.framework.logger.**
+-dontwarn org.apache.log.**
+-dontwarn org.apache.log4j.**
+
+# Typical keep rules that may be suggested by missing_rules.txt for logging facades:
+# (These do NOT include the class implementations, only interfaces/signatures to fulfill references)
+-keep class org.apache.avalon.framework.logger.Logger { *; }
+-keep class org.apache.log.Logger { *; }
+-keep class org.apache.log4j.Logger { *; }
+-keep class org.apache.log4j.Priority { *; }
+
+# Add more keep rules here if advised by missing_rules.txt or future R8 errors.
