@@ -278,3 +278,25 @@
 
 # Ignore warnings about reflection in libraries
 -dontwarn java.lang.invoke.StringConcatFactory
+
+# Suppress warnings about missing classes due to server-side dependencies referenced by desktop/server libraries
+
+# Suppress javax.servlet (not on Android)
+-dontwarn javax.servlet.**
+
+# Suppress GSS-API Java classes (not available on Android, but referenced by some Apache HTTP classes)
+-dontwarn org.ietf.jgss.**
+
+# Suppress Apache Commons Logging ServletContextCleaner (server-only)
+-dontwarn org.apache.commons.logging.impl.ServletContextCleaner
+
+# Suppress Apache HTTP GSS Auth (server-only, safe to ignore for Android)
+-dontwarn org.apache.http.impl.auth.GGSSchemeBase
+
+# (Optional: If app/build/outputs/mapping/release/missing_rules.txt suggests specific keep rules, add them below)
+# -keep class <whatever> { *; }
+
+# Keep commonly used classes and methods (already in many Android default rulesets, but can re-assert here for custom builds)
+# -keepclassmembers,allowobfuscation class * {
+#     public <init>(...);
+# }
