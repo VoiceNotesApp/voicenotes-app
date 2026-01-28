@@ -261,15 +261,15 @@ class MainActivity : AppCompatActivity() {
     private fun startRecordingProcess() {
         Log.d(TAG, "startRecordingProcess() called")
         cancelInitializationTimeout() // Cancel timeout once we're progressing
-        
+
         if (!checkPermissions()) {
             Log.d(TAG, "Permissions not granted, requesting")
             requestPermissions()
             return
         }
-        
+
         Log.d(TAG, "All permissions granted")
-        
+
         // Check if already recording - if so, extend instead
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         if (prefs.getBoolean("isCurrentlyRecording", false)) {
@@ -282,10 +282,10 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Starting OverlayService")
         val serviceIntent = Intent(this, OverlayService::class.java)
         startService(serviceIntent)
-        
-        // Minimize this activity to background
-        Log.d(TAG, "Moving task to back")
-        moveTaskToBack(true)
+
+        // Immediately finish - don't keep MainActivity around
+        Log.d(TAG, "Finishing MainActivity immediately")
+        finish()
     }
     
     private fun startBackgroundRecording() {
@@ -320,21 +320,22 @@ class MainActivity : AppCompatActivity() {
     private fun extendRecording() {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         val configuredDuration = prefs.getInt("recordingDuration", 10)
-        
+
         // Update the initial duration to the configured duration (reset, don't add)
         prefs.edit().apply {
             putInt("initialRecordingDuration", configuredDuration)
             apply()
         }
-        
+
         // Send intent to OverlayService with configured duration to reset to
         // Note: Intent extra key is "additionalDuration" for backward compatibility
         val serviceIntent = Intent(this, OverlayService::class.java)
         serviceIntent.putExtra("additionalDuration", configuredDuration)
         startService(serviceIntent)
-        
-        // Move to background again
-        moveTaskToBack(true)
+
+        // Finish immediately - don't keep MainActivity around
+        Log.d(TAG, "Finishing MainActivity after extending recording")
+        finish()
     }
 
     private fun checkPermissions(): Boolean {
