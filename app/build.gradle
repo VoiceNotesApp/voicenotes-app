@@ -81,7 +81,6 @@ def getVersionName() {
         }
         
         // If git describe failed with non-zero exit, try fetching tags once
-        println "Git describe failed, attempting to fetch tags..."
         def fetchProcess = 'git fetch --tags --quiet'.execute()
         fetchProcess.waitFor()
         
