@@ -1,7 +1,9 @@
 package com.voicenotes.motorcycle
 
 import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
@@ -12,7 +14,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.animation.ValueAnimator
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -636,6 +637,7 @@ class RecordingAdapter(
         // Animator for processing status alpha-pulse effect
         private var processingAnimator: ObjectAnimator? = null
         private var processingDrawableAnimator: ValueAnimator? = null
+        private var animatedDrawable: Drawable? = null
 
         fun bind(recording: Recording) {
             // Format date and time
@@ -756,15 +758,15 @@ class RecordingAdapter(
             val rightDrawable = drawables[2] // Index 2 is the right drawable (left, top, right, bottom)
             
             if (rightDrawable != null) {
-                // Animate the button's compound drawable
-                val mutatedDrawable = rightDrawable.mutate()
+                // Animate the button's compound drawable - store reference to prevent issues with recycled views
+                animatedDrawable = rightDrawable.mutate()
                 processingDrawableAnimator = ValueAnimator.ofInt(77, 255).apply { // 77 is ~30% of 255
                     duration = 800
                     repeatMode = ValueAnimator.REVERSE
                     repeatCount = ValueAnimator.INFINITE
                     addUpdateListener { animation ->
                         val alpha = animation.animatedValue as Int
-                        mutatedDrawable.alpha = alpha
+                        animatedDrawable?.alpha = alpha
                     }
                     start()
                 }
@@ -788,10 +790,9 @@ class RecordingAdapter(
             processingDrawableAnimator?.cancel()
             processingDrawableAnimator = null
             
-            // Reset drawable alpha if present
-            val drawables = transcribeButton.compoundDrawables
-            val rightDrawable = drawables[2]
-            rightDrawable?.mutate()?.alpha = 255
+            // Reset the animated drawable's alpha if we have a reference to it
+            animatedDrawable?.alpha = 255
+            animatedDrawable = null
             
             // Cancel and cleanup icon animator (fallback)
             processingAnimator?.cancel()
