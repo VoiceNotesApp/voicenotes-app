@@ -159,6 +159,31 @@ response.resultsList.joinToString(" ") { result ->
 - Button text: "Transcribe" (correct terminology)
 - Icon shows NOT_STARTED icon
 
+### 8. Alpha-Pulse Animation During Processing ✅ **NEW ENHANCEMENT**
+**What was changed:** Replaced spinning progress bar with alpha-pulse animation on status icon during PROCESSING.
+
+**How to test:**
+1. Start a transcription on any recording
+2. During processing status:
+   - Observe the status icon fading between 30% and 100% opacity
+   - Animation should be smooth with 800ms duration
+   - Animation should repeat continuously (pulse effect)
+   - Progress bar should NOT be visible
+3. When processing completes (COMPLETED, FALLBACK, or ERROR status):
+   - Alpha-pulse animation should stop
+   - Status icon should return to full opacity (100%)
+   - Static icon should be displayed based on result status
+4. Scroll the recording list while processing:
+   - Animation should properly stop when view is recycled
+   - No duplicate or overlapping animations should occur
+
+**Expected behavior:**
+- PROCESSING status: Icon pulses with alpha fade (0.3 to 1.0), no progress bar visible
+- Other statuses: Static icon at full opacity, no animation
+- Progress bar: Hidden for all statuses (NOT_STARTED, PROCESSING, COMPLETED, FALLBACK, ERROR, DISABLED)
+- No memory leaks or animation artifacts when scrolling/recycling views
+- Clean transition between animated and static states
+
 ## Behavioral / Acceptance Tests
 
 As specified in the problem statement:
@@ -183,6 +208,12 @@ As specified in the problem statement:
 5. ✅ **UI**: Only one play control visible per card (action-row play button). No duplicate header icon.
 
 6. ✅ **Tests updated**: TranscriptionFallbackTest updated to expect placeholder in v2sResult.
+
+7. ✅ **Processing Animation**: 
+   - Status icon pulses with alpha fade (0.3 to 1.0) during PROCESSING
+   - Progress bar hidden during PROCESSING
+   - Animation stops cleanly on status change or view recycling
+   - No memory leaks or duplicate animators
 
 ## Regression Testing
 
@@ -228,6 +259,9 @@ All fixes are considered successful when:
 9. ✅ Button text says "Transcribe" not "Transcode"
 10. ✅ No regressions in existing functionality
 11. ✅ All unit tests pass with updated expectations
+12. ✅ Alpha-pulse animation works during PROCESSING status
+13. ✅ Progress bar hidden during all statuses including PROCESSING
+14. ✅ Animation lifecycle managed properly (no leaks on view recycling)
 
 ## Additional Notes
 
