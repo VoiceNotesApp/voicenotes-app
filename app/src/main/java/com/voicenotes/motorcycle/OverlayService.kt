@@ -687,8 +687,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         val newWaypoint = """  <wpt lat="$lat" lon="$lng">
     <time>${getCurrentTimestamp()}</time>
-    <name>$name</name>
-    <desc>$desc</desc>
+    <name>${escapeXml(name)}</name>
+    <desc>${escapeXml(desc)}</desc>
   </wpt>"""
         
         return if (waypointPattern.containsMatchIn(gpxContent)) {
@@ -716,8 +716,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
   </metadata>
   <wpt lat="$lat" lon="$lng">
     <time>$timestamp</time>
-    <name>$name</name>
-    <desc>$desc</desc>
+    <name>${escapeXml(name)}</name>
+    <desc>${escapeXml(desc)}</desc>
   </wpt>
 </gpx>"""
     }
@@ -856,6 +856,15 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         } else {
             value
         }
+    }
+
+    private fun escapeXml(text: String): String {
+        return text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&apos;")
     }
     
     private fun extractCoordsFromCsvLine(line: String): String? {

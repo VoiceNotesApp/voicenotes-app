@@ -1,9 +1,6 @@
 package com.voicenotes.motorcycle
 
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
@@ -491,9 +488,7 @@ class RecordingManagerActivity : AppCompatActivity() {
             sb.append("  <wpt lat=\"${recording.latitude}\" lon=\"${recording.longitude}\">\n")
             sb.append("    <time>${dateFormat.format(Date(recording.timestamp))}</time>\n")
             sb.append("    <name>${recording.filename}</name>\n")
-            if (recording.v2sResult != null) {
-                sb.append("    <desc>${recording.v2sResult}</desc>\n")
-            }
+            sb.append("    <desc>${escapeXml(recording.v2sResult ?: "")}</desc>\n")
             sb.append("  </wpt>\n")
         }
 
@@ -501,19 +496,27 @@ class RecordingManagerActivity : AppCompatActivity() {
         return sb.toString()
     }
 
+    private fun escapeXml(text: String): String {
+        return text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&apos;")
+    }
+
     private fun generateCSV(recordings: List<Recording>): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
         val sb = StringBuilder()
-        sb.append("Latitude,Longitude,Timestamp,Filename,Transcription,V2S Status\n")
+        sb.append("Latitude,Longitude,Timestamp,Filename,Transcription\n")
 
         recordings.forEach { recording ->
             sb.append("${recording.latitude},")
             sb.append("${recording.longitude},")
             sb.append("${dateFormat.format(Date(recording.timestamp))},")
             sb.append("\"${recording.filename}\",")
-            sb.append("\"${recording.v2sResult ?: ""}\",")
-            sb.append("${recording.v2sStatus}\n")
+            sb.append("\"${recording.v2sResult ?: ""}\"\n")
         }
 
         return sb.toString()
@@ -615,7 +618,6 @@ class RecordingAdapter(
     
     override fun onViewRecycled(holder: ViewHolder) {
         super.onViewRecycled(holder)
-        holder.stopProcessingAnimation()
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -633,12 +635,6 @@ class RecordingAdapter(
         private val playButton: Button = view.findViewById(R.id.playButton)
 
         private val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-        
-        // Animator for processing status alpha-pulse effect
-        private var processingAnimator: ObjectAnimator? = null
-        private var processingDrawableAnimator: ValueAnimator? = null
-        private var animatedDrawable: Drawable? = null
-        private var pendingAnimationRunnable: Runnable? = null
 
         fun bind(recording: Recording) {
             // Format date and time
@@ -697,121 +693,42 @@ class RecordingAdapter(
             // Update button text and drawable based on V2S status
             when (recording.v2sStatus) {
                 V2SStatus.NOT_STARTED -> {
-                    stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.transcribe)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.PROCESSING -> {
+                    v2sStatusIcon.setColorFilter(android.graphics.Color.rgb(255, 165, 0)) // Orange color
+                    v2sStatusIcon.setImageResource(R.drawable.ic_status_processing)
                     transcribeButton.text = context.getString(R.string.processing)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
-                    // Remove any pending animation callbacks to prevent multiple concurrent animations
-                    pendingAnimationRunnable?.let { transcribeButton.removeCallbacks(it) }
-                    // Ensure the drawable is set before starting animation
-                    pendingAnimationRunnable = Runnable {
-                        startProcessingAnimation()
-                        pendingAnimationRunnable = null
-                    }
-                    transcribeButton.post(pendingAnimationRunnable)
                 }
                 V2SStatus.COMPLETED -> {
-                    stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.retranscribe)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.FALLBACK -> {
-                    stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.retry)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.ERROR -> {
-                    stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.retry)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.DISABLED -> {
-                    stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.disabled)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                 }
             }
-        }
-        
-        /**
-         * Start alpha-pulse animation for PROCESSING status.
-         * Animates the transcribeButton's right compound drawable if present,
-         * otherwise falls back to v2sStatusIcon.
-         * Fades between 30% and 100% alpha with 800ms duration, infinite repeat.
-         */
-        fun startProcessingAnimation() {
-            // Don't create multiple animators for the same ViewHolder
-            if (processingDrawableAnimator?.isRunning == true || processingAnimator?.isRunning == true) {
-                return
-            }
-            
-            // Cancel any existing animators and clear drawable reference
-            processingDrawableAnimator?.cancel()
-            processingAnimator?.cancel()
-            animatedDrawable = null
-            
-            // Get the right compound drawable from transcribeButton
-            val drawables = transcribeButton.compoundDrawables
-            val rightDrawable = drawables[2] // Index 2 is the right drawable (left, top, right, bottom)
-            
-            if (rightDrawable != null) {
-                // Animate the button's compound drawable - store reference to prevent issues with recycled views
-                animatedDrawable = rightDrawable.mutate()
-                processingDrawableAnimator = ValueAnimator.ofInt(77, 255).apply { // 77 is ~30% of 255
-                    duration = 800
-                    repeatMode = ValueAnimator.REVERSE
-                    repeatCount = ValueAnimator.INFINITE
-                    addUpdateListener { animation ->
-                        val alpha = animation.animatedValue as Int
-                        animatedDrawable?.alpha = alpha
-                    }
-                    start()
-                }
-            } else {
-                // Fallback to v2sStatusIcon animation
-                processingAnimator = ObjectAnimator.ofFloat(v2sStatusIcon, "alpha", 0.3f, 1.0f).apply {
-                    duration = 800
-                    repeatMode = ValueAnimator.REVERSE
-                    repeatCount = ValueAnimator.INFINITE
-                    start()
-                }
-            }
-        }
-        
-        /**
-         * Stop and cleanup the processing animation.
-         * Resets drawable and icon alpha to fully visible.
-         */
-        fun stopProcessingAnimation() {
-            // Remove any pending animation callbacks
-            pendingAnimationRunnable?.let { transcribeButton.removeCallbacks(it) }
-            pendingAnimationRunnable = null
-            
-            // Cancel and cleanup drawable animator
-            processingDrawableAnimator?.cancel()
-            processingDrawableAnimator = null
-            
-            // Reset the animated drawable's alpha if we have a reference to it
-            animatedDrawable?.alpha = 255
-            animatedDrawable = null
-            
-            // Cancel and cleanup icon animator (fallback)
-            processingAnimator?.cancel()
-            processingAnimator = null
-            v2sStatusIcon.alpha = 1f
         }
     }
 }
