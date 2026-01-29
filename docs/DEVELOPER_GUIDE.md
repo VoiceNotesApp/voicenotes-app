@@ -179,10 +179,51 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
 **UI features**:
 - Material Design cards with elevation
-- Color-coded status indicators (green/red/orange/gray)
-- Progress spinners during operations
+- Color-coded status indicators (blue/orange/green/amber/red/gray)
+- Smooth animations and transitions
+- Material Design ripple effects on buttons
 - Real-time Toast feedback
 - Separate action buttons (Transcribe)
+
+#### Status Color Coding
+
+The app uses consistent color coding for transcription status:
+
+- **Blue (#1976D2)**: `NOT_STARTED` - ready to transcribe
+- **Orange (#FF6F00)**: `PROCESSING` - transcription in progress
+- **Green (#43A047)**: `COMPLETED` - transcription successful
+- **Amber (#FB8C00)**: `FALLBACK` - partial result / no text received
+- **Red (#E53935)**: `ERROR` - transcription failed
+- **Gray (#9E9E9E)**: `DISABLED` - transcription not available
+
+Colors are defined in `app/src/main/res/values/colors.xml` and applied using `ContextCompat.getColor()`.
+
+#### UI Animations
+
+The RecordingManagerActivity includes several Material Design animations:
+
+1. **Card fade-in**: When cards appear in the list, they fade in smoothly over 300ms using `DecelerateInterpolator`
+   ```kotlin
+   itemView.animate()
+       .alpha(1f)
+       .setDuration(300)
+       .setInterpolator(DecelerateInterpolator())
+       .start()
+   ```
+
+2. **Status icon transitions**: When status changes, icons fade out → change → fade in (150ms each phase)
+   ```kotlin
+   v2sStatusIcon.animate()
+       .alpha(0f)
+       .setDuration(150)
+       .withEndAction { /* update icon and color */ }
+   ```
+
+3. **Ripple effects**: All buttons use Material Design ripple effects via `android:foreground="?attr/selectableItemBackground"`
+
+4. **Card elevation**: Cards animate elevation on press using `android:stateListAnimator` (4dp → 8dp)
+
+Animation durations follow Material Design guidelines (150-300ms) for optimal feel and performance.
 
 ### 3. BatchProcessingService (Background Processor)
 
