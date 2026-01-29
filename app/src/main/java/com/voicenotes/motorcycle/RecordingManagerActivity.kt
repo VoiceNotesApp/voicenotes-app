@@ -693,6 +693,7 @@ class RecordingAdapter(
             // Update button text and drawable based on V2S status
             when (recording.v2sStatus) {
                 V2SStatus.NOT_STARTED -> {
+                    v2sStatusIcon.clearColorFilter()
                     transcribeButton.text = context.getString(R.string.transcribe)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
@@ -706,24 +707,28 @@ class RecordingAdapter(
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
                 }
                 V2SStatus.COMPLETED -> {
+                    v2sStatusIcon.clearColorFilter()
                     transcribeButton.text = context.getString(R.string.retranscribe)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.FALLBACK -> {
+                    v2sStatusIcon.clearColorFilter()
                     transcribeButton.text = context.getString(R.string.retry)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.ERROR -> {
+                    v2sStatusIcon.clearColorFilter()
                     transcribeButton.text = context.getString(R.string.retry)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.DISABLED -> {
+                    v2sStatusIcon.clearColorFilter()
                     transcribeButton.text = context.getString(R.string.disabled)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
