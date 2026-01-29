@@ -1,5 +1,6 @@
 package com.voicenotes.motorcycle
 
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
@@ -11,6 +12,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.animation.ValueAnimator
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -599,6 +601,11 @@ class RecordingAdapter(
     }
 
     override fun getItemCount() = recordings.size
+    
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        holder.stopProcessingAnimation()
+    }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val dateTimeText: TextView = view.findViewById(R.id.dateTimeText)
@@ -616,6 +623,9 @@ class RecordingAdapter(
         private val playButton: Button = view.findViewById(R.id.playButton)
 
         private val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+        
+        // Animator for processing status alpha-pulse effect
+        private var processingAnimator: ObjectAnimator? = null
 
         fun bind(recording: Recording) {
             // Format date and time
@@ -673,6 +683,7 @@ class RecordingAdapter(
             // Update button text and drawable based on V2S status
             when (recording.v2sStatus) {
                 V2SStatus.NOT_STARTED -> {
+                    stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.transcribe)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
@@ -680,12 +691,14 @@ class RecordingAdapter(
                     v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.PROCESSING -> {
+                    startProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.processing)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
-                    v2sProgressBar.visibility = View.VISIBLE
+                    v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.COMPLETED -> {
+                    stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.retranscribe)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_completed, 0)
@@ -693,6 +706,7 @@ class RecordingAdapter(
                     v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.FALLBACK -> {
+                    stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.retry)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
@@ -700,6 +714,7 @@ class RecordingAdapter(
                     v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.ERROR -> {
+                    stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.retry)
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_error, 0)
@@ -707,12 +722,45 @@ class RecordingAdapter(
                     v2sProgressBar.visibility = View.GONE
                 }
                 V2SStatus.DISABLED -> {
+                    stopProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.disabled)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                     v2sProgressBar.visibility = View.GONE
                 }
             }
+        }
+        
+        /**
+         * Start alpha-pulse animation on v2sStatusIcon for PROCESSING status.
+         * Fades between 0.3f and 1.0f alpha with 800ms duration, infinite repeat.
+         */
+        fun startProcessingAnimation() {
+            // Don't create multiple animators for the same ViewHolder
+            if (processingAnimator?.isRunning == true) {
+                return
+            }
+            
+            // Cancel any existing animator
+            processingAnimator?.cancel()
+            
+            // Create alpha pulse animator
+            processingAnimator = ObjectAnimator.ofFloat(v2sStatusIcon, "alpha", 0.3f, 1.0f).apply {
+                duration = 800
+                repeatMode = ValueAnimator.REVERSE
+                repeatCount = ValueAnimator.INFINITE
+                start()
+            }
+        }
+        
+        /**
+         * Stop and cleanup the processing animation.
+         * Resets icon alpha to fully visible (1.0f).
+         */
+        fun stopProcessingAnimation() {
+            processingAnimator?.cancel()
+            processingAnimator = null
+            v2sStatusIcon.alpha = 1f
         }
     }
 }
