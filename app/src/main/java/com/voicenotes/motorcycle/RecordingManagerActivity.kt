@@ -626,12 +626,20 @@ class RecordingAdapter(
             playIcon.visibility = View.GONE
 
             // Transcription EditText - set empty when no transcription available
+            // Show helpful placeholder for FALLBACK status
             if (recording.v2sResult.isNullOrBlank() ||
                 recording.v2sStatus == V2SStatus.NOT_STARTED ||
-                recording.v2sStatus == V2SStatus.DISABLED) {
+                recording.v2sStatus == V2SStatus.DISABLED ||
+                recording.v2sStatus == V2SStatus.FALLBACK) {
                 transcriptionEditText.setText("")
+                if (recording.v2sStatus == V2SStatus.FALLBACK) {
+                    transcriptionEditText.hint = "(empty transcription - no speech detected)"
+                } else {
+                    transcriptionEditText.hint = "transcribed text goes here... field can be changed!"
+                }
             } else {
                 transcriptionEditText.setText(recording.v2sResult)
+                transcriptionEditText.hint = "transcribed text goes here... field can be changed!"
             }
             
             // Save transcription button
