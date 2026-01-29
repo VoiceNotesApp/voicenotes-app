@@ -335,12 +335,15 @@ class SettingsActivity : AppCompatActivity() {
     }
     
     // Handle Up navigation
+    // Note: This handles the Up/back button in the action bar
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
     }
     
     // Handle home/up button in options menu
+    // Note: This provides additional compatibility for older Android versions
+    // where onSupportNavigateUp() might not be called
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
