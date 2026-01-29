@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
+    android:stateListAnimator="@animator/card_elevation"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
 
@@ -127,6 +128,9 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:layout_marginStart="8dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:backgroundTint="#757575"
                     android:textColor="#FFFFFF" />
 
@@ -147,6 +151,9 @@
                     android:text="Delete"
                     android:textSize="13sp"
                     android:layout_marginEnd="8dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:backgroundTint="#D32F2F"
                     android:textColor="#FFFFFF" />
 
@@ -159,6 +166,9 @@
                     android:textSize="13sp"
                     android:layout_marginEnd="8dp"
                     android:visibility="gone"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:backgroundTint="#424242"
                     android:textColor="#FFFFFF" />
 
@@ -172,6 +182,9 @@
                     android:drawableEnd="@drawable/ic_status_not_started"
                     android:drawablePadding="4dp"
                     android:layout_marginEnd="8dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:backgroundTint="#424242"
                     android:textColor="#FFFFFF" />
 
@@ -183,6 +196,9 @@
                     android:text="Open Maps"
                     android:textSize="13sp"
                     android:layout_marginEnd="8dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:backgroundTint="#4CAF50"
                     android:textColor="#FFFFFF" />
 
@@ -193,6 +209,9 @@
                     android:layout_weight="1"
                     android:text="Play"
                     android:textSize="13sp"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:backgroundTint="#1976D2"
                     android:textColor="#FFFFFF" />
 

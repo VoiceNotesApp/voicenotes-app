@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Status colors for transcription -->
+    <color name="status_not_started">#1976D2</color>
+    <color name="status_processing">#FF6F00</color>
+    <color name="status_completed">#43A047</color>
+    <color name="status_fallback">#FB8C00</color>
+    <color name="status_error">#E53935</color>
+    <color name="status_disabled">#9E9E9E</color>
+</resources>
