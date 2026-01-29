@@ -749,9 +749,10 @@ class RecordingAdapter(
                 return
             }
             
-            // Cancel any existing animators
+            // Cancel any existing animators and clear drawable reference
             processingDrawableAnimator?.cancel()
             processingAnimator?.cancel()
+            animatedDrawable = null
             
             // Get the right compound drawable from transcribeButton
             val drawables = transcribeButton.compoundDrawables
