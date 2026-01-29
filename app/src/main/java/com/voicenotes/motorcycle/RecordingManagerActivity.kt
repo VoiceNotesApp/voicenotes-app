@@ -686,8 +686,9 @@ class RecordingAdapter(
         }
         
         private fun shouldShowDownloadButton(recording: Recording): Boolean {
-            // Show download button if transcription is completed or if there's transcribed text
-            return recording.v2sStatus == V2SStatus.COMPLETED && !recording.v2sResult.isNullOrBlank()
+            // Show download button if the recording file exists
+            val file = File(recording.filepath)
+            return file.exists()
         }
 
         fun updateTranscriptionUI(recording: Recording) {
@@ -702,10 +703,13 @@ class RecordingAdapter(
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
                 }
                 V2SStatus.PROCESSING -> {
-                    startProcessingAnimation()
                     transcribeButton.text = context.getString(R.string.processing)
                     transcribeButton.isEnabled = false
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_processing, 0)
+                    // Ensure the drawable is set before starting animation
+                    transcribeButton.post {
+                        startProcessingAnimation()
+                    }
                 }
                 V2SStatus.COMPLETED -> {
                     stopProcessingAnimation()
