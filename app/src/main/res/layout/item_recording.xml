@@ -39,16 +39,6 @@
                 android:textStyle="bold"
                 android:textColor="#212121" />
 
-            <ImageView
-                android:id="@+id/playIcon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@android:drawable/ic_media_play"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Play recording"
-                android:padding="4dp"
-                app:tint="#1976D2" />
-
         </LinearLayout>
 
         <!-- Location Coordinates -->

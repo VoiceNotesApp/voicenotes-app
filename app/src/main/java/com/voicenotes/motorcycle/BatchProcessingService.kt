@@ -97,17 +97,22 @@ class BatchProcessingService : LifecycleService() {
                     message = "Transcription successful for ${recording.filename}: $transcribedText"
                 )
                 
-                val finalText = if (transcribedText.isBlank()) 
-                    "${recording.latitude},${recording.longitude} (no text)" 
-                else 
+                // Compute final text: use fallback placeholder if transcription is blank
+                val finalText = if (transcribedText.isBlank()) {
+                    val latStr = String.format("%.6f", recording.latitude)
+                    val lngStr = String.format("%.6f", recording.longitude)
+                    "$latStr,$lngStr (no text)"
+                } else {
                     transcribedText
+                }
                 
                 // Update recording with transcription result
                 withContext(Dispatchers.IO) {
                     val updated = recording.copy(
                         v2sStatus = if (transcribedText.isBlank()) V2SStatus.FALLBACK else V2SStatus.COMPLETED,
-                        v2sResult = transcribedText,
+                        v2sResult = finalText,
                         v2sFallback = transcribedText.isBlank(),
+                        errorMsg = null,
                         updatedAt = System.currentTimeMillis()
                     )
                     db.recordingDao().updateRecording(updated)

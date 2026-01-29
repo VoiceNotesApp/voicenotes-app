@@ -53,4 +53,20 @@
     <string name="app_unconfigured_title">App Not Configured</string>
     <string name="app_unconfigured_message">Please use Voice Notes Manager to configure permissions and manage recordings.</string>
     <string name="closing_in">Closing in %d seconds...</string>
+    
+    <!-- Transcription strings -->
+    <string name="transcribe">Transcribe</string>
+    <string name="retranscribe">Retranscribe</string>
+    <string name="processing">Processing</string>
+    <string name="retry">Retry</string>
+    <string name="disabled">Disabled</string>
+    <string name="transcription_in_progress">Transcription in progress...</string>
+    <string name="starting_transcription">Starting transcription...</string>
+    
+    <!-- Playback strings -->
+    <string name="play">Play</string>
+    <string name="stop">Stop</string>
+    <string name="playback_stopped">Playback stopped</string>
+    <string name="playback_finished">Playback finished</string>
+    <string name="playing_recording">Playing recording...</string>
 </resources>

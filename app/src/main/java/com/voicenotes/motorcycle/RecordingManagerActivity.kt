@@ -155,8 +155,11 @@ class RecordingManagerActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val db = RecordingDatabase.getDatabase(this@RecordingManagerActivity)
+                // Clear fallback/error state before starting new transcription
                 val updated = recording.copy(
                     v2sStatus = V2SStatus.PROCESSING,
+                    v2sFallback = false,
+                    errorMsg = null,
                     updatedAt = System.currentTimeMillis()
                 )
                 db.recordingDao().updateRecording(updated)
@@ -600,7 +603,6 @@ class RecordingAdapter(
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val dateTimeText: TextView = view.findViewById(R.id.dateTimeText)
         private val locationText: TextView = view.findViewById(R.id.locationText)
-        private val playIcon: ImageView = view.findViewById(R.id.playIcon)
 
         private val transcriptionEditText: EditText = view.findViewById(R.id.transcriptionEditText)
         private val saveTranscriptionButton: Button = view.findViewById(R.id.saveTranscriptionButton)
@@ -622,24 +624,16 @@ class RecordingAdapter(
             // Format location
             locationText.text = "${String.format("%.6f", recording.latitude)}, ${String.format("%.6f", recording.longitude)}"
 
-            // Play icon (top right) - hidden to avoid duplicate play controls
-            playIcon.visibility = View.GONE
-
-            // Transcription EditText - set empty when no transcription available
-            // Show helpful placeholder for FALLBACK status
-            if (recording.v2sResult.isNullOrBlank() ||
-                recording.v2sStatus == V2SStatus.NOT_STARTED ||
-                recording.v2sStatus == V2SStatus.DISABLED ||
-                recording.v2sStatus == V2SStatus.FALLBACK) {
+            // Transcription EditText - populate based on status
+            if (recording.v2sResult.isNullOrBlank() && 
+                (recording.v2sStatus == V2SStatus.NOT_STARTED || recording.v2sStatus == V2SStatus.DISABLED)) {
+                // Not started or disabled: show empty field with hint
                 transcriptionEditText.setText("")
-                if (recording.v2sStatus == V2SStatus.FALLBACK) {
-                    transcriptionEditText.hint = "(empty transcription - no speech detected)"
-                } else {
-                    transcriptionEditText.hint = "transcribed text goes here... field can be changed!"
-                }
+                transcriptionEditText.hint = "transcribed text goes here..."
             } else {
-                transcriptionEditText.setText(recording.v2sResult)
-                transcriptionEditText.hint = "transcribed text goes here... field can be changed!"
+                // Show v2sResult (includes fallback placeholder when FALLBACK status)
+                transcriptionEditText.setText(recording.v2sResult ?: "")
+                transcriptionEditText.hint = "transcribed text goes here..."
             }
             
             // Save transcription button
@@ -678,7 +672,7 @@ class RecordingAdapter(
             // Update button text and drawable based on V2S status
             when (recording.v2sStatus) {
                 V2SStatus.NOT_STARTED -> {
-                    transcribeButton.text = "Transcode"
+                    transcribeButton.text = "Transcribe"
                     transcribeButton.isEnabled = true
                     transcribeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_status_not_started, 0)
                     transcribeButton.setOnClickListener { onTranscribeClick(recording) }
