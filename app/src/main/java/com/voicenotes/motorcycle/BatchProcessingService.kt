@@ -105,7 +105,7 @@ class BatchProcessingService : LifecycleService() {
                 // Update recording with transcription result
                 withContext(Dispatchers.IO) {
                     val updated = recording.copy(
-                        v2sStatus = V2SStatus.COMPLETED,
+                        v2sStatus = if (transcribedText.isBlank()) V2SStatus.FALLBACK else V2SStatus.COMPLETED,
                         v2sResult = transcribedText,
                         v2sFallback = transcribedText.isBlank(),
                         updatedAt = System.currentTimeMillis()
