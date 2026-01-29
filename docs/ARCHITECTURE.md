@@ -713,7 +713,7 @@ when (recording.v2sStatus) {
         statusIcon.setImageResource(android.R.drawable.ic_menu_help)
     }
     V2SStatus.PROCESSING -> {
-        progressBar.visibility = View.VISIBLE
+        startProcessingAnimation()  // Alpha-pulse animation on statusIcon
         button.isEnabled = false
     }
     V2SStatus.COMPLETED -> {

@@ -556,7 +556,6 @@ This section consolidates testing procedures and implementation notes for key fe
    - Start transcription → status icon pulses smoothly
    - Alpha fades between 30% and 100% opacity over 800ms
    - Animation continues until transcription completes
-   - Progress bar remains hidden during PROCESSING
 
 2. **Status transitions**:
    - PROCESSING → COMPLETED: Animation stops, icon becomes static
