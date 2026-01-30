@@ -421,6 +421,34 @@ All critical error paths are logged through Logger to ensure:
 
 This dual-logging approach ensures developers can debug issues both in real-time (via logcat) and retrospectively (via debug_log.txt file).
 
+#### QA Steps for Debug Logging
+
+To verify that the debug logging system is working correctly:
+
+1. **Enable Debug Logging**:
+   - Open Settings activity
+   - Enable "Debug Logging" toggle
+   - Verify toggle state is saved
+
+2. **Test Overlay Failure Logging**:
+   - Revoke overlay permission: Settings → Apps → Voice Notes → Display over other apps → Disable
+   - Trigger the overlay service (launch app from home screen or NFC trigger)
+   - Check debug_log.txt contains overlay permission error entry
+   - View debug log in Settings → "View Debug Log" to verify error appears
+
+3. **Test TestSuite Logging**:
+   - Open Debug Log activity (Settings → "View Debug Log")
+   - Run TestSuite tests
+   - Verify test entries are appended to debug_log.txt
+   - Confirm entries include timestamps and proper formatting
+
+4. **Verify No Regressions**:
+   - Settings activity opens and functions normally
+   - Debug log toggle persists across app restarts
+   - DebugLogActivity displays logs correctly
+   - Clear log button works as expected
+   - No crashes when debug logging is disabled
+
 ### Release Build
 
 ```bash
