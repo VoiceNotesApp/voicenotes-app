@@ -32,7 +32,8 @@ object Logger {
         }
         
         // Log to DebugLogger (writes to debug_log.txt when enabled)
-        DebugLogger.logError(tag, message, throwable)
+        // skipLogcat=true to avoid double-logging to logcat
+        DebugLogger.logError(tag, message, throwable, skipLogcat = true)
     }
     
     /**
@@ -47,7 +48,8 @@ object Logger {
         Log.i(tag, message)
         
         // Log to DebugLogger (writes to debug_log.txt when enabled)
-        DebugLogger.logInfo(tag, message)
+        // skipLogcat=true to avoid double-logging to logcat
+        DebugLogger.logInfo(tag, message, skipLogcat = true)
     }
     
     /**
@@ -62,12 +64,13 @@ object Logger {
         Log.d(tag, message)
         
         // Log to DebugLogger (writes to debug_log.txt when enabled)
-        DebugLogger.logDebug(tag, message)
+        // skipLogcat=true to avoid double-logging to logcat
+        DebugLogger.logDebug(tag, message, skipLogcat = true)
     }
     
     /**
      * Log a warning message.
-     * Forwards to both DebugLogger.logError() (as warnings are important) and Log.w()
+     * Forwards to both DebugLogger.logWarning() and Log.w()
      * 
      * @param tag Used to identify the source of a log message
      * @param message The message to log
@@ -76,7 +79,8 @@ object Logger {
         // Log to Android logcat
         Log.w(tag, message)
         
-        // Log to DebugLogger as an error since warnings are important
-        DebugLogger.logError(tag, message, null)
+        // Log to DebugLogger (writes to debug_log.txt when enabled)
+        // skipLogcat=true to avoid double-logging to logcat
+        DebugLogger.logWarning(tag, message, skipLogcat = true)
     }
 }

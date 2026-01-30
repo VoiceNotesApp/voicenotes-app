@@ -81,7 +81,7 @@ object DebugLogger {
     /**
      * Log an error
      */
-    fun logError(service: String, error: String, exception: Throwable? = null) {
+    fun logError(service: String, error: String, exception: Throwable? = null, skipLogcat: Boolean = false) {
         val timestamp = dateFormat.format(Date())
         val message = buildString {
             appendLine("[$timestamp] ERROR")
@@ -98,14 +98,16 @@ object DebugLogger {
             appendLine()
         }
         
-        Log.e(TAG, message)
+        if (!skipLogcat) {
+            Log.e(TAG, message)
+        }
         appendToLogFile(message)
     }
     
     /**
      * Log general information
      */
-    fun logInfo(service: String, message: String) {
+    fun logInfo(service: String, message: String, skipLogcat: Boolean = false) {
         val timestamp = dateFormat.format(Date())
         val logMessage = buildString {
             appendLine("[$timestamp] INFO")
@@ -114,14 +116,16 @@ object DebugLogger {
             appendLine()
         }
         
-        Log.i(TAG, logMessage)
+        if (!skipLogcat) {
+            Log.i(TAG, logMessage)
+        }
         appendToLogFile(logMessage)
     }
     
     /**
      * Log debug information
      */
-    fun logDebug(service: String, message: String) {
+    fun logDebug(service: String, message: String, skipLogcat: Boolean = false) {
         val timestamp = dateFormat.format(Date())
         val logMessage = buildString {
             appendLine("[$timestamp] DEBUG")
@@ -130,7 +134,27 @@ object DebugLogger {
             appendLine()
         }
         
-        Log.d(TAG, logMessage)
+        if (!skipLogcat) {
+            Log.d(TAG, logMessage)
+        }
+        appendToLogFile(logMessage)
+    }
+    
+    /**
+     * Log warning information
+     */
+    fun logWarning(service: String, message: String, skipLogcat: Boolean = false) {
+        val timestamp = dateFormat.format(Date())
+        val logMessage = buildString {
+            appendLine("[$timestamp] WARNING")
+            appendLine("Service: $service")
+            appendLine("Message: $message")
+            appendLine()
+        }
+        
+        if (!skipLogcat) {
+            Log.w(TAG, logMessage)
+        }
         appendToLogFile(logMessage)
     }
     
