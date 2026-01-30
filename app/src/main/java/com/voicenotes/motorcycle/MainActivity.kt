@@ -13,6 +13,7 @@ import android.provider.Settings
 import android.util.Log
 
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -58,10 +59,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val PERMISSIONS_REQUEST_CODE = 100
-    private val OVERLAY_PERMISSION_REQUEST_CODE = 101
     
     private lateinit var finishReceiver: FinishActivityReceiver
     private var isReceiverRegistered = false
+    
+    // Activity Result API for overlay permission
+    private val overlayPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { _ ->
+        if (Settings.canDrawOverlays(this)) {
+            Log.d(TAG, "Overlay permission granted after settings")
+            startRecordingProcess()
+        } else {
+            Log.d(TAG, "Overlay permission still not granted")
+            Toast.makeText(this, "Overlay permission is required", Toast.LENGTH_LONG).show()
+            finish()
+        }
+    }
     
     private var shouldShowUI = false
 
@@ -109,9 +123,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Initialize AppContextHolder for DebugLogger
-        AppContextHolder.context = applicationContext
-
+        // Note: AppContextHolder.context is now initialized in VoiceNotesApplication.onCreate()
+        
         // Check if we should show UI (explicit request via EXTRA_SHOW_UI only)
         shouldShowUI = intent?.getBooleanExtra(EXTRA_SHOW_UI, false) ?: false
         
@@ -244,29 +257,13 @@ class MainActivity : AppCompatActivity() {
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:$packageName")
                     )
-                    startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+                    overlayPermissionLauncher.launch(intent)
                 }
                 .setCancelable(false)
                 .show()
         } else {
             Log.d(TAG, "Overlay permission granted, starting recording process")
             startRecordingProcess()
-        }
-    }
-    
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d(TAG, "onActivityResult() requestCode: $requestCode, resultCode: $resultCode")
-        
-        if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
-            if (Settings.canDrawOverlays(this)) {
-                Log.d(TAG, "Overlay permission granted after settings")
-                startRecordingProcess()
-            } else {
-                Log.d(TAG, "Overlay permission still not granted")
-                Toast.makeText(this, "Overlay permission is required", Toast.LENGTH_LONG).show()
-                finish()
-            }
         }
     }
 

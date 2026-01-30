@@ -161,27 +161,45 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     private fun createOverlay() {
-        windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        
-        val layoutType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        
-        val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            layoutType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            y = 100 // Position from top
+        try {
+            windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            
+            val layoutType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            
+            val params = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                layoutType,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+                y = 100 // Position from top
+            }
+            
+            overlayView = LayoutInflater.from(this).inflate(R.layout.overlay_bubble, null)
+            bubbleLine1 = overlayView?.findViewById(R.id.bubbleLine1)
+            
+            windowManager?.addView(overlayView, params)
+            
+            updateOverlay(getString(R.string.acquiring_location))
+        } catch (e: SecurityException) {
+            Log.e("OverlayService", "SecurityException creating overlay - overlay permission likely missing", e)
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "Failed to create overlay due to SecurityException: ${e.message}",
+                exception = e
+            )
+            stopSelf()
+        } catch (e: Exception) {
+            Log.e("OverlayService", "Exception creating overlay", e)
+            DebugLogger.logError(
+                service = "OverlayService",
+                error = "Failed to create overlay: ${e.message}",
+                exception = e
+            )
+            stopSelf()
         }
-        
-        overlayView = LayoutInflater.from(this).inflate(R.layout.overlay_bubble, null)
-        bubbleLine1 = overlayView?.findViewById(R.id.bubbleLine1)
-        
-        windowManager?.addView(overlayView, params)
-        
-        updateOverlay(getString(R.string.acquiring_location))
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -429,6 +447,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             // MediaRecorder constructor requires different signatures based on API level:
             // API 31+ (Android S): MediaRecorder(Context) - required to associate with app context
             // API 26-30: MediaRecorder() - deprecated but required for backward compatibility
+            // TODO: Migrate to MediaRecorder API when minimum SDK is raised to 31+
+            @Suppress("DEPRECATION")
             mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 MediaRecorder(this)
             } else {
@@ -543,6 +563,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         }
     }
     
+    // TODO: Replace deprecated Bluetooth SCO APIs with modern alternatives when available
+    // Bluetooth SCO audio routing APIs are deprecated but no suitable replacement exists yet
+    @Suppress("DEPRECATION")
     private fun getPreferredAudioSource(): Int {
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         
@@ -771,7 +794,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         handler.postDelayed({ stopSelfAndFinish() }, 2000)
     }
 
-    private fun createGpxWaypoint(location: Location, transcribedText: String, filePath: String) {
+    // filePath parameter kept for compatibility but not currently used in implementation
+    private fun createGpxWaypoint(location: Location, transcribedText: String, _: String) {
         val lat = String.format("%.6f", location.latitude)
         val lng = String.format("%.6f", location.longitude)
         val waypointName = "VoiceNote: $lat,$lng"
@@ -1087,6 +1111,8 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         }
         
         // Stop Bluetooth SCO if it was started
+        // TODO: Replace deprecated Bluetooth SCO APIs when alternatives are available
+        @Suppress("DEPRECATION")
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         if (audioManager.isBluetoothScoOn) {
             audioManager.stopBluetoothSco()
