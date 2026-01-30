@@ -46,6 +46,30 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Overlay service for Voice Notes recording functionality.
+ * 
+ * This service is responsible for:
+ * 1. Configuration and Permission Validation: On startup, checks if the app is fully configured
+ *    with all required permissions (overlay, microphone, location, Bluetooth) and settings 
+ *    (recording duration, save directory). If not configured, displays a brief, non-intrusive
+ *    overlay bubble message for ~3 seconds, then automatically stops the service.
+ * 
+ * 2. Recording Lifecycle: If fully configured, manages the complete recording lifecycle including:
+ *    - GPS location acquisition
+ *    - Audio recording with MediaRecorder
+ *    - Visual feedback via overlay bubble
+ *    - Text-to-speech announcements
+ *    - Recording countdown and automatic stop
+ *    - Saving recordings with metadata to database
+ * 
+ * 3. Bluetooth Audio Integration: Handles Bluetooth SCO (Synchronous Connection-Oriented) setup
+ *    for routing audio to/from Bluetooth devices.
+ * 
+ * The service never launches activities or switches to any UI screen. It operates entirely in
+ * the background with only overlay bubble feedback. Configuration must be done through explicit
+ * UI mode in MainActivity (via "Manage" action or VN Manager app).
+ */
 class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
     companion object {
@@ -168,26 +192,27 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         val resetDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
         
         if (resetDuration > 0) {
-            // This is an extension request - verify permissions are still valid
-            if (!checkAllRequiredPermissions()) {
-                Log.w("OverlayService", "Extension request but permissions missing - showing overlay and stopping")
-                handleOverlayMessage(getString(R.string.permissions_missing_overlay_message), 7000)
+            // This is an extension request - verify app is still fully configured
+            if (!isAppFullyConfigured()) {
+                Log.w("OverlayService", "Extension request but app not fully configured - showing overlay and stopping")
+                handleOverlayMessage(getString(R.string.app_not_configured_message), 3000)
                 return START_NOT_STICKY
             }
             
-            // Permissions OK - reset timer to the duration from the intent
+            // App still configured - reset timer to the duration from the intent
             extendRecordingDuration(resetDuration)
             return START_NOT_STICKY
         }
         
-        // Normal startup flow - first check all required permissions
-        if (!checkAllRequiredPermissions()) {
-            // Permissions are missing - show informational overlay and quit
-            handleOverlayMessage(getString(R.string.permissions_missing_overlay_message), 7000)
+        // Normal startup flow - first check if app is fully configured
+        if (!isAppFullyConfigured()) {
+            // App not fully configured - show brief informational overlay and quit
+            Log.w("OverlayService", "App not fully configured on startup - showing overlay and stopping")
+            handleOverlayMessage(getString(R.string.app_not_configured_message), 3000)
             return START_NOT_STICKY
         }
         
-        // All permissions present - wait for TTS initialization to start recording
+        // App fully configured - wait for TTS initialization to start recording
         return START_NOT_STICKY
     }
 
@@ -614,6 +639,49 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         }
         
         Log.d("OverlayService", "All required permissions are granted")
+        return true
+    }
+    
+    /**
+     * Checks if the app is fully configured with all necessary permissions and settings.
+     * This includes:
+     * - All required permissions (overlay, microphone, location, Bluetooth)
+     * - Recording duration configured in SharedPreferences
+     * - Save directory configured in SharedPreferences
+     * 
+     * @return true if app is fully configured, false otherwise
+     */
+    private fun isAppFullyConfigured(): Boolean {
+        Log.d("OverlayService", "Checking if app is fully configured")
+        
+        // First check overlay permission (already verified in onCreate, but double-check)
+        if (!Settings.canDrawOverlays(this)) {
+            Log.w("OverlayService", "App not configured: Missing overlay permission")
+            return false
+        }
+        
+        // Check all other required permissions
+        if (!checkAllRequiredPermissions()) {
+            Log.w("OverlayService", "App not configured: Missing required permissions")
+            return false
+        }
+        
+        // Check if recording duration is configured
+        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+        val recordingDuration = prefs.getInt("recordingDuration", -1)
+        if (recordingDuration == -1) {
+            Log.w("OverlayService", "App not configured: Recording duration not set")
+            return false
+        }
+        
+        // Check if save directory is configured
+        val saveDir = prefs.getString("saveDirectory", null)
+        if (saveDir.isNullOrEmpty()) {
+            Log.w("OverlayService", "App not configured: Save directory not set")
+            return false
+        }
+        
+        Log.d("OverlayService", "App is fully configured")
         return true
     }
     

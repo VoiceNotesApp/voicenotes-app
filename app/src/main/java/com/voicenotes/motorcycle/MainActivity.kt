@@ -25,15 +25,25 @@ import kotlinx.coroutines.launch
  * Main activity for Voice Notes app.
  * 
  * This activity has two distinct launch modes:
- * 1. Normal Launch (Headless Mode): When launched from the app icon, immediately starts 
- *    OverlayService in the background and finishes. No UI is shown.
- * 2. Explicit UI Mode: When launched with EXTRA_SHOW_UI or fromSettings flag, shows UI for 
- *    permission checks and configuration. This is triggered via long-press "Manage" or VN Manager app.
  * 
- * The activity is minimal and exists only to:
- * - Handle normal app launch by starting background service
- * - Provide UI for explicit settings/management requests
- * - Check and request required permissions when needed
+ * 1. Normal Launch (Headless Mode): When launched from the app icon or background trigger,
+ *    immediately starts OverlayService in the background and finishes. No UI is shown. 
+ *    No configuration or permission checks are performed here - those are handled entirely 
+ *    by OverlayService on startup.
+ * 
+ * 2. Explicit UI Mode: When launched with EXTRA_SHOW_UI or fromSettings flag, shows UI for 
+ *    permission management and configuration. This is triggered via long-press "Manage" action
+ *    or VN Manager app.
+ * 
+ * Separation of Responsibilities:
+ * - MainActivity: Only handles explicit UI requests for settings/permission management.
+ *   Never checks for "unconfigured" state or displays configuration warnings.
+ * 
+ * - OverlayService: Handles all configuration/permission validation on service start.
+ *   Displays brief overlay messages if unconfigured, then auto-stops.
+ * 
+ * This design ensures the app remains truly headless on normal launch with no UI footprint,
+ * while still providing clear feedback about configuration issues via overlay bubbles.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -73,6 +83,8 @@ class MainActivity : AppCompatActivity() {
         val explicitUIRequest = shouldShowUI || fromSettings
         
         // For normal launch (not explicit UI request), start service immediately and finish
+        // IMPORTANT: No configuration or permission checks are done here. OverlayService
+        // will handle all validation on startup and display appropriate feedback if needed.
         if (!explicitUIRequest) {
             Log.d(TAG, "Normal launch (headless mode) - starting OverlayService and finishing")
             

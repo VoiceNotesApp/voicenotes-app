@@ -50,6 +50,7 @@
     <string name="processing_complete">Processing complete</string>
     <string name="overlay_permission_missing">Overlay permission is required to use this app</string>
     <string name="permissions_missing_overlay_message">Missing permissions: Please grant microphone, location, Bluetooth, and overlay via [Manage] or VN Manager</string>
+    <string name="app_not_configured_message">Voice Notes is not configured. Open settings via the Manage action or the VN Manager app to complete setup.</string>
     
     <!-- Transcription strings -->
     <string name="transcribe">Transcribe</string>
