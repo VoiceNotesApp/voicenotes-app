@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Environment
 
 import com.voicenotes.motorcycle.DebugLogger
+import com.voicenotes.motorcycle.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
