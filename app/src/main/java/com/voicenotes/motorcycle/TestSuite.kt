@@ -967,7 +967,6 @@ class TestSuite(private val context: Context) {
         log("[TEST] === Audio System Tests ===")
         
         runTest("Microphone Availability") {
-            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             val hasMicrophone = context.packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_MICROPHONE)
             
             TestResult(
@@ -1038,8 +1037,8 @@ class TestSuite(private val context: Context) {
         
         runTest("Audio Focus Handling") {
             try {
-                val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                // Just check if we can get the audio manager
+                // Just verify we can access the audio service
+                val _ = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
                 TestResult("Audio Focus Handling", true, "Audio manager accessible")
             } catch (e: Exception) {
                 TestResult("Audio Focus Handling", false, "Audio manager error: ${e.message}")
@@ -1194,7 +1193,8 @@ class TestSuite(private val context: Context) {
         
         runTest("TranscriptionService Initialization") {
             try {
-                val service = TranscriptionService(context)
+                // Just verify we can instantiate the service
+                val _ = TranscriptionService(context)
                 TestResult("TranscriptionService Initialization", true, "Service initialized successfully")
             } catch (e: Exception) {
                 TestResult("TranscriptionService Initialization", false, "Initialization error: ${e.message}")
