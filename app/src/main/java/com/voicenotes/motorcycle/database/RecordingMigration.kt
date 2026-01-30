@@ -2,7 +2,7 @@ package com.voicenotes.motorcycle.database
 
 import android.content.Context
 import android.os.Environment
-import android.util.Log
+
 import com.voicenotes.motorcycle.DebugLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -89,7 +89,7 @@ class RecordingMigration(private val context: Context) {
                     val (lat, lon, timestamp) = extractMetadataFromFilename(file.name)
                     
                     if (lat == null || lon == null || timestamp == null) {
-                        Log.w(TAG, "Skipping file with invalid name format: ${file.name}")
+                        Logger.w(TAG, "Skipping file with invalid name format: ${file.name}")
                         continue
                     }
                     
@@ -118,7 +118,7 @@ class RecordingMigration(private val context: Context) {
                     Log.d(TAG, "Migrated: ${file.name}")
                     
                 } catch (e: Exception) {
-                    Log.e(TAG, "Failed to migrate file: ${file.name}", e)
+                    Logger.e(TAG, "Failed to migrate file: ${file.name}", e)
                     DebugLogger.logError(
                         service = "RecordingMigration",
                         error = "Failed to migrate file: ${file.name}",
@@ -178,7 +178,7 @@ class RecordingMigration(private val context: Context) {
             return Triple(lat, lon, timestamp)
             
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to parse filename: $filename", e)
+            Logger.e(TAG, "Failed to parse filename: $filename", e)
             return Triple(null, null, null)
         }
     }

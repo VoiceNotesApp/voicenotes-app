@@ -10,7 +10,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.PowerManager
 import android.provider.Settings
-import android.util.Log
+
 import android.view.MenuItem
 import android.view.View
 import android.widget.NumberPicker
@@ -129,7 +129,7 @@ class SettingsActivity : AppCompatActivity() {
             val buildConfigVersion = BuildConfig.VERSION_NAME
             
             if (!buildConfigVersion.isNullOrEmpty() && buildConfigVersion != "null") {
-                Log.d("SettingsActivity", "Version source: BuildConfig.VERSION_NAME = $buildConfigVersion")
+                Logger.d("SettingsActivity", "Version source: BuildConfig.VERSION_NAME = $buildConfigVersion")
                 return "Version $buildConfigVersion"
             }
             
@@ -138,17 +138,17 @@ class SettingsActivity : AppCompatActivity() {
             val versionName = packageInfo.versionName
             
             if (!versionName.isNullOrEmpty() && versionName != "null") {
-                Log.d("SettingsActivity", "Version source: PackageManager.versionName = $versionName")
+                Logger.d("SettingsActivity", "Version source: PackageManager.versionName = $versionName")
                 return "Version $versionName"
             }
             
             // Final fallback
-            Log.d("SettingsActivity", "Version source: FALLBACK_VERSION = $FALLBACK_VERSION")
+            Logger.d("SettingsActivity", "Version source: FALLBACK_VERSION = $FALLBACK_VERSION")
             FALLBACK_VERSION
             
         } catch (e: Exception) {
-            Log.e("SettingsActivity", "Error getting version", e)
-            Log.d("SettingsActivity", "Version source: Exception fallback = $FALLBACK_VERSION")
+            Logger.e("SettingsActivity", "Error getting version", e)
+            Logger.d("SettingsActivity", "Version source: Exception fallback = $FALLBACK_VERSION")
             FALLBACK_VERSION
         }
     }

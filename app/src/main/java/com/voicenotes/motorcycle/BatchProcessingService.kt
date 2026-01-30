@@ -29,7 +29,7 @@ class BatchProcessingService : LifecycleService() {
         val transcribeOnly = intent?.getBooleanExtra("transcribeOnly", false) ?: false
 
         if (recordingId <= 0) {
-            Log.e("BatchProcessing", "Invalid recordingId: $recordingId")
+            Logger.e("BatchProcessing", "Invalid recordingId: $recordingId")
             stopSelf()
             return START_NOT_STICKY
         }
@@ -48,7 +48,7 @@ class BatchProcessingService : LifecycleService() {
         }
 
         if (recording == null) {
-            Log.e("BatchProcessing", "Recording not found: $recordingId")
+            Logger.e("BatchProcessing", "Recording not found: $recordingId")
             stopSelf()
             return
         }
@@ -137,7 +137,7 @@ class BatchProcessingService : LifecycleService() {
                     )
                     createCsvEntryFromRecording(recording, finalText, coords)
                 } catch (e: Exception) {
-                    Log.e("BatchProcessing", "Failed to create GPX/CSV", e)
+                    Logger.e("BatchProcessing", "Failed to create GPX/CSV", e)
                     DebugLogger.logError(
                         service = "BatchProcessingService",
                         error = "Failed to create GPX/CSV for ${recording.filename}",
@@ -149,7 +149,7 @@ class BatchProcessingService : LifecycleService() {
                 broadcastProgress(recording.filename, "complete", currentFile, totalFiles)
                 
             }.onFailure { error ->
-                Log.e("BatchProcessing", "Failed to transcribe ${recording.filename}", error)
+                Logger.e("BatchProcessing", "Failed to transcribe ${recording.filename}", error)
                 DebugLogger.logError(
                     service = "BatchProcessingService",
                     error = "Failed to transcribe ${recording.filename}",
@@ -234,7 +234,7 @@ class BatchProcessingService : LifecycleService() {
             Log.d("BatchProcessing", "GPX waypoint created/updated: $waypointName")
             
         } catch (e: Exception) {
-            Log.e("BatchProcessing", "Failed to create GPX waypoint", e)
+            Logger.e("BatchProcessing", "Failed to create GPX waypoint", e)
         }
     }
     
@@ -329,7 +329,7 @@ class BatchProcessingService : LifecycleService() {
             Log.d("BatchProcessing", "CSV entry created/updated: $coordsStr")
             
         } catch (e: Exception) {
-            Log.e("BatchProcessing", "Failed to create CSV entry", e)
+            Logger.e("BatchProcessing", "Failed to create CSV entry", e)
         }
     }
     

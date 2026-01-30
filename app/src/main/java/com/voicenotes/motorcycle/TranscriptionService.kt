@@ -1,7 +1,7 @@
 package com.voicenotes.motorcycle
 
 import android.content.Context
-import android.util.Log
+
 import com.google.api.gax.core.FixedCredentialsProvider
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.speech.v1.*
@@ -85,7 +85,7 @@ class TranscriptionService(private val context: Context) {
             if (serviceAccountJson == null) {
                 val errorMsg = "Google Cloud credentials not configured. " +
                     "Transcription is disabled. See Settings > Online Processing for setup instructions."
-                Log.e("TranscriptionService", errorMsg)
+                Logger.e("TranscriptionService", errorMsg)
                 DebugLogger.logError(
                     service = "Google Cloud Speech-to-Text",
                     error = errorMsg
@@ -100,7 +100,7 @@ class TranscriptionService(private val context: Context) {
                 val errorMsg = "Invalid Google Cloud service account JSON format. " +
                     "The JSON must contain 'type', 'project_id', and 'private_key' fields. " +
                     "Please check your configuration in gradle.properties or GitHub Secrets."
-                Log.e("TranscriptionService", errorMsg)
+                Logger.e("TranscriptionService", errorMsg)
                 DebugLogger.logError(
                     service = "Google Cloud Speech-to-Text",
                     error = errorMsg
@@ -177,7 +177,7 @@ class TranscriptionService(private val context: Context) {
                     }
                     .trim()
 
-                Log.d("TranscriptionService", "Transcription result: '$transcribedText'")
+                Logger.d("TranscriptionService", "Transcription result: '$transcribedText'")
                 
                 DebugLogger.logApiResponse(
                     service = "Google Cloud Speech-to-Text",
@@ -192,7 +192,7 @@ class TranscriptionService(private val context: Context) {
             }
 
         } catch (e: Exception) {
-            Log.e("TranscriptionService", "Transcription failed", e)
+            Logger.e("TranscriptionService", "Transcription failed", e)
             DebugLogger.logError(
                 service = "Google Cloud Speech-to-Text",
                 error = "Transcription failed: ${e.message}",

@@ -10,7 +10,6 @@ import android.os.Build
 import android.os.Bundle
 
 import android.provider.Settings
-import android.util.Log
 
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -68,10 +67,10 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { _ ->
         if (Settings.canDrawOverlays(this)) {
-            Log.d(TAG, "Overlay permission granted after settings")
+            Logger.d(TAG, "Overlay permission granted after settings")
             startRecordingProcess()
         } else {
-            Log.d(TAG, "Overlay permission still not granted")
+            Logger.d(TAG, "Overlay permission still not granted")
             Toast.makeText(this, "Overlay permission is required", Toast.LENGTH_LONG).show()
             finish()
         }
@@ -103,7 +102,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun logIntentDetails(context: String, intent: Intent?, showingUI: Boolean) {
         if (intent == null) {
-            Log.d(TAG, "$context: Intent is null, showingUI=$showingUI")
+            Logger.d(TAG, "$context: Intent is null, showingUI=$showingUI")
             return
         }
         
@@ -113,7 +112,7 @@ class MainActivity : AppCompatActivity() {
             "$key=${intent.extras?.get(key)}"
         } ?: "none"
         
-        Log.d(TAG, "$context: Intent details - " +
+        Logger.d(TAG, "$context: Intent details - " +
                 "action=$action, " +
                 "categories=$categories, " +
                 "extras=[$extras], " +
@@ -136,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         // we log and finish immediately to avoid crashes or incomplete initialization.
         // OverlayService owns all other configuration checks (overlay permission, save directory).
         if (!shouldShowUI) {
-            Log.d(TAG, "Headless mode: Checking required runtime permissions")
+            Logger.d(TAG, "Headless mode: Checking required runtime permissions")
             
             // Permission guard: Check if all required runtime permissions are granted
             val missingPermissions = requiredPermissions.filter { permission ->
@@ -144,18 +143,18 @@ class MainActivity : AppCompatActivity() {
             }
             
             if (missingPermissions.isNotEmpty()) {
-                Log.w(TAG, "Headless mode blocked: Missing required permissions: ${missingPermissions.joinToString()}")
-                Log.w(TAG, "MainActivity finishing immediately without starting service or showing UI")
+                Logger.w(TAG, "Headless mode blocked: Missing required permissions: ${missingPermissions.joinToString()}")
+                Logger.w(TAG, "MainActivity finishing immediately without starting service or showing UI")
                 finish()
                 return
             }
             
-            Log.d(TAG, "All required runtime permissions granted, starting OverlayService")
+            Logger.d(TAG, "All required runtime permissions granted, starting OverlayService")
             
             // Check if recording is currently active
             val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
             if (prefs.getBoolean("isCurrentlyRecording", false)) {
-                Log.d(TAG, "Recording in progress - extending recording")
+                Logger.d(TAG, "Recording in progress - extending recording")
                 // Start service with extension request
                 val serviceIntent = Intent(this, OverlayService::class.java)
                 val configuredDuration = prefs.getInt("recordingDuration", 10)
@@ -172,7 +171,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         // Below this point: explicit UI request only (EXTRA_SHOW_UI=true)
-        Log.d(TAG, "UI mode: Showing configuration UI")
+        Logger.d(TAG, "UI mode: Showing configuration UI")
         
         // Defensive UI inflation with error handling
         try {
@@ -190,10 +189,10 @@ class MainActivity : AppCompatActivity() {
             isReceiverRegistered = true
 
             // Check overlay permission and start recording
-            Log.d(TAG, "Checking overlay permission")
+            Logger.d(TAG, "Checking overlay permission")
             checkOverlayPermission()
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to inflate UI or initialize activity", e)
+            Logger.e(TAG, "Failed to inflate UI or initialize activity", e)
             Toast.makeText(this, "Failed to initialize UI: ${e.message}", Toast.LENGTH_LONG).show()
             finish()
         }
@@ -210,15 +209,15 @@ class MainActivity : AppCompatActivity() {
         // Do NOT trigger UI inflation or other configuration flows from new intents
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         if (prefs.getBoolean("isCurrentlyRecording", false)) {
-            Log.d(TAG, "onNewIntent: Recording in progress - extending")
+            Logger.d(TAG, "onNewIntent: Recording in progress - extending")
             extendRecording()
         } else {
-            Log.d(TAG, "onNewIntent: No recording in progress - ignoring")
+            Logger.d(TAG, "onNewIntent: No recording in progress - ignoring")
         }
     }
 
     private fun checkOverlayPermission() {
-        Log.d(TAG, "checkOverlayPermission() called")
+        Logger.d(TAG, "checkOverlayPermission() called")
         
         // Check and run migration if needed (best-effort, doesn't block user)
         val migration = RecordingMigration(this)
@@ -236,7 +235,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Migration failed", e)
+                    Logger.e(TAG, "Migration failed", e)
                     DebugLogger.logError(
                         service = "MainActivity",
                         error = "Migration failed: ${e.message}",
@@ -247,12 +246,12 @@ class MainActivity : AppCompatActivity() {
         }
         
         if (!Settings.canDrawOverlays(this)) {
-            Log.d(TAG, "Overlay permission NOT granted, showing dialog")
+            Logger.d(TAG, "Overlay permission NOT granted, showing dialog")
             AlertDialog.Builder(this)
                 .setTitle(R.string.overlay_permission_required)
                 .setMessage(R.string.overlay_permission_message)
                 .setPositiveButton("OK") { _, _ ->
-                    Log.d(TAG, "User clicked OK, launching overlay permission screen")
+                    Logger.d(TAG, "User clicked OK, launching overlay permission screen")
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:$packageName")
@@ -262,37 +261,37 @@ class MainActivity : AppCompatActivity() {
                 .setCancelable(false)
                 .show()
         } else {
-            Log.d(TAG, "Overlay permission granted, starting recording process")
+            Logger.d(TAG, "Overlay permission granted, starting recording process")
             startRecordingProcess()
         }
     }
 
     private fun startRecordingProcess() {
-        Log.d(TAG, "startRecordingProcess() called")
+        Logger.d(TAG, "startRecordingProcess() called")
 
         if (!checkPermissions()) {
-            Log.d(TAG, "Permissions not granted, requesting")
+            Logger.d(TAG, "Permissions not granted, requesting")
             requestPermissions()
             return
         }
 
-        Log.d(TAG, "All permissions granted")
+        Logger.d(TAG, "All permissions granted")
 
         // Check if already recording - if so, extend instead
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         if (prefs.getBoolean("isCurrentlyRecording", false)) {
-            Log.d(TAG, "Already recording, extending")
+            Logger.d(TAG, "Already recording, extending")
             extendRecording()
             return
         }
 
         // Start overlay service
-        Log.d(TAG, "Starting OverlayService")
+        Logger.d(TAG, "Starting OverlayService")
         val serviceIntent = Intent(this, OverlayService::class.java)
         ContextCompat.startForegroundService(this, serviceIntent)
 
         // Immediately finish - don't keep MainActivity around
-        Log.d(TAG, "Finishing MainActivity immediately")
+        Logger.d(TAG, "Finishing MainActivity immediately")
         finish()
     }
     
@@ -313,7 +312,7 @@ class MainActivity : AppCompatActivity() {
         ContextCompat.startForegroundService(this, serviceIntent)
 
         // Finish immediately - don't keep MainActivity around
-        Log.d(TAG, "Finishing MainActivity after extending recording")
+        Logger.d(TAG, "Finishing MainActivity after extending recording")
         finish()
     }
 
@@ -361,10 +360,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume() called")
+        Logger.d(TAG, "onResume() called")
 
         if (Settings.canDrawOverlays(this)) {
-            Log.d(TAG, "Ready to record in onResume")
+            Logger.d(TAG, "Ready to record in onResume")
             // Don't auto-start, just update UI
         }
     }

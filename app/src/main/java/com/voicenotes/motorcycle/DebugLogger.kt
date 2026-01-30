@@ -119,6 +119,22 @@ object DebugLogger {
     }
     
     /**
+     * Log debug information
+     */
+    fun logDebug(service: String, message: String) {
+        val timestamp = dateFormat.format(Date())
+        val logMessage = buildString {
+            appendLine("[$timestamp] DEBUG")
+            appendLine("Service: $service")
+            appendLine("Message: $message")
+            appendLine()
+        }
+        
+        Log.d(TAG, logMessage)
+        appendToLogFile(logMessage)
+    }
+    
+    /**
      * Append message to log file
      */
     private fun appendToLogFile(message: String) {
