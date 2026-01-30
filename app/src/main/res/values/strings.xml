@@ -48,6 +48,7 @@
     <string name="online_osm_note_failed">Online: OSM Note creation failed :(</string>
     <string name="processing_complete">Processing complete</string>
     <string name="overlay_permission_missing">Overlay permission is required to use this app</string>
+    <string name="permissions_missing_overlay_message">Missing permissions: Please grant microphone, location, Bluetooth, and overlay via [Manage] or VN Manager</string>
     
     <!-- Transcription strings -->
     <string name="transcribe">Transcribe</string>
