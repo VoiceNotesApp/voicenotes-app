@@ -230,7 +230,7 @@ class BatchProcessingService : LifecycleService() {
                 gpxFile.writeText(gpxContent)
             }
             
-            Log.d("BatchProcessing", "GPX waypoint created/updated: $waypointName")
+            Logger.d("BatchProcessing", "GPX waypoint created/updated: $waypointName")
             
         } catch (e: Exception) {
             Logger.e("BatchProcessing", "Failed to create GPX waypoint", e)
@@ -255,11 +255,11 @@ class BatchProcessingService : LifecycleService() {
         
         return if (waypointPattern.containsMatchIn(gpxContent)) {
             // Replace existing waypoint
-            Log.d("BatchProcessing", "Replacing existing waypoint at $lat,$lng")
+            Logger.d("BatchProcessing", "Replacing existing waypoint at $lat,$lng")
             gpxContent.replace(waypointPattern, newWaypoint)
         } else {
             // Add new waypoint before closing </gpx>
-            Log.d("BatchProcessing", "Adding new waypoint at $lat,$lng")
+            Logger.d("BatchProcessing", "Adding new waypoint at $lat,$lng")
             gpxContent.replace("</gpx>", "$newWaypoint\n</gpx>")
         }
     }
@@ -325,7 +325,7 @@ class BatchProcessingService : LifecycleService() {
                 csvFile.writeText(csvContent)
             }
             
-            Log.d("BatchProcessing", "CSV entry created/updated: $coordsStr")
+            Logger.d("BatchProcessing", "CSV entry created/updated: $coordsStr")
             
         } catch (e: Exception) {
             Logger.e("BatchProcessing", "Failed to create CSV entry", e)
@@ -369,7 +369,7 @@ class BatchProcessingService : LifecycleService() {
             if (lineCoords == coords && !found) {
                 updatedLines.add(newEntry)
                 found = true
-                Log.d("BatchProcessing", "Replacing existing CSV entry at $coords")
+                Logger.d("BatchProcessing", "Replacing existing CSV entry at $coords")
             } else {
                 updatedLines.add(line)
             }
@@ -378,7 +378,7 @@ class BatchProcessingService : LifecycleService() {
         // If not found, add new entry
         if (!found) {
             updatedLines.add(newEntry)
-            Log.d("BatchProcessing", "Adding new CSV entry at $coords")
+            Logger.d("BatchProcessing", "Adding new CSV entry at $coords")
         }
         
         return updatedLines.joinToString("\n")
