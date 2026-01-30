@@ -627,7 +627,6 @@ class RecordingAdapter(
 
     // Data class to hold status configuration
     private data class StatusConfig(
-        val colorRes: Int,
         val drawableRes: Int,
         val textRes: Int,
         val isEnabled: Boolean
@@ -704,37 +703,31 @@ class RecordingAdapter(
         private fun getStatusConfig(status: V2SStatus): StatusConfig {
             return when (status) {
                 V2SStatus.NOT_STARTED -> StatusConfig(
-                    R.color.status_not_started,
                     R.drawable.ic_status_not_started,
                     R.string.transcribe,
                     true
                 )
                 V2SStatus.PROCESSING -> StatusConfig(
-                    R.color.status_processing,
                     R.drawable.ic_status_processing,
                     R.string.processing,
                     false
                 )
                 V2SStatus.COMPLETED -> StatusConfig(
-                    R.color.status_completed,
                     R.drawable.ic_status_completed,
                     R.string.retranscribe,
                     true
                 )
                 V2SStatus.FALLBACK -> StatusConfig(
-                    R.color.status_fallback,
                     R.drawable.ic_status_error,
                     R.string.retry,
                     true
                 )
                 V2SStatus.ERROR -> StatusConfig(
-                    R.color.status_error,
                     R.drawable.ic_status_error,
                     R.string.retry,
                     true
                 )
                 V2SStatus.DISABLED -> StatusConfig(
-                    R.color.status_disabled,
                     R.drawable.ic_status_not_started,
                     R.string.disabled,
                     false
