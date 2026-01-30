@@ -76,13 +76,21 @@ object Logger {
      * @param message The message to log
      * @param t An optional throwable to log
      */
+    // Accept optional throwable to match existing call sites that pass exceptions.
+    // When a throwable is provided we persist the error and stack trace to DebugLogger.
     fun w(tag: String, message: String, t: Throwable? = null) {
-        // Log to Android logcat
-        if (t != null) {
-            Log.w(tag, message, t)
-        } else {
-            Log.w(tag, message)
+        try {
+            if (t != null) {
+                // treat as error to persist stack trace
+                DebugLogger.logError(tag, message, t)
+            } else {
+                DebugLogger.logInfo(tag, message)
+            }
+        } catch (ex: Exception) {
+            Log.w(tag, "Failed to write warning to DebugLogger", ex)
         }
+        if (t != null) Log.w(tag, message, t) else Log.w(tag, message)
+    }
         
         // Log to DebugLogger (writes to debug_log.txt when enabled)
         // skipLogcat=true to avoid double-logging to logcat
