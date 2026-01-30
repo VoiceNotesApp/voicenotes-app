@@ -43,7 +43,7 @@ class RecordingMigration(private val context: Context) {
      */
     suspend fun migrateExistingRecordings(): Int = withContext(Dispatchers.IO) {
         if (isMigrationComplete()) {
-            Log.d(TAG, "Migration already complete, skipping")
+            Logger.d(TAG, "Migration already complete, skipping")
             return@withContext 0
         }
         
@@ -72,17 +72,17 @@ class RecordingMigration(private val context: Context) {
         
         for (dir in possibleDirs) {
             if (!dir.exists() || !dir.isDirectory) {
-                Log.d(TAG, "Directory does not exist: ${dir.absolutePath}")
+                Logger.d(TAG, "Directory does not exist: ${dir.absolutePath}")
                 continue
             }
             
-            Log.d(TAG, "Scanning directory: ${dir.absolutePath}")
+            Logger.d(TAG, "Scanning directory: ${dir.absolutePath}")
             // Scan for both .ogg (Opus) and .m4a (AAC) audio files
             val audioFiles = dir.listFiles { file -> 
                 file.extension == "ogg" || file.extension == "m4a" 
             } ?: emptyArray()
             
-            Log.d(TAG, "Found ${audioFiles.size} audio files (.ogg, .m4a) in ${dir.absolutePath}")
+            Logger.d(TAG, "Found ${audioFiles.size} audio files (.ogg, .m4a) in ${dir.absolutePath}")
             
             for (file in audioFiles) {
                 try {
@@ -97,7 +97,7 @@ class RecordingMigration(private val context: Context) {
                     // Copy file to internal storage
                     val newFile = File(internalDir, file.name)
                     if (newFile.exists()) {
-                        Log.d(TAG, "File already exists in internal storage: ${file.name}")
+                        Logger.d(TAG, "File already exists in internal storage: ${file.name}")
                         continue
                     }
                     
@@ -116,7 +116,7 @@ class RecordingMigration(private val context: Context) {
                     db.recordingDao().insertRecording(recording)
                     totalMigrated++
                     
-                    Log.d(TAG, "Migrated: ${file.name}")
+                    Logger.d(TAG, "Migrated: ${file.name}")
                     
                 } catch (e: Exception) {
                     Logger.e(TAG, "Failed to migrate file: ${file.name}", e)
