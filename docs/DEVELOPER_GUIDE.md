@@ -354,6 +354,9 @@ android {
 ### Debug Build
 
 ```bash
+# Run lint checks to identify code quality issues
+./gradlew lintDebug
+
 # Build debug APK
 ./gradlew assembleDebug
 
@@ -364,7 +367,25 @@ android {
 ./gradlew installDebug
 ```
 
+**Lint Output**: Lint reports are generated in `app/build/reports/lint-results-debug.html`
+
 **Output**: `app/build/outputs/apk/debug/app-debug.apk`
+
+### Debug Logging
+
+The app includes a comprehensive debug logging system via `DebugLogger`:
+
+- **Enable debug logging**: Open Settings → Enable "Debug Logging" toggle
+- **View logs**: Settings → "View Debug Log" button opens `DebugLogActivity`
+- **Log file location**: `{app_internal_storage}/files/debug_log.txt`
+- **Access via ADB**:
+  ```bash
+  adb pull /data/data/com.voicenotes.motorcycle/files/debug_log.txt
+  ```
+- **Log rotation**: Automatically truncated when exceeding 5MB (keeps last 50%)
+- **Content**: API requests/responses, errors with stack traces, service lifecycle events
+
+**Note**: Debug logs are stored in app-private storage and are only accessible when debug logging is explicitly enabled by the user. Logs are automatically cleared on app uninstall.
 
 ### Release Build
 
@@ -643,6 +664,37 @@ This section consolidates testing procedures and implementation notes for key fe
 ---
 
 ## Development Workflow
+
+### Code Quality
+
+Before committing code changes:
+
+1. **Run lint checks**:
+   ```bash
+   ./gradlew lintDebug
+   ```
+   - Fix any errors or warnings reported
+   - Review HTML report: `app/build/reports/lint-results-debug.html`
+
+2. **Run unit tests**:
+   ```bash
+   ./gradlew testDebugUnitTest
+   ```
+   - Ensure all tests pass
+   - Add tests for new functionality
+
+3. **Build verification**:
+   ```bash
+   ./gradlew assembleDebug
+   ```
+   - Confirm build succeeds without errors
+   - Verify APK is generated: `app/build/outputs/apk/debug/app-debug.apk`
+
+4. **Check debug logs** (if implementing logging):
+   - Enable debug logging in Settings
+   - Perform actions that trigger your code
+   - Review `debug_log.txt` via Settings → "View Debug Log"
+   - Ensure errors are logged with `DebugLogger.logError()`
 
 ### Code Style
 
