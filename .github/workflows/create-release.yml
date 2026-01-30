@@ -214,6 +214,7 @@ jobs:
         with:
           path: |
             app/build
+            vnmanager-opener/build
             build
           key: ${{ runner.os }}-build-${{ github.sha }}
           restore-keys: |
@@ -345,6 +346,37 @@ jobs:
           echo "APK sizes:"
           ls -lh motorcycle-voice-notes-*.apk
 
+          # Rename VN Manager Opener APKs
+          echo "VERSION_NUMBER=${VERSION_NUMBER}" >> $GITHUB_ENV
+          echo "Listing VN Manager Opener APK files:"
+          ls -la vnmanager-opener/build/outputs/apk/debug/ || echo "VN Manager debug directory not found"
+          ls -la vnmanager-opener/build/outputs/apk/release/ || echo "VN Manager release directory not found"
+
+          # Rename VN Manager debug APK
+          if [ -f "vnmanager-opener/build/outputs/apk/debug/vnmanager-opener-debug.apk" ]; then
+            cp vnmanager-opener/build/outputs/apk/debug/vnmanager-opener-debug.apk vnmanager-opener-${VERSION_NUMBER}-debug.apk
+            echo "VN_MANAGER_DEBUG_APK_FILE=vnmanager-opener-${VERSION_NUMBER}-debug.apk" >> $GITHUB_ENV
+            echo "VN Manager debug APK found and renamed"
+          else
+            echo "Warning: No VN Manager debug APK found!"
+            echo "VN_MANAGER_DEBUG_APK_FILE=" >> $GITHUB_ENV
+          fi
+          
+          # Rename VN Manager release APK (if it exists)
+          if [ -f "vnmanager-opener/build/outputs/apk/release/vnmanager-opener-release.apk" ]; then
+            cp vnmanager-opener/build/outputs/apk/release/vnmanager-opener-release.apk vnmanager-opener-${VERSION_NUMBER}.apk
+            echo "VN_MANAGER_RELEASE_APK_FILE=vnmanager-opener-${VERSION_NUMBER}.apk" >> $GITHUB_ENV
+            echo "VN_MANAGER_HAS_RELEASE=true" >> $GITHUB_ENV
+            echo "VN Manager release APK found and renamed"
+          else
+            echo "Warning: No VN Manager release APK"
+            echo "VN_MANAGER_HAS_RELEASE=false" >> $GITHUB_ENV
+          fi
+
+          # Show all APK sizes
+          echo "All APK sizes:"
+          ls -lh motorcycle-voice-notes-*.apk vnmanager-opener-*.apk 2>/dev/null || echo "Some APKs not found"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -354,6 +386,8 @@ jobs:
           files: |
             ${{ env.DEBUG_APK_FILE }}
             ${{ env.HAS_RELEASE == 'true' && env.RELEASE_APK_FILE || '' }}
+            ${{ env.VN_MANAGER_DEBUG_APK_FILE }}
+            ${{ env.VN_MANAGER_HAS_RELEASE == 'true' && env.VN_MANAGER_RELEASE_APK_FILE || '' }}
           draft: false
           prerelease: false
         env:
@@ -373,11 +407,23 @@ jobs:
           else
             echo "- ⚠️ Release APK not available (signing not configured)" >> $GITHUB_STEP_SUMMARY
           fi
+          if [ -n "${{ env.VN_MANAGER_DEBUG_APK_FILE }}" ]; then
+            echo "- VN Manager Debug APK: ${{ env.VN_MANAGER_DEBUG_APK_FILE }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ env.VN_MANAGER_HAS_RELEASE }}" == "true" ]; then
+            echo "- VN Manager Release APK: ${{ env.VN_MANAGER_RELEASE_APK_FILE }}" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**APK Sizes**:" >> $GITHUB_STEP_SUMMARY
           ls -lh ${{ env.DEBUG_APK_FILE }} >> $GITHUB_STEP_SUMMARY
           if [ "${{ env.HAS_RELEASE }}" == "true" ]; then
             ls -lh ${{ env.RELEASE_APK_FILE }} >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -n "${{ env.VN_MANAGER_DEBUG_APK_FILE }}" ]; then
+            ls -lh ${{ env.VN_MANAGER_DEBUG_APK_FILE }} >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ env.VN_MANAGER_HAS_RELEASE }}" == "true" ]; then
+            ls -lh ${{ env.VN_MANAGER_RELEASE_APK_FILE }} >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Changelog" >> $GITHUB_STEP_SUMMARY
