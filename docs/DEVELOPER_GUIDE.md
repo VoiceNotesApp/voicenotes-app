@@ -202,19 +202,11 @@ Colors are defined in `app/src/main/res/values/colors.xml` and applied using `Co
 
 The RecordingManagerActivity includes several Material Design animations:
 
-1. **Status icon transitions**: When status changes, icons fade out → change → fade in (150ms each phase)
-   ```kotlin
-   v2sStatusIcon.animate()
-       .alpha(0f)
-       .setDuration(150)
-       .withEndAction { /* update icon and color */ }
-   ```
+1. **Ripple effects**: All buttons use MaterialButton with Material Design ripple effects via AppButton style
 
-2. **Ripple effects**: All buttons use MaterialButton with Material Design ripple effects via AppButton style
+2. **Card elevation**: Cards animate elevation on press using `android:stateListAnimator` (4dp → 8dp)
 
-3. **Card elevation**: Cards animate elevation on press using `android:stateListAnimator` (4dp → 8dp)
-
-Animation durations follow Material Design guidelines (150ms for quick transitions) for optimal feel and performance. RecyclerView provides default item animations for list updates.
+Animation durations follow Material Design guidelines for optimal feel and performance. RecyclerView provides default item animations for list updates.
 
 ### 3. BatchProcessingService (Background Processor)
 

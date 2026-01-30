@@ -11,11 +11,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
@@ -624,8 +622,7 @@ class RecordingAdapter(
     
     override fun onViewRecycled(holder: ViewHolder) {
         super.onViewRecycled(holder)
-        // Cancel any ongoing animations and reset alpha
-        holder.resetStatusIcon()
+        // No additional cleanup needed
     }
 
     // Data class to hold status configuration
@@ -642,7 +639,6 @@ class RecordingAdapter(
 
         private val transcriptionEditText: TextInputEditText = view.findViewById(R.id.transcriptionEditText)
         private val saveTranscriptionButton: MaterialButton = view.findViewById(R.id.saveTranscriptionButton)
-        private val v2sStatusIcon: ImageView = view.findViewById(R.id.v2sStatusIcon)
         private val transcribeButton: MaterialButton = view.findViewById(R.id.transcribeButton)
 
         private val deleteButton: MaterialButton = view.findViewById(R.id.deleteButton)
@@ -752,47 +748,9 @@ class RecordingAdapter(
             }
         }
         
-        // Update status icon with smooth fade transition
-        private fun updateStatusIconWithTransition(newStatus: V2SStatus) {
-            val context = itemView.context
-            val config = getStatusConfig(newStatus)
-            
-            // Fade out
-            v2sStatusIcon.animate()
-                .alpha(0f)
-                .setDuration(150)
-                .withEndAction {
-                    // Update icon and color
-                    v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, config.colorRes))
-                    v2sStatusIcon.setImageResource(config.drawableRes)
-                    
-                    // Fade in
-                    v2sStatusIcon.animate()
-                        .alpha(1f)
-                        .setDuration(150)
-                        .start()
-                }
-                .start()
-        }
-
         fun updateTranscriptionUI(recording: Recording) {
             val context = itemView.context
             val config = getStatusConfig(recording.v2sStatus)
-            
-            // Ensure status icon is visible
-            v2sStatusIcon.visibility = View.VISIBLE
-            
-            // Check if status has changed to apply transition animation
-            val statusChanged = previousStatus != null && previousStatus != recording.v2sStatus
-            
-            // Update status icon with or without animation
-            if (statusChanged) {
-                updateStatusIconWithTransition(recording.v2sStatus)
-            } else {
-                v2sStatusIcon.setColorFilter(ContextCompat.getColor(context, config.colorRes))
-                v2sStatusIcon.setImageResource(config.drawableRes)
-                v2sStatusIcon.alpha = 1f
-            }
             
             // Update button state
             transcribeButton.text = context.getString(config.textRes)
@@ -806,12 +764,6 @@ class RecordingAdapter(
             
             // Update previous status for next check
             previousStatus = recording.v2sStatus
-        }
-        
-        // Reset status icon animation and ensure proper state
-        fun resetStatusIcon() {
-            v2sStatusIcon.clearAnimation()
-            v2sStatusIcon.alpha = 1f
         }
     }
 }
