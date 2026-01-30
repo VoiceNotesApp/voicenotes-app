@@ -148,8 +148,13 @@ class MainActivity : AppCompatActivity() {
         // Check if overlay permission is granted
         val hasOverlay = Settings.canDrawOverlays(this)
         Log.d(TAG, "Has overlay permission: $hasOverlay")
+        
+        // Check if VN Manager icon has been added
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val hasManagerIcon = prefs.getBoolean("managerIconPresent", false)
+        Log.d(TAG, "Has manager icon: $hasManagerIcon")
 
-        return hasPermissions && hasOverlay
+        return hasPermissions && hasOverlay && hasManagerIcon
     }
 
     private fun showUnconfiguredScreen() {
