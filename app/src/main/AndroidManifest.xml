@@ -58,6 +58,21 @@
             android:parentActivityName=".MainActivity">
         </activity>
 
+        <!-- Real VN Manager launcher activity (disabled by default until user consents) -->
+        <activity
+            android:name=".VNManagerLauncherActivity"
+            android:taskAffinity="com.voicenotes.motorcycle.manager"
+            android:exported="true"
+            android:enabled="false"
+            android:label="@string/settings_launcher_name"
+            android:icon="@mipmap/ic_launcher_settings"
+            android:roundIcon="@mipmap/ic_launcher_settings_round">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- Activity alias for Settings launcher icon
 
              This creates a second launcher icon labeled "Voice Notes Manager" that opens
@@ -98,6 +113,14 @@
         <service
             android:name=".BatchProcessingService"
             android:exported="false" />
+        
+        <receiver
+            android:name=".SettingsActivity$ShortcutAddedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.voicenotes.motorcycle.SHORTCUT_ADDED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

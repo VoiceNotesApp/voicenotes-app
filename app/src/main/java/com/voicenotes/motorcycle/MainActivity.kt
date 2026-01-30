@@ -149,7 +149,28 @@ class MainActivity : AppCompatActivity() {
         val hasOverlay = Settings.canDrawOverlays(this)
         Log.d(TAG, "Has overlay permission: $hasOverlay")
 
-        return hasPermissions && hasOverlay
+        // Check if manager icon is present
+        val hasManagerIcon = isManagerIconPresent()
+        Log.d(TAG, "Has manager icon: $hasManagerIcon")
+
+        return hasPermissions && hasOverlay && hasManagerIcon
+    }
+
+    private fun isManagerIconPresent(): Boolean {
+        // Check SharedPreferences first (set on confirmed success)
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val iconPresent = prefs.getBoolean("managerIconPresent", false)
+        if (iconPresent) {
+            return true
+        }
+
+        // Fallback: Check if component is enabled
+        val componentName = android.content.ComponentName(
+            this,
+            "com.voicenotes.motorcycle.VNManagerLauncherActivity"
+        )
+        val componentEnabledState = packageManager.getComponentEnabledSetting(componentName)
+        return componentEnabledState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
     }
 
     private fun showUnconfiguredScreen() {

@@ -1,6 +1,9 @@
 package com.voicenotes.motorcycle
 
 import android.Manifest
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -21,12 +24,38 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import java.io.File
 
 class SettingsActivity : AppCompatActivity() {
 
     companion object {
         private const val FALLBACK_VERSION = "Version 0.0.0-unknown"
+        private const val TAG = "SettingsActivity"
+        private const val SHORTCUT_ADDED_ACTION = "com.voicenotes.motorcycle.SHORTCUT_ADDED"
+    }
+
+    /**
+     * BroadcastReceiver for pinned shortcut callback
+     */
+    class ShortcutAddedReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == SHORTCUT_ADDED_ACTION) {
+                Log.d(TAG, "Pinned shortcut callback received - shortcut was added successfully")
+                // Store success in SharedPreferences
+                val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                prefs.edit().putBoolean("managerIconPresent", true).apply()
+                
+                // Show toast confirmation
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.manager_icon_added_toast),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 
     private lateinit var durationValueText: TextView
@@ -231,6 +260,8 @@ class SettingsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Background recording may be interrupted", Toast.LENGTH_LONG).show()
             }
             updatePermissionStatusList()
+            // Continue to manager icon consent
+            checkAndRequestManagerIcon()
         }
     }
 
@@ -296,16 +327,126 @@ class SettingsActivity : AppCompatActivity() {
                         startActivityForResult(intent, BATTERY_OPTIMIZATION_REQUEST_CODE)
                     } catch (e: Exception) {
                         Toast.makeText(this, "Unable to open battery settings", Toast.LENGTH_SHORT).show()
+                        // Continue to manager icon consent
+                        checkAndRequestManagerIcon()
                     }
                 }
                 .setNegativeButton("Skip") { _, _ ->
                     Toast.makeText(this, "Background recording may be interrupted", Toast.LENGTH_LONG).show()
                     updatePermissionStatusList()
+                    // Continue to manager icon consent
+                    checkAndRequestManagerIcon()
                 }
                 .show()
         } else {
+            // Battery optimization already granted, continue to manager icon
+            checkAndRequestManagerIcon()
+        }
+    }
+
+    private fun checkAndRequestManagerIcon() {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        val iconRequested = prefs.getBoolean("managerIconRequested", false)
+        
+        // If already requested (either granted or denied), don't ask again
+        if (iconRequested) {
             Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show()
             updatePermissionStatusList()
+            return
+        }
+        
+        // Show consent dialog
+        AlertDialog.Builder(this)
+            .setTitle(R.string.add_vn_manager_permission_title)
+            .setMessage(R.string.add_vn_manager_permission_message)
+            .setPositiveButton("Add Icon") { _, _ ->
+                addManagerIcon()
+            }
+            .setNegativeButton("No Thanks") { _, _ ->
+                // Store that user declined
+                prefs.edit().putBoolean("managerIconRequested", true).apply()
+                prefs.edit().putBoolean("managerIconPresent", false).apply()
+                Toast.makeText(this, "You can enable the Manager icon later from settings", Toast.LENGTH_LONG).show()
+                updatePermissionStatusList()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun addManagerIcon() {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        
+        try {
+            // 1. Enable the VNManagerLauncherActivity component
+            val componentName = ComponentName(
+                this,
+                "com.voicenotes.motorcycle.VNManagerLauncherActivity"
+            )
+            
+            packageManager.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP
+            )
+            
+            Log.d(TAG, "VNManagerLauncherActivity component enabled")
+            
+            // Mark as requested
+            prefs.edit().putBoolean("managerIconRequested", true).apply()
+            
+            // 2. Request pinned shortcut as fallback
+            if (ShortcutManagerCompat.isRequestPinShortcutSupported(this)) {
+                Log.d(TAG, "Requesting pinned shortcut")
+                
+                // Create intent for the shortcut
+                val shortcutIntent = Intent(this, SettingsActivity::class.java)
+                shortcutIntent.action = Intent.ACTION_VIEW
+                
+                // Create the shortcut info
+                val shortcutInfo = ShortcutInfoCompat.Builder(this, "vn_manager_shortcut")
+                    .setShortLabel(getString(R.string.shortcut_settings_short))
+                    .setLongLabel(getString(R.string.shortcut_settings_long))
+                    .setIcon(IconCompat.createWithResource(this, R.mipmap.ic_launcher_settings))
+                    .setIntent(shortcutIntent)
+                    .build()
+                
+                // Create callback intent for when shortcut is added
+                val callbackIntent = Intent(SHORTCUT_ADDED_ACTION)
+                val callbackPendingIntent = PendingIntent.getBroadcast(
+                    this,
+                    0,
+                    callbackIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                
+                // Request the pinned shortcut
+                val success = ShortcutManagerCompat.requestPinShortcut(
+                    this,
+                    shortcutInfo,
+                    callbackPendingIntent.intentSender
+                )
+                
+                if (success) {
+                    Toast.makeText(this, R.string.manager_icon_requested_toast, Toast.LENGTH_LONG).show()
+                } else {
+                    Log.d(TAG, "Pinned shortcut request returned false, but component is enabled")
+                    // Component is still enabled, so consider it a partial success
+                    prefs.edit().putBoolean("managerIconPresent", true).apply()
+                    Toast.makeText(this, R.string.manager_icon_added_toast, Toast.LENGTH_LONG).show()
+                }
+            } else {
+                Log.d(TAG, "Pinned shortcuts not supported, but component is enabled")
+                // Component is enabled, mark as present
+                prefs.edit().putBoolean("managerIconPresent", true).apply()
+                Toast.makeText(this, R.string.manager_icon_added_toast, Toast.LENGTH_LONG).show()
+            }
+            
+            updatePermissionStatusList()
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to add manager icon", e)
+            Toast.makeText(this, R.string.manager_icon_failed_to_add, Toast.LENGTH_LONG).show()
+            prefs.edit().putBoolean("managerIconRequested", true).apply()
         }
     }
 

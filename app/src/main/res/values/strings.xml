@@ -69,4 +69,11 @@
     <string name="playback_stopped">Playback stopped</string>
     <string name="playback_finished">Playback finished</string>
     <string name="playing_recording">Playing recording...</string>
+    
+    <!-- VN Manager icon consent strings -->
+    <string name="add_vn_manager_permission_title">Add VN Manager Icon</string>
+    <string name="add_vn_manager_permission_message">Would you like to add a VN Manager icon to your home screen for easy access to settings and recordings?</string>
+    <string name="manager_icon_requested_toast">Manager icon requested. Please confirm on your home screen.</string>
+    <string name="manager_icon_added_toast">VN Manager icon has been enabled. It may appear after a launcher refresh.</string>
+    <string name="manager_icon_failed_to_add">Failed to enable Manager icon.</string>
 </resources>
