@@ -91,6 +91,30 @@ class BatchProcessingService : LifecycleService() {
             val transcriptionService = TranscriptionService(this)
             val result = transcriptionService.transcribeAudioFile(recording.filepath)
             
+            // Check for failure first
+            if (result.isFailure) {
+                val ex = result.exceptionOrNull()
+                DebugLogger.logError(
+                    service = "BatchProcessingService",
+                    error = "Transcription failed for ${recording.filename}: ${ex?.message}",
+                    exception = ex
+                )
+
+                withContext(Dispatchers.IO) {
+                    val updated = recording.copy(
+                        v2sStatus = V2SStatus.ERROR,
+                        v2sResult = null,
+                        v2sFallback = false,
+                        errorMsg = ex?.message ?: "Transcription failed",
+                        updatedAt = System.currentTimeMillis()
+                    )
+                    db.recordingDao().updateRecording(updated)
+                }
+
+                broadcastProgress(recording.filename, "error", currentFile, totalFiles)
+                return
+            }
+            
             result.onSuccess { transcribedText ->
                 DebugLogger.logInfo(
                     service = "BatchProcessingService",
@@ -148,26 +172,6 @@ class BatchProcessingService : LifecycleService() {
                 // Send completion status for this file
                 broadcastProgress(recording.filename, "complete", currentFile, totalFiles)
                 
-            }.onFailure { error ->
-                Log.e("BatchProcessing", "Failed to transcribe ${recording.filename}", error)
-                DebugLogger.logError(
-                    service = "BatchProcessingService",
-                    error = "Failed to transcribe ${recording.filename}",
-                    exception = error
-                )
-                
-                // Update recording status to ERROR
-                withContext(Dispatchers.IO) {
-                    val updated = recording.copy(
-                        v2sStatus = V2SStatus.ERROR,
-                        errorMsg = error.message ?: "Transcription failed",
-                        updatedAt = System.currentTimeMillis()
-                    )
-                    db.recordingDao().updateRecording(updated)
-                }
-                
-                // Send error status
-                broadcastProgress(recording.filename, "error", currentFile, totalFiles)
             }
     }
 

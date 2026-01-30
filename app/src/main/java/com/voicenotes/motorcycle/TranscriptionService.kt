@@ -51,13 +51,13 @@ class TranscriptionService(private val context: Context) {
      */
     suspend fun transcribeAudioFile(filePath: String): Result<String> {
         return try {
-            withTimeout(60000) { // 60 second timeout
+            withTimeout(20000) { // 20 second timeout
                 transcribeAudioFileInternal(filePath)
             }
         } catch (e: TimeoutCancellationException) {
             DebugLogger.logError(
                 service = "Google Cloud Speech",
-                error = "Transcription timeout after 60 seconds",
+                error = "Transcription timeout after 20 seconds",
                 exception = e
             )
             Result.failure(Exception("Transcription timeout - network too slow or file too large"))
