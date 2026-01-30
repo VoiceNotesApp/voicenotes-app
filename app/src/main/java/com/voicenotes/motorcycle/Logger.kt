@@ -70,17 +70,31 @@ object Logger {
     
     /**
      * Log a warning message.
-     * Forwards to both DebugLogger.logWarning() and Log.w()
+     * Forwards to both DebugLogger and Log.w()
      * 
      * @param tag Used to identify the source of a log message
      * @param message The message to log
+     * @param t An optional throwable to log
      */
-    fun w(tag: String, message: String) {
+    fun w(tag: String, message: String, t: Throwable? = null) {
         // Log to Android logcat
-        Log.w(tag, message)
+        if (t != null) {
+            Log.w(tag, message, t)
+        } else {
+            Log.w(tag, message)
+        }
         
         // Log to DebugLogger (writes to debug_log.txt when enabled)
         // skipLogcat=true to avoid double-logging to logcat
-        DebugLogger.logWarning(tag, message, skipLogcat = true)
+        try {
+            if (t != null) {
+                DebugLogger.logError(tag, message, t, skipLogcat = true)
+            } else {
+                DebugLogger.logInfo(tag, message, skipLogcat = true)
+            }
+        } catch (e: Exception) {
+            // Ensure logging never throws - fallback to basic logcat only
+            Log.e("Logger", "DebugLogger failed in w(): ${e.message}", e)
+        }
     }
 }

@@ -1038,7 +1038,7 @@ class TestSuite(private val context: Context) {
         runTest("Audio Focus Handling") {
             try {
                 // Just verify we can access the audio service
-                val _ = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                val _unused1 = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
                 TestResult("Audio Focus Handling", true, "Audio manager accessible")
             } catch (e: Exception) {
                 TestResult("Audio Focus Handling", false, "Audio manager error: ${e.message}")
@@ -1194,7 +1194,7 @@ class TestSuite(private val context: Context) {
         runTest("TranscriptionService Initialization") {
             try {
                 // Just verify we can instantiate the service
-                val _ = TranscriptionService(context)
+                val _unused2 = TranscriptionService(context)
                 TestResult("TranscriptionService Initialization", true, "Service initialized successfully")
             } catch (e: Exception) {
                 TestResult("TranscriptionService Initialization", false, "Initialization error: ${e.message}")
