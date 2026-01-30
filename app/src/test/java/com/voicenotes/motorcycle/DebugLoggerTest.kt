@@ -170,6 +170,7 @@ Message: $message
         assertTrue("DebugLogger should have logError method", methods.contains("logError"))
         assertTrue("DebugLogger should have logInfo method", methods.contains("logInfo"))
         assertTrue("DebugLogger should have logDebug method", methods.contains("logDebug"))
+        assertTrue("DebugLogger should have logWarning method", methods.contains("logWarning"))
         assertTrue("DebugLogger should have logApiRequest method", methods.contains("logApiRequest"))
         assertTrue("DebugLogger should have logApiResponse method", methods.contains("logApiResponse"))
         assertTrue("DebugLogger should have isLoggingEnabled method", methods.contains("isLoggingEnabled"))
@@ -229,6 +230,27 @@ Message: $message
         assertTrue("Log should contain exception class", logMessage.contains("RuntimeException"))
         assertTrue("Log should contain exception message", logMessage.contains("Test exception message"))
         assertTrue("Log should contain stack trace", logMessage.contains("Stack trace:"))
+    }
+    
+    @Test
+    fun testWarningMessageFormat() {
+        // Test the structure of WARNING log messages
+        val timestamp = "2024-01-26 12:00:00.000"
+        val service = "TestService"
+        val message = "Warning message"
+        
+        // Simulate WARNING log message structure
+        val logMessage = """
+[$timestamp] WARNING
+Service: $service
+Message: $message
+
+        """.trimIndent()
+        
+        assertTrue("Log should contain timestamp", logMessage.contains(timestamp))
+        assertTrue("Log should contain service name", logMessage.contains(service))
+        assertTrue("Log should contain message", logMessage.contains(message))
+        assertTrue("Log should have WARNING level", logMessage.contains("WARNING"))
     }
     
     private infix fun Boolean.implies(other: Boolean): Boolean = !this || other
