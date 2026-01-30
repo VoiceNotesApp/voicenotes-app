@@ -21,12 +21,16 @@ class VNManagerIconReceiver : BroadcastReceiver() {
         Log.d(TAG, "Received shortcut pinned callback")
         
         // Mark the manager icon as present
+        // Use commit() instead of apply() to ensure synchronous write
         val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        prefs.edit().apply {
+        val success = prefs.edit().apply {
             putBoolean("managerIconPresent", true)
-            apply()
-        }
+        }.commit()
         
-        Log.d(TAG, "managerIconPresent preference set to true")
+        if (success) {
+            Log.d(TAG, "managerIconPresent preference set to true")
+        } else {
+            Log.e(TAG, "Failed to set managerIconPresent preference")
+        }
     }
 }

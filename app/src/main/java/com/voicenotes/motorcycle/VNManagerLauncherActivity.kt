@@ -2,6 +2,7 @@ package com.voicenotes.motorcycle
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 
 /**
@@ -13,14 +14,22 @@ import androidx.appcompat.app.AppCompatActivity
  */
 class VNManagerLauncherActivity : AppCompatActivity() {
     
+    companion object {
+        private const val TAG = "VNManagerLauncher"
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Forward to SettingsActivity
-        val intent = Intent(this, SettingsActivity::class.java)
-        startActivity(intent)
-        
-        // Finish this activity immediately
-        finish()
+        try {
+            // Forward to SettingsActivity
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start SettingsActivity", e)
+        } finally {
+            // Finish this activity
+            finish()
+        }
     }
 }

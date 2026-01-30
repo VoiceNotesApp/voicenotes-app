@@ -413,8 +413,12 @@ class SettingsActivity : AppCompatActivity() {
                 Log.d("SettingsActivity", "managerIconPresent set to true via user confirmation")
             }
             .setNegativeButton(android.R.string.no) { _, _ ->
-                // Icon didn't appear, show help message
+                // Icon didn't appear, mark as denied to avoid re-prompting
+                val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                prefs.edit().putBoolean("managerIconDenied", true).apply()
+                // Show help message
                 Toast.makeText(this, R.string.may_need_launcher_refresh, Toast.LENGTH_LONG).show()
+                Log.d("SettingsActivity", "User indicated icon didn't appear, marked as denied")
             }
             .setCancelable(false)
             .show()

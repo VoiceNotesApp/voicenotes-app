@@ -58,7 +58,14 @@
             android:parentActivityName=".MainActivity">
         </activity>
         
-        <!-- VN Manager Launcher Activity - disabled by default, enabled after user consent -->
+        <!-- VN Manager Launcher Activity - disabled by default, enabled after user consent
+             
+             This is different from SettingsLauncher below:
+             - VNManagerLauncherActivity: Disabled by default, enabled programmatically after user consent
+             - SettingsLauncher: Always enabled, provides persistent second launcher icon
+             
+             Both exist to give users flexibility in how they access the settings.
+        -->
         <activity
             android:name=".VNManagerLauncherActivity"
             android:taskAffinity="com.voicenotes.motorcycle.manager"
