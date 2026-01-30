@@ -5,7 +5,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
+
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -145,7 +145,7 @@ class RecordingManagerActivity : AppCompatActivity() {
             currentlyPlayingFilepath = recording.filepath
             Toast.makeText(this, getString(R.string.playing_recording), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Log.e("RecordingManager", "Error playing recording", e)
+            Logger.e("RecordingManager", "Error playing recording", e)
             Toast.makeText(this, "Error playing recording: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
@@ -178,7 +178,7 @@ class RecordingManagerActivity : AppCompatActivity() {
                 startService(intent)
 
             } catch (e: Exception) {
-                Log.e("RecordingManager", "Error starting transcription", e)
+                Logger.e("RecordingManager", "Error starting transcription", e)
                 Toast.makeText(this@RecordingManagerActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
@@ -191,7 +191,7 @@ class RecordingManagerActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(mapsUrl))
             startActivity(intent)
         } catch (e: Exception) {
-            Log.e("RecordingManager", "Error opening maps", e)
+            Logger.e("RecordingManager", "Error opening maps", e)
             Toast.makeText(this, "Error opening maps: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
@@ -217,7 +217,7 @@ class RecordingManagerActivity : AppCompatActivity() {
                     Toast.makeText(this@RecordingManagerActivity, "Transcription saved successfully", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                Log.e("RecordingManager", "Error saving transcription", e)
+                Logger.e("RecordingManager", "Error saving transcription", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@RecordingManagerActivity, "Error saving: ${e.message}", Toast.LENGTH_LONG).show()
                 }
@@ -256,7 +256,7 @@ class RecordingManagerActivity : AppCompatActivity() {
                                 Toast.makeText(this@RecordingManagerActivity, "Transcription updated successfully", Toast.LENGTH_SHORT).show()
                             }
                         } catch (e: Exception) {
-                            Log.e("RecordingManager", "Error updating transcription", e)
+                            Logger.e("RecordingManager", "Error updating transcription", e)
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(this@RecordingManagerActivity, "Error updating: ${e.message}", Toast.LENGTH_LONG).show()
                             }
@@ -291,7 +291,7 @@ class RecordingManagerActivity : AppCompatActivity() {
                             Toast.makeText(this@RecordingManagerActivity, "Recording deleted", Toast.LENGTH_SHORT).show()
                         }
                     } catch (e: Exception) {
-                        Log.e("RecordingManager", "Error deleting recording", e)
+                        Logger.e("RecordingManager", "Error deleting recording", e)
                         withContext(Dispatchers.Main) {
                             Toast.makeText(this@RecordingManagerActivity, "Error deleting: ${e.message}", Toast.LENGTH_LONG).show()
                         }
@@ -379,7 +379,7 @@ class RecordingManagerActivity : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
-                Log.e("RecordingManager", "Error exporting audio", e)
+                Logger.e("RecordingManager", "Error exporting audio", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@RecordingManagerActivity, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
@@ -402,7 +402,7 @@ class RecordingManagerActivity : AppCompatActivity() {
                     Toast.makeText(this@RecordingManagerActivity, "Exported to Downloads/${gpxFile.name}", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
-                Log.e("RecordingManager", "Error exporting GPX", e)
+                Logger.e("RecordingManager", "Error exporting GPX", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@RecordingManagerActivity, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
@@ -425,7 +425,7 @@ class RecordingManagerActivity : AppCompatActivity() {
                     Toast.makeText(this@RecordingManagerActivity, "Exported to Downloads/${csvFile.name}", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
-                Log.e("RecordingManager", "Error exporting CSV", e)
+                Logger.e("RecordingManager", "Error exporting CSV", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@RecordingManagerActivity, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
@@ -468,7 +468,7 @@ class RecordingManagerActivity : AppCompatActivity() {
                     Toast.makeText(this@RecordingManagerActivity, "Exported to Downloads/${zipFile.name}", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
-                Log.e("RecordingManager", "Error exporting all", e)
+                Logger.e("RecordingManager", "Error exporting all", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@RecordingManagerActivity, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }

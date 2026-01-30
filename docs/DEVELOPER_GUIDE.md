@@ -373,19 +373,53 @@ android {
 
 ### Debug Logging
 
-The app includes a comprehensive debug logging system via `DebugLogger`:
+The app includes a comprehensive debug logging system via `DebugLogger` and the centralized `Logger` wrapper:
+
+#### Logging Architecture
+
+- **Logger wrapper**: All important error/info messages are logged through `Logger.kt` which forwards to both:
+  - `android.util.Log` (for Android logcat)
+  - `DebugLogger` (for persistent debug_log.txt file when enabled)
+
+- **Usage in code**:
+  ```kotlin
+  Logger.e(TAG, "Error message", exception)  // For errors
+  Logger.w(TAG, "Warning message")           // For warnings
+  Logger.i(TAG, "Info message")              // For informational messages
+  Logger.d(TAG, "Debug message")             // For debug messages
+  ```
+
+#### Enabling Debug Logging
 
 - **Enable debug logging**: Open Settings → Enable "Debug Logging" toggle
-- **View logs**: Settings → "View Debug Log" button opens `DebugLogActivity`
+- When enabled, all Logger.* calls will write to debug_log.txt
+- When disabled, messages still appear in logcat but are not written to the file
+
+#### Accessing Debug Logs
+
+- **View logs in-app**: Settings → "View Debug Log" button opens `DebugLogActivity`
 - **Log file location**: `{app_internal_storage}/files/debug_log.txt`
 - **Access via ADB**:
   ```bash
   adb pull /data/data/com.voicenotes.motorcycle/files/debug_log.txt
   ```
-- **Log rotation**: Automatically truncated when exceeding 5MB (keeps last 50%)
-- **Content**: API requests/responses, errors with stack traces, service lifecycle events
 
-**Note**: Debug logs are stored in app-private storage and are only accessible when debug logging is explicitly enabled by the user. Logs are automatically cleared on app uninstall.
+#### Log Management
+
+- **Log rotation**: Automatically truncated when exceeding 5MB (keeps last 50%)
+- **Content**: Errors with stack traces, warnings, API requests/responses, service lifecycle events
+- **Thread-safe**: Logger calls are safe from any thread
+- **Privacy**: Debug logs are stored in app-private storage and are only accessible when debug logging is explicitly enabled by the user
+- **Cleanup**: Logs are automatically cleared on app uninstall
+
+#### Important Error Logging
+
+All critical error paths are logged through Logger to ensure:
+1. Errors appear in logcat for immediate debugging
+2. Errors are written to debug_log.txt when logging is enabled
+3. Full stack traces and context are captured for post-mortem analysis
+
+This dual-logging approach ensures developers can debug issues both in real-time (via logcat) and retrospectively (via debug_log.txt file).
 
 ### Release Build
 

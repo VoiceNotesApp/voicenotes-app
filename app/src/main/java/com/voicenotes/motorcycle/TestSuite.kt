@@ -1810,7 +1810,7 @@ class TestSuite(private val context: Context) {
             val logFile = File(context.filesDir, "debug_log.txt")
             logFile.appendText(logMessage)
         } catch (e: Exception) {
-            android.util.Log.e("TestSuite", "Failed to write log", e)
+            Logger.e("TestSuite", "Failed to write log", e)
         }
     }
 }

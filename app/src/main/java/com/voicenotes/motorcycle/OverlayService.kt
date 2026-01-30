@@ -22,7 +22,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.util.Log
+
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -103,7 +103,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     
     // Exception handler for coroutines
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Log.e("OverlayService", "Coroutine exception caught", throwable)
+        Logger.e("OverlayService", "Coroutine exception caught", throwable)
         DebugLogger.logError(
             service = "OverlayService",
             error = "Coroutine exception: ${throwable.message}",
@@ -129,7 +129,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
         // Check if overlay permission is granted before creating overlay
         if (!Settings.canDrawOverlays(this)) {
-            Log.e("OverlayService", "Overlay permission not granted - cannot start overlay service")
+            Logger.e("OverlayService", "Overlay permission not granted - cannot start overlay service")
             DebugLogger.logError(
                 service = "OverlayService",
                 error = getString(R.string.overlay_permission_missing)
@@ -149,7 +149,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Add TTS timeout - only proceeds to recording if permissions are present
         ttsTimeoutRunnable = Runnable {
             if (!isTtsInitialized && !isUnconfiguredMode) {
-                Log.w("OverlayService", "TTS initialization timeout - proceeding without TTS")
+                Logger.w("OverlayService", "TTS initialization timeout - proceeding without TTS")
                 DebugLogger.logError(
                     service = "OverlayService",
                     error = "TTS initialization timeout after 10 seconds - proceeding without TTS"
@@ -184,7 +184,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             
             updateOverlay(getString(R.string.acquiring_location))
         } catch (e: SecurityException) {
-            Log.e("OverlayService", "SecurityException creating overlay - overlay permission likely missing", e)
+            Logger.e("OverlayService", "SecurityException creating overlay - overlay permission likely missing", e)
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "Failed to create overlay due to SecurityException: ${e.message}",
@@ -192,7 +192,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             )
             stopSelf()
         } catch (e: Exception) {
-            Log.e("OverlayService", "Exception creating overlay", e)
+            Logger.e("OverlayService", "Exception creating overlay", e)
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "Failed to create overlay: ${e.message}",
@@ -212,7 +212,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         if (resetDuration > 0) {
             // This is an extension request - verify app is still fully configured
             if (!isAppFullyConfigured()) {
-                Log.w("OverlayService", "Extension request but app not fully configured - showing overlay and stopping")
+                Logger.w("OverlayService", "Extension request but app not fully configured - showing overlay and stopping")
                 handleOverlayMessage(getString(R.string.app_not_configured_message), 3000)
                 return START_NOT_STICKY
             }
@@ -225,7 +225,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Normal startup flow - first check if app is fully configured
         if (!isAppFullyConfigured()) {
             // App not fully configured - show brief informational overlay and quit
-            Log.w("OverlayService", "App not fully configured on startup - showing overlay and stopping")
+            Logger.w("OverlayService", "App not fully configured on startup - showing overlay and stopping")
             handleOverlayMessage(getString(R.string.app_not_configured_message), 3000)
             return START_NOT_STICKY
         }
@@ -239,7 +239,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         // Don't proceed with recording if we're in unconfigured mode (missing permissions)
         if (isUnconfiguredMode) {
-            Log.d("OverlayService", "TTS initialized but in unconfigured mode (missing permissions), not starting recording")
+            Logger.d("OverlayService", "TTS initialized but in unconfigured mode (missing permissions), not starting recording")
             return
         }
         
@@ -248,7 +248,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             isTtsInitialized = true
         } else {
             isTtsInitialized = false
-            Log.w("OverlayService", "TTS initialization failed")
+            Logger.w("OverlayService", "TTS initialization failed")
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "TTS initialization failed with status: $status"
@@ -279,7 +279,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Add 30-second timeout
         val locationTimeoutRunnable = Runnable {
             cancellationTokenSource.cancel()
-            Log.w("OverlayService", "GPS location acquisition timeout after 30 seconds - trying last known location")
+            Logger.w("OverlayService", "GPS location acquisition timeout after 30 seconds - trying last known location")
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "GPS location acquisition timeout after 30 seconds - falling back to last known location"
@@ -302,7 +302,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             }
         }.addOnFailureListener { exception ->
             handler.removeCallbacks(locationTimeoutRunnable)
-            Log.e("OverlayService", "GPS location acquisition failed", exception)
+            Logger.e("OverlayService", "GPS location acquisition failed", exception)
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "GPS location acquisition failed - trying last known location",
@@ -332,7 +332,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 }, 1000)
             } else {
                 updateOverlay("Location unavailable - please ensure GPS is enabled")
-                Log.e("OverlayService", "No location available - last known location is null")
+                Logger.e("OverlayService", "No location available - last known location is null")
                 DebugLogger.logError(
                     service = "OverlayService",
                     error = "Location unavailable - both current and last known location failed. GPS may be disabled."
@@ -340,7 +340,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 handler.postDelayed({ stopSelfAndFinish() }, 3000)
             }
         }.addOnFailureListener { exception ->
-            Log.e("OverlayService", "Failed to get last known location", exception)
+            Logger.e("OverlayService", "Failed to get last known location", exception)
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "Failed to get last known location",
@@ -361,9 +361,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         // THEN speak announcements
         speakText(getString(R.string.location_acquired)) {
-            Log.d("OverlayService", "TTS: 'Location acquired' completed")
+            Logger.d("OverlayService", "TTS: 'Location acquired' completed")
             speakText(getString(R.string.recording_started)) {
-                Log.d("OverlayService", "TTS: 'Recording started' completed")
+                Logger.d("OverlayService", "TTS: 'Recording started' completed")
                 // ONLY start recording AFTER TTS completes
                 startRecordingAndCountdown()
             }
@@ -381,20 +381,20 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             return
         }
         
-        Log.d("OverlayService", "TTS: Starting to speak: '$text'")
+        Logger.d("OverlayService", "TTS: Starting to speak: '$text'")
         
         textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) {
-                Log.d("OverlayService", "TTS: onStart for: '$text'")
+                Logger.d("OverlayService", "TTS: onStart for: '$text'")
             }
 
             override fun onDone(utteranceId: String?) {
-                Log.d("OverlayService", "TTS: onDone for: '$text'")
+                Logger.d("OverlayService", "TTS: onDone for: '$text'")
                 handler.post { onComplete() }
             }
 
             override fun onError(utteranceId: String?) {
-                Log.e("OverlayService", "TTS: onError for: '$text'")
+                Logger.e("OverlayService", "TTS: onError for: '$text'")
                 handler.post { onComplete() }
             }
         })
@@ -474,12 +474,12 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 prepare()
             }
             
-            Log.d("OverlayService", "MediaRecorder prepared successfully, waiting for TTS to complete before starting")
+            Logger.d("OverlayService", "MediaRecorder prepared successfully, waiting for TTS to complete before starting")
 
         } catch (e: IllegalStateException) {
             e.printStackTrace()
             updateOverlay("Recording failed: Invalid state")
-            Log.e("OverlayService", "MediaRecorder illegal state", e)
+            Logger.e("OverlayService", "MediaRecorder illegal state", e)
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "MediaRecorder illegal state - recording setup or start failed",
@@ -494,7 +494,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 else -> "Recording failed: ${e.message ?: "Unknown error"}"
             }
             updateOverlay(errorMsg)
-            Log.e("OverlayService", "MediaRecorder runtime error", e)
+            Logger.e("OverlayService", "MediaRecorder runtime error", e)
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "MediaRecorder runtime error: $errorMsg",
@@ -504,7 +504,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         } catch (e: Exception) {
             e.printStackTrace()
             updateOverlay("Recording failed: ${e.message ?: "Unknown error"}")
-            Log.e("OverlayService", "MediaRecorder error", e)
+            Logger.e("OverlayService", "MediaRecorder error", e)
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "MediaRecorder error: ${e.message ?: "Unknown error"}",
@@ -517,18 +517,18 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun startRecordingAndCountdown() {
         try {
             // NOW actually start the recording
-            Log.d("OverlayService", "Starting MediaRecorder.start() - TTS announcements completed")
+            Logger.d("OverlayService", "Starting MediaRecorder.start() - TTS announcements completed")
             mediaRecorder?.start()
-            Log.d("OverlayService", "MediaRecorder started successfully")
+            Logger.d("OverlayService", "MediaRecorder started successfully")
             
             // And start the countdown
-            Log.d("OverlayService", "Starting countdown for $recordingDuration seconds")
+            Logger.d("OverlayService", "Starting countdown for $recordingDuration seconds")
             startCountdown()
 
         } catch (e: IllegalStateException) {
             e.printStackTrace()
             updateOverlay("Recording failed: Invalid state")
-            Log.e("OverlayService", "MediaRecorder illegal state on start", e)
+            Logger.e("OverlayService", "MediaRecorder illegal state on start", e)
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "MediaRecorder illegal state - recording start failed",
@@ -543,7 +543,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 else -> "Recording failed: ${e.message ?: "Unknown error"}"
             }
             updateOverlay(errorMsg)
-            Log.e("OverlayService", "MediaRecorder runtime error on start", e)
+            Logger.e("OverlayService", "MediaRecorder runtime error on start", e)
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "MediaRecorder runtime error on start: $errorMsg",
@@ -553,7 +553,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         } catch (e: Exception) {
             e.printStackTrace()
             updateOverlay("Recording failed: ${e.message ?: "Unknown error"}")
-            Log.e("OverlayService", "MediaRecorder error on start", e)
+            Logger.e("OverlayService", "MediaRecorder error on start", e)
             DebugLogger.logError(
                 service = "OverlayService",
                 error = "MediaRecorder error on start: ${e.message ?: "Unknown error"}",
@@ -573,19 +573,19 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) {
-                Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_COMMUNICATION source")
+                Logger.d("OverlayService", "Bluetooth permission not granted, using VOICE_COMMUNICATION source")
                 return MediaRecorder.AudioSource.VOICE_COMMUNICATION
             }
         }
         
         return if (audioManager.isBluetoothScoAvailableOffCall) {
-            Log.d("OverlayService", "Bluetooth SCO available, starting...")
+            Logger.d("OverlayService", "Bluetooth SCO available, starting...")
             audioManager.startBluetoothSco()
             
             // Store timeout reference
             bluetoothScoTimeoutRunnable = Runnable {
                 if (!audioManager.isBluetoothScoOn) {
-                    Log.d("OverlayService", "Bluetooth SCO timeout")
+                    Logger.d("OverlayService", "Bluetooth SCO timeout")
                 }
             }
             handler.postDelayed(bluetoothScoTimeoutRunnable!!, 5000)
@@ -634,21 +634,21 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     }
 
     private fun checkAllRequiredPermissions(): Boolean {
-        Log.d("OverlayService", "Checking all required permissions")
+        Logger.d("OverlayService", "Checking all required permissions")
         
         // Note: Overlay permission already checked in onCreate()
         
         // Check microphone permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
             != PackageManager.PERMISSION_GRANTED) {
-            Log.w("OverlayService", "Missing permission: Microphone (RECORD_AUDIO)")
+            Logger.w("OverlayService", "Missing permission: Microphone (RECORD_AUDIO)")
             return false
         }
         
         // Check location permission
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
-            Log.w("OverlayService", "Missing permission: Location (ACCESS_FINE_LOCATION)")
+            Logger.w("OverlayService", "Missing permission: Location (ACCESS_FINE_LOCATION)")
             return false
         }
         
@@ -656,12 +656,12 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) {
-                Log.w("OverlayService", "Missing permission: Bluetooth (BLUETOOTH_CONNECT)")
+                Logger.w("OverlayService", "Missing permission: Bluetooth (BLUETOOTH_CONNECT)")
                 return false
             }
         }
         
-        Log.d("OverlayService", "All required permissions are granted")
+        Logger.d("OverlayService", "All required permissions are granted")
         return true
     }
     
@@ -678,11 +678,11 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
      * @return true if app is fully configured, false otherwise
      */
     private fun isAppFullyConfigured(): Boolean {
-        Log.d("OverlayService", "Checking if app is fully configured")
+        Logger.d("OverlayService", "Checking if app is fully configured")
         
         // Check all required runtime permissions (overlay already verified in onCreate)
         if (!checkAllRequiredPermissions()) {
-            Log.w("OverlayService", "App not configured: Missing required permissions")
+            Logger.w("OverlayService", "App not configured: Missing required permissions")
             return false
         }
         
@@ -692,16 +692,16 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         val saveDir = prefs.getString("saveDirectory", null)
         if (saveDir.isNullOrEmpty()) {
-            Log.w("OverlayService", "App not configured: Save directory not set (user has not opened settings)")
+            Logger.w("OverlayService", "App not configured: Save directory not set (user has not opened settings)")
             return false
         }
         
-        Log.d("OverlayService", "App is fully configured")
+        Logger.d("OverlayService", "App is fully configured")
         return true
     }
     
     private fun handleOverlayMessage(message: String, timeoutMs: Long) {
-        Log.d("OverlayService", "Handling overlay message display: $message (timeout: ${timeoutMs}ms)")
+        Logger.d("OverlayService", "Handling overlay message display: $message (timeout: ${timeoutMs}ms)")
         
         // Set flag to prevent recording flow from starting
         isUnconfiguredMode = true
@@ -711,7 +711,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         // Verify overlay was created successfully
         if (overlayView == null || bubbleLine1 == null) {
-            Log.e("OverlayService", "Overlay not created - cannot show message")
+            Logger.e("OverlayService", "Overlay not created - cannot show message")
             stopSelf()
             return
         }
@@ -733,7 +733,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 try {
                     stop()
                 } catch (e: IllegalStateException) {
-                    Log.w("OverlayService", "MediaRecorder already stopped", e)
+                    Logger.w("OverlayService", "MediaRecorder already stopped", e)
                 }
                 release()
             }
@@ -773,9 +773,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                     v2sStatus = V2SStatus.NOT_STARTED
                 )
                 db.recordingDao().insertRecording(recording)
-                Log.d("OverlayService", "Recording saved to database: $fileName")
+                Logger.d("OverlayService", "Recording saved to database: $fileName")
             } catch (e: Exception) {
-                Log.e("OverlayService", "Failed to save recording to database", e)
+                Logger.e("OverlayService", "Failed to save recording to database", e)
                 DebugLogger.logError(
                     service = "OverlayService",
                     error = "Failed to save recording to database: ${e.message}",
@@ -790,7 +790,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         updateOverlay("Recording saved")
 
         // Recording complete - all processing handled in Recording Manager
-        Log.d("OverlayService", "Recording complete - quitting")
+        Logger.d("OverlayService", "Recording complete - quitting")
         handler.postDelayed({ stopSelfAndFinish() }, 2000)
     }
 
@@ -801,7 +801,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         val waypointName = "VoiceNote: $lat,$lng"
         val waypointDesc = transcribedText
         
-        Log.d("OverlayService", "Creating GPX waypoint: name=$waypointName, desc=$waypointDesc")
+        Logger.d("OverlayService", "Creating GPX waypoint: name=$waypointName, desc=$waypointDesc")
         
         // Call existing createOrUpdateGpxFile method with new waypoint data
         createOrUpdateGpxFile(location, waypointName, waypointDesc)
@@ -835,10 +835,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 gpxFile.writeText(gpxContent)
             }
             
-            Log.d("OverlayService", "GPX waypoint created/updated: $waypointName")
+            Logger.d("OverlayService", "GPX waypoint created/updated: $waypointName")
             
         } catch (e: Exception) {
-            Log.e("OverlayService", "Failed to create/update GPX file", e)
+            Logger.e("OverlayService", "Failed to create/update GPX file", e)
         }
     }
     
@@ -860,11 +860,11 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         
         return if (waypointPattern.containsMatchIn(gpxContent)) {
             // Replace existing waypoint
-            Log.d("OverlayService", "Replacing existing waypoint at $lat,$lng")
+            Logger.d("OverlayService", "Replacing existing waypoint at $lat,$lng")
             gpxContent.replace(waypointPattern, newWaypoint)
         } else {
             // Add new waypoint before closing </gpx>
-            Log.d("OverlayService", "Adding new waypoint at $lat,$lng")
+            Logger.d("OverlayService", "Adding new waypoint at $lat,$lng")
             gpxContent.replace("</gpx>", "$newWaypoint\n</gpx>")
         }
     }
@@ -931,10 +931,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 csvFile.writeText(csvContent)
             }
             
-            Log.d("OverlayService", "CSV entry created/updated: $coords")
+            Logger.d("OverlayService", "CSV entry created/updated: $coords")
             
         } catch (e: Exception) {
-            Log.e("OverlayService", "Failed to create/update CSV file", e)
+            Logger.e("OverlayService", "Failed to create/update CSV file", e)
         }
     }
     
@@ -974,7 +974,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             if (lineCoords == coords && !found) {
                 updatedLines.add(newEntry)
                 found = true
-                Log.d("OverlayService", "Replacing existing CSV entry at $coords")
+                Logger.d("OverlayService", "Replacing existing CSV entry at $coords")
             } else {
                 updatedLines.add(line)
             }
@@ -983,7 +983,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // If not found, add new entry
         if (!found) {
             updatedLines.add(newEntry)
-            Log.d("OverlayService", "Adding new CSV entry at $coords")
+            Logger.d("OverlayService", "Adding new CSV entry at $coords")
         }
         
         return updatedLines.joinToString("\n")
@@ -1072,7 +1072,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun stopSelfAndFinish() {
         // Prevent multiple calls
         if (isServiceStopping) {
-            Log.d("OverlayService", "Service already stopping, ignoring duplicate call")
+            Logger.d("OverlayService", "Service already stopping, ignoring duplicate call")
             return
         }
         isServiceStopping = true
@@ -1105,7 +1105,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                     windowManager?.removeView(it)
                     isOverlayRemoved = true
                 } catch (e: IllegalArgumentException) {
-                    Log.w("OverlayService", "Overlay already removed", e)
+                    Logger.w("OverlayService", "Overlay already removed", e)
                 }
             }
         }
@@ -1146,7 +1146,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                     windowManager?.removeView(it)
                     isOverlayRemoved = true
                 } catch (e: IllegalArgumentException) {
-                    Log.w("OverlayService", "Overlay already removed in onDestroy", e)
+                    Logger.w("OverlayService", "Overlay already removed in onDestroy", e)
                 }
             }
         }

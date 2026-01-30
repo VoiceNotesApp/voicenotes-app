@@ -160,5 +160,76 @@ Message: $message
         assertTrue("Log should have INFO level", logMessage.contains("INFO"))
     }
     
+    @Test
+    fun testDebugLoggerHasRequiredMethods() {
+        // Verify that DebugLogger has the required logging methods
+        // This ensures the API contract is maintained
+        
+        val methods = DebugLogger::class.java.methods.map { it.name }
+        
+        assertTrue("DebugLogger should have logError method", methods.contains("logError"))
+        assertTrue("DebugLogger should have logInfo method", methods.contains("logInfo"))
+        assertTrue("DebugLogger should have logDebug method", methods.contains("logDebug"))
+        assertTrue("DebugLogger should have logApiRequest method", methods.contains("logApiRequest"))
+        assertTrue("DebugLogger should have logApiResponse method", methods.contains("logApiResponse"))
+        assertTrue("DebugLogger should have isLoggingEnabled method", methods.contains("isLoggingEnabled"))
+        assertTrue("DebugLogger should have getLogContent method", methods.contains("getLogContent"))
+        assertTrue("DebugLogger should have clearLog method", methods.contains("clearLog"))
+    }
+    
+    @Test
+    fun testLogDebugMessageFormat() {
+        // Test the structure of DEBUG log messages
+        val timestamp = "2024-01-26 12:00:00.000"
+        val service = "TestService"
+        val message = "Debug message"
+        
+        // Simulate DEBUG log message structure (same as INFO but with DEBUG level)
+        val logMessage = """
+[$timestamp] DEBUG
+Service: $service
+Message: $message
+
+        """.trimIndent()
+        
+        assertTrue("Log should contain timestamp", logMessage.contains(timestamp))
+        assertTrue("Log should contain service name", logMessage.contains(service))
+        assertTrue("Log should contain message", logMessage.contains(message))
+        assertTrue("Log should have DEBUG level", logMessage.contains("DEBUG"))
+    }
+    
+    @Test
+    fun testErrorMessageWithException() {
+        // Test the structure of error messages with exceptions
+        val timestamp = "2024-01-26 12:00:00.000"
+        val service = "TestService"
+        val errorMsg = "Something went wrong"
+        
+        // Create a test exception
+        val exception = RuntimeException("Test exception message")
+        
+        // Simulate ERROR log message structure with exception
+        val logMessage = buildString {
+            appendLine("[$timestamp] ERROR")
+            appendLine("Service: $service")
+            appendLine("Error: $errorMsg")
+            appendLine("Exception: ${exception.javaClass.simpleName}")
+            appendLine("Message: ${exception.message}")
+            appendLine("Stack trace:")
+            exception.stackTrace.take(10).forEach {
+                appendLine("  at $it")
+            }
+            appendLine()
+        }
+        
+        assertTrue("Log should contain timestamp", logMessage.contains(timestamp))
+        assertTrue("Log should contain service name", logMessage.contains(service))
+        assertTrue("Log should contain error message", logMessage.contains(errorMsg))
+        assertTrue("Log should have ERROR level", logMessage.contains("ERROR"))
+        assertTrue("Log should contain exception class", logMessage.contains("RuntimeException"))
+        assertTrue("Log should contain exception message", logMessage.contains("Test exception message"))
+        assertTrue("Log should contain stack trace", logMessage.contains("Stack trace:"))
+    }
+    
     private infix fun Boolean.implies(other: Boolean): Boolean = !this || other
 }
