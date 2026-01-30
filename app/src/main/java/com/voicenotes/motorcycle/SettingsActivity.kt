@@ -33,12 +33,19 @@ class SettingsActivity : AppCompatActivity() {
 
     companion object {
         private const val FALLBACK_VERSION = "Version 0.0.0-unknown"
-        private const val TAG = "SettingsActivity"
+        const val TAG = "SettingsActivity"
         private const val SHORTCUT_ADDED_ACTION = "com.voicenotes.motorcycle.SHORTCUT_ADDED"
+        
+        // Component name constant to avoid hardcoding throughout codebase
+        const val VN_MANAGER_COMPONENT_NAME = "com.voicenotes.motorcycle.VNManagerLauncherActivity"
     }
 
     /**
-     * BroadcastReceiver for pinned shortcut callback
+     * BroadcastReceiver for pinned shortcut callback.
+     * 
+     * This receiver is invoked when the user confirms adding the pinned shortcut
+     * to their home screen. It updates SharedPreferences to mark the manager icon
+     * as successfully added.
      */
     class ShortcutAddedReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -48,12 +55,14 @@ class SettingsActivity : AppCompatActivity() {
                 val prefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
                 prefs.edit().putBoolean("managerIconPresent", true).apply()
                 
-                // Show toast confirmation
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.manager_icon_added_toast),
-                    Toast.LENGTH_LONG
-                ).show()
+                // Show toast confirmation on main thread
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.manager_icon_added_toast),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
@@ -344,11 +353,21 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Checks if the manager icon consent has been requested and prompts the user if not.
+     * 
+     * This dialog is shown after the battery optimization flow completes. It asks users
+     * if they want to add a VN Manager icon to their home screen.
+     * 
+     * The consent is tracked via the "managerIconRequested" SharedPreferences flag to
+     * avoid repeated prompts. If the user declines, they can still proceed with using
+     * the app, and the component will be enabled anyway to prevent blocking app usage.
+     */
     private fun checkAndRequestManagerIcon() {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         val iconRequested = prefs.getBoolean("managerIconRequested", false)
         
-        // If already requested (either granted or denied), don't ask again
+        // If already requested (either granted or declined), don't ask again
         if (iconRequested) {
             Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show()
             updatePermissionStatusList()
@@ -363,25 +382,89 @@ class SettingsActivity : AppCompatActivity() {
                 addManagerIcon()
             }
             .setNegativeButton("No Thanks") { _, _ ->
-                // Store that user declined
-                prefs.edit().putBoolean("managerIconRequested", true).apply()
-                prefs.edit().putBoolean("managerIconPresent", false).apply()
-                Toast.makeText(this, "You can enable the Manager icon later from settings", Toast.LENGTH_LONG).show()
-                updatePermissionStatusList()
+                handleManagerIconDeclined()
             }
-            .setCancelable(false)
+            .setOnCancelListener {
+                // Treat cancellation same as declining
+                handleManagerIconDeclined()
+            }
+            .setCancelable(true)
             .show()
     }
 
+    /**
+     * Handles the case where user declines the manager icon.
+     * 
+     * Even though the user declined, we still enable the component to prevent
+     * blocking app usage. The pinned shortcut request is skipped, but the
+     * launcher icon will still appear on supported launchers.
+     */
+    private fun handleManagerIconDeclined() {
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        
+        try {
+            // Still enable component to allow app to proceed
+            val componentName = ComponentName(this, VN_MANAGER_COMPONENT_NAME)
+            packageManager.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP
+            )
+            
+            // Mark as requested and present (so app can proceed)
+            prefs.edit().apply {
+                putBoolean("managerIconRequested", true)
+                putBoolean("managerIconPresent", true)
+                apply()
+            }
+            
+            Toast.makeText(this, "You can access the manager via your launcher", Toast.LENGTH_LONG).show()
+            updatePermissionStatusList()
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to enable component after decline", e)
+            // Even if component enabling fails, mark as complete to avoid blocking
+            prefs.edit().apply {
+                putBoolean("managerIconRequested", true)
+                putBoolean("managerIconPresent", true)
+                apply()
+            }
+            updatePermissionStatusList()
+        }
+    }
+
+    /**
+     * Enables the VN Manager launcher icon and requests a pinned shortcut.
+     * 
+     * This method implements a two-tier approach:
+     * 1. Enables VNManagerLauncherActivity component via PackageManager
+     *    - Component starts disabled in manifest (android:enabled="false")
+     *    - Enabling makes it appear in launchers that honor component state
+     *    - Uses DONT_KILL_APP to avoid interrupting the app
+     * 
+     * 2. Requests pinned shortcut as fallback via ShortcutManagerCompat
+     *    - Creates a ShortcutInfoCompat targeting SettingsActivity
+     *    - Provides callback PendingIntent to detect successful addition
+     *    - Shortcut works on launchers that don't honor component state
+     * 
+     * SharedPreferences flags:
+     * - "managerIconRequested" = true: User has been prompted (avoid repeat prompts)
+     * - "managerIconPresent" = true: Set when component enabled OR callback confirms shortcut added
+     * 
+     * Success scenarios:
+     * - Component enabled + shortcut added = both icons may appear
+     * - Component enabled + shortcut declined = icon appears in supported launchers
+     * - Component enabled + shortcut not supported = icon appears in supported launchers
+     * 
+     * Failure scenario:
+     * - Component enabling fails = app proceeds anyway to avoid blocking usage
+     */
     private fun addManagerIcon() {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
         
         try {
             // 1. Enable the VNManagerLauncherActivity component
-            val componentName = ComponentName(
-                this,
-                "com.voicenotes.motorcycle.VNManagerLauncherActivity"
-            )
+            val componentName = ComponentName(this, VN_MANAGER_COMPONENT_NAME)
             
             packageManager.setComponentEnabledSetting(
                 componentName,
@@ -430,7 +513,7 @@ class SettingsActivity : AppCompatActivity() {
                     Toast.makeText(this, R.string.manager_icon_requested_toast, Toast.LENGTH_LONG).show()
                 } else {
                     Log.d(TAG, "Pinned shortcut request returned false, but component is enabled")
-                    // Component is still enabled, so consider it a partial success
+                    // Component is still enabled, so consider it a success
                     prefs.edit().putBoolean("managerIconPresent", true).apply()
                     Toast.makeText(this, R.string.manager_icon_added_toast, Toast.LENGTH_LONG).show()
                 }
@@ -445,8 +528,14 @@ class SettingsActivity : AppCompatActivity() {
             
         } catch (e: Exception) {
             Log.e(TAG, "Failed to add manager icon", e)
+            // Still mark as complete to avoid blocking the app
+            prefs.edit().apply {
+                putBoolean("managerIconRequested", true)
+                putBoolean("managerIconPresent", true)
+                apply()
+            }
             Toast.makeText(this, R.string.manager_icon_failed_to_add, Toast.LENGTH_LONG).show()
-            prefs.edit().putBoolean("managerIconRequested", true).apply()
+            updatePermissionStatusList()
         }
     }
 

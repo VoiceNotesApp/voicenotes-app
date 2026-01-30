@@ -156,6 +156,25 @@ class MainActivity : AppCompatActivity() {
         return hasPermissions && hasOverlay && hasManagerIcon
     }
 
+    /**
+     * Checks if the VN Manager icon is present using a two-tier detection strategy.
+     * 
+     * Detection strategy:
+     * 1. Primary check: SharedPreferences flag "managerIconPresent"
+     *    - Set to true when user consents and component is successfully enabled
+     *    - Set to true when pinned shortcut callback confirms success
+     *    - This is the authoritative source when set
+     * 
+     * 2. Fallback check: Component enabled state via PackageManager
+     *    - Checks if VNManagerLauncherActivity component is enabled
+     *    - Provides resilience if SharedPreferences is lost/corrupted
+     *    - Only checked if SharedPreferences flag is false
+     * 
+     * This two-tier approach ensures reliable detection while avoiding
+     * repeated permission checks during app lifecycle.
+     * 
+     * @return true if manager icon is present (either via SharedPref or component state)
+     */
     private fun isManagerIconPresent(): Boolean {
         // Check SharedPreferences first (set on confirmed success)
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
@@ -167,7 +186,7 @@ class MainActivity : AppCompatActivity() {
         // Fallback: Check if component is enabled
         val componentName = android.content.ComponentName(
             this,
-            "com.voicenotes.motorcycle.VNManagerLauncherActivity"
+            SettingsActivity.VN_MANAGER_COMPONENT_NAME
         )
         val componentEnabledState = packageManager.getComponentEnabledSetting(componentName)
         return componentEnabledState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED

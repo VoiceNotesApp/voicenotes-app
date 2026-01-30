@@ -18,7 +18,7 @@ class VNManagerLauncherActivity : AppCompatActivity() {
         // Forward to SettingsActivity
         val intent = Intent(this, SettingsActivity::class.java)
         // Pass along any extras if present
-        intent.putExtras(getIntent().extras ?: Bundle())
+        intent.putExtras(this.intent.extras ?: Bundle())
         startActivity(intent)
         
         // Finish immediately
