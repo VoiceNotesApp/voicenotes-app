@@ -1,7 +1,6 @@
 package com.voicenotes.motorcycle
 
 import android.app.Application
-import android.util.Log
 
 /**
  * Application subclass to initialize global context for DebugLogger.
@@ -21,6 +20,6 @@ class VoiceNotesApplication : Application() {
         // Initialize global context for DebugLogger
         AppContextHolder.context = applicationContext
         
-        Log.d(TAG, "Application initialized, AppContextHolder.context set")
+        Logger.d(TAG, "Application initialized, AppContextHolder.context set")
     }
 }
