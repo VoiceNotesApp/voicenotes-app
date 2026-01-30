@@ -113,7 +113,7 @@
                         android:id="@+id/transcriptionEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="transcribed text goes here... field can be changed!"
+                        android:hint="No transcripton performed, yet"
                         android:textSize="14sp"
                         android:textColor="#212121"
                         android:paddingStart="8dp"
