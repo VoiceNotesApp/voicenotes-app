@@ -65,11 +65,21 @@ class MainActivity : AppCompatActivity() {
     
     private var shouldShowUI = false
 
-    private val requiredPermissions = arrayOf(
-        Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.BLUETOOTH_CONNECT
-    )
+    // Required runtime permissions for headless mode
+    // Note: BLUETOOTH_CONNECT is only required on API 31+ (Android 12+)
+    private val requiredPermissions: Array<String>
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            arrayOf(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.BLUETOOTH_CONNECT
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        }
 
     /**
      * Logs intent details for debugging both UI and headless launch modes.
