@@ -56,6 +56,10 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "MainActivity"
         const val EXTRA_SHOW_UI = "show_ui"
+        
+        // Transient UI configuration
+        private const val UNCONFIGURED_UI_AUTO_CLOSE_DURATION_MS = 10000L
+        private const val COUNTDOWN_INTERVAL_MS = 1000L
     }
 
     private val PERMISSIONS_REQUEST_CODE = 100
@@ -66,12 +70,6 @@ class MainActivity : AppCompatActivity() {
     
     private var shouldShowUI = false
     private var countDownTimer: CountDownTimer? = null
-    
-    // Transient UI configuration
-    private companion object {
-        private const val UNCONFIGURED_UI_AUTO_CLOSE_DURATION_MS = 10000L
-        private const val COUNTDOWN_INTERVAL_MS = 1000L
-    }
 
     // Required runtime permissions for headless mode
     // Note: BLUETOOTH_CONNECT is only required on API 31+ (Android 12+)
