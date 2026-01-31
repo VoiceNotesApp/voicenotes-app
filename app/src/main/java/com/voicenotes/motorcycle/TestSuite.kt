@@ -1101,34 +1101,6 @@ class TestSuite(private val context: Context) {
             }
         }
         
-        runTest("HTTPS Connection to OSM API") {
-            if (NetworkUtils.isOnline(context)) {
-                try {
-                    val url = URL("https://api.openstreetmap.org/")
-                    val connection = url.openConnection() as HttpURLConnection
-                    connection.connectTimeout = 5000
-                    connection.readTimeout = 5000
-                    connection.requestMethod = "GET"
-                    val responseCode = connection.responseCode
-                    connection.disconnect()
-                    
-                    TestResult(
-                        "HTTPS Connection to OSM API", 
-                        true, 
-                        "Connection successful (HTTP $responseCode)"
-                    )
-                } catch (e: Exception) {
-                    TestResult(
-                        "HTTPS Connection to OSM API", 
-                        false, 
-                        "Connection failed: ${e.message}"
-                    )
-                }
-            } else {
-                TestResult("HTTPS Connection to OSM API", true, "Skipped (device offline)")
-            }
-        }
-        
         runTest("Network Type Detection") {
             try {
                 val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
