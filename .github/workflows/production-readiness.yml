@@ -505,45 +505,45 @@ jobs:
           draft: true
           prerelease: true
 
-      - name: Upload Debug APK to Release
-        uses: actions/upload-release-asset@v1
+      - name: Find and Upload APKs to Release
+        run: |
+          # Find and upload Voice Notes Debug APK
+          VOICE_NOTES_DEBUG=$(find apks/voice-notes/debug -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$VOICE_NOTES_DEBUG" ]; then
+            echo "Found Voice Notes Debug APK: $VOICE_NOTES_DEBUG"
+            gh release upload "${{ steps.release_tag.outputs.tag }}" "$VOICE_NOTES_DEBUG" --clobber --repo "${{ github.repository }}"
+          else
+            echo "Warning: Voice Notes Debug APK not found"
+          fi
+          
+          # Find and upload Voice Notes Release APK
+          VOICE_NOTES_RELEASE=$(find apks/voice-notes/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$VOICE_NOTES_RELEASE" ]; then
+            echo "Found Voice Notes Release APK: $VOICE_NOTES_RELEASE"
+            gh release upload "${{ steps.release_tag.outputs.tag }}" "$VOICE_NOTES_RELEASE" --clobber --repo "${{ github.repository }}"
+          else
+            echo "Warning: Voice Notes Release APK not found (signing may not be configured)"
+          fi
+          
+          # Find and upload VN Manager Debug APK
+          VNMANAGER_DEBUG=$(find apks/vnmanager/debug -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$VNMANAGER_DEBUG" ]; then
+            echo "Found VN Manager Debug APK: $VNMANAGER_DEBUG"
+            gh release upload "${{ steps.release_tag.outputs.tag }}" "$VNMANAGER_DEBUG" --clobber --repo "${{ github.repository }}"
+          else
+            echo "Warning: VN Manager Debug APK not found"
+          fi
+          
+          # Find and upload VN Manager Release APK
+          VNMANAGER_RELEASE=$(find apks/vnmanager/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$VNMANAGER_RELEASE" ]; then
+            echo "Found VN Manager Release APK: $VNMANAGER_RELEASE"
+            gh release upload "${{ steps.release_tag.outputs.tag }}" "$VNMANAGER_RELEASE" --clobber --repo "${{ github.repository }}"
+          else
+            echo "Warning: VN Manager Release APK not found (signing may not be configured)"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: apks/voice-notes/debug/app-debug.apk
-          asset_name: voice-notes-debug.apk
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Upload Release APK to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: apks/voice-notes/release/app-release-unsigned.apk
-          asset_name: voice-notes-release.apk
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Upload VN Manager Debug APK to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: apks/vnmanager/debug/vnmanager-opener-debug.apk
-          asset_name: vnmanager-opener-debug.apk
-          asset_content_type: application/vnd.android.package-archive
-
-      - name: Upload VN Manager Release APK to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: apks/vnmanager/release/vnmanager-opener-release-unsigned.apk
-          asset_name: vnmanager-opener-release.apk
-          asset_content_type: application/vnd.android.package-archive
 
   # Job 7: Update caches
   update-caches:
