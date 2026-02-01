@@ -9,17 +9,10 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.switchmaterial.SwitchMaterial
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class DebugLogActivity : AppCompatActivity() {
 
-    private lateinit var switchEnableLogging: SwitchMaterial
-    private lateinit var buttonRunTests: MaterialButton
     private lateinit var buttonRefreshLog: MaterialButton
     private lateinit var buttonCopyLog: MaterialButton
     private lateinit var buttonShareLog: MaterialButton
@@ -36,34 +29,12 @@ class DebugLogActivity : AppCompatActivity() {
         supportActionBar?.title = "Debug Log"
         
         // Initialize views
-        switchEnableLogging = findViewById(R.id.switchEnableLogging)
-        buttonRunTests = findViewById(R.id.buttonRunTests)
         buttonRefreshLog = findViewById(R.id.buttonRefreshLog)
         buttonCopyLog = findViewById(R.id.buttonCopyLog)
         buttonShareLog = findViewById(R.id.buttonShareLog)
         buttonClearLog = findViewById(R.id.buttonClearLog)
         textViewLog = findViewById(R.id.textViewLog)
         scrollViewLog = findViewById(R.id.scrollViewLog)
-        
-        // Load current logging preference
-        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val loggingEnabled = prefs.getBoolean("enable_debug_logging", false)
-        switchEnableLogging.isChecked = loggingEnabled
-        
-        // Set up switch listener
-        switchEnableLogging.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("enable_debug_logging", isChecked).apply()
-            Toast.makeText(
-                this, 
-                if (isChecked) "Debug logging enabled" else "Debug logging disabled", 
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-        
-        // Set up run tests button
-        buttonRunTests.setOnClickListener {
-            runTests()
-        }
         
         // Set up refresh log button
         buttonRefreshLog.setOnClickListener {
@@ -113,26 +84,6 @@ class DebugLogActivity : AppCompatActivity() {
         // Scroll to top to show newest entries (if log is reversed) or oldest entries first
         scrollViewLog.post {
             scrollViewLog.scrollTo(0, 0)
-        }
-    }
-    
-    private fun runTests() {
-        // Disable button during test run
-        buttonRunTests.isEnabled = false
-        buttonRunTests.text = "Running Tests..."
-        
-        // Run tests in background coroutine
-        lifecycleScope.launch(Dispatchers.IO) {
-            val testSuite = TestSuite(this@DebugLogActivity)
-            testSuite.runAllTests()
-            
-            // Re-enable button on main thread
-            withContext(Dispatchers.Main) {
-                buttonRunTests.isEnabled = true
-                buttonRunTests.text = "Run Tests"
-                updateLogDisplay()
-                Toast.makeText(this@DebugLogActivity, "Tests complete", Toast.LENGTH_SHORT).show()
-            }
         }
     }
     
