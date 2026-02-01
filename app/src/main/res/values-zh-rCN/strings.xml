@@ -142,6 +142,7 @@
     <string name="using_last_known_location">使用上次已知位置</string>
     <string name="location_unavailable_enable_gps">位置不可用 - 请启用GPS</string>
     <string name="location_not_available">位置不可用</string>
+    <string name="location_permission_not_granted">位置权限未授予</string>
     <string name="recording_failed_invalid_state">录音失败：无效状态</string>
     <string name="recording_failed_mic_in_use">录音失败：麦克风正在使用</string>
     <string name="recording_failed_audio_unavailable">录音失败：音频源不可用</string>

@@ -142,6 +142,7 @@
     <string name="using_last_known_location">마지막으로 알려진 위치 사용</string>
     <string name="location_unavailable_enable_gps">위치를 사용할 수 없음 - GPS를 활성화하세요</string>
     <string name="location_not_available">위치를 사용할 수 없음</string>
+    <string name="location_permission_not_granted">위치 권한이 허용되지 않음</string>
     <string name="recording_failed_invalid_state">녹음 실패: 잘못된 상태</string>
     <string name="recording_failed_mic_in_use">녹음 실패: 마이크 사용 중</string>
     <string name="recording_failed_audio_unavailable">녹음 실패: 오디오 소스를 사용할 수 없음</string>

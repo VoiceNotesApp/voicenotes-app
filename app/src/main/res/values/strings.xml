@@ -142,6 +142,7 @@
     <string name="using_last_known_location">Using last known location</string>
     <string name="location_unavailable_enable_gps">Location unavailable - please ensure GPS is enabled</string>
     <string name="location_not_available">Location not available</string>
+    <string name="location_permission_not_granted">Location permission not granted</string>
     <string name="recording_failed_invalid_state">Recording failed: Invalid state</string>
     <string name="recording_failed_mic_in_use">Recording failed: Microphone in use</string>
     <string name="recording_failed_audio_unavailable">Recording failed: Audio source unavailable</string>

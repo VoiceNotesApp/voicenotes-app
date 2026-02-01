@@ -284,7 +284,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun acquireLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
-            updateOverlay("Location permission not granted")
+            updateOverlay(getLocalizedString(R.string.location_permission_not_granted))
             handler.postDelayed({ stopSelfAndFinish() }, 2000)
             return
         }
@@ -540,7 +540,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
         } catch (e: IllegalStateException) {
             e.printStackTrace()
-            updateOverlay("Recording failed: Invalid state")
+            updateOverlay(getLocalizedString(R.string.recording_failed_invalid_state))
             Log.e("OverlayService", "MediaRecorder illegal state on start", e)
             DebugLogger.logError(
                 service = "OverlayService",
@@ -551,9 +551,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         } catch (e: RuntimeException) {
             e.printStackTrace()
             val errorMsg = when {
-                e.message?.contains("start failed") == true -> "Recording failed: Microphone in use"
-                e.message?.contains("audio") == true -> "Recording failed: Audio source unavailable"
-                else -> "Recording failed: ${e.message ?: "Unknown error"}"
+                e.message?.contains("start failed") == true -> getLocalizedString(R.string.recording_failed_mic_in_use)
+                e.message?.contains("audio") == true -> getLocalizedString(R.string.recording_failed_audio_unavailable)
+                else -> getLocalizedString(R.string.recording_failed_generic, e.message ?: "Unknown error")
             }
             updateOverlay(errorMsg)
             Log.e("OverlayService", "MediaRecorder runtime error on start", e)
@@ -565,7 +565,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             handler.postDelayed({ stopSelfAndFinish() }, 3000)
         } catch (e: Exception) {
             e.printStackTrace()
-            updateOverlay("Recording failed: ${e.message ?: "Unknown error"}")
+            updateOverlay(getLocalizedString(R.string.recording_failed_generic, e.message ?: "Unknown error"))
             Log.e("OverlayService", "MediaRecorder error on start", e)
             DebugLogger.logError(
                 service = "OverlayService",

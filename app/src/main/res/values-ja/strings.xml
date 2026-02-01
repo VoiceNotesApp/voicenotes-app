@@ -142,6 +142,7 @@
     <string name="using_last_known_location">最後に確認された位置情報を使用</string>
     <string name="location_unavailable_enable_gps">位置情報が利用できません - GPSを有効にしてください</string>
     <string name="location_not_available">位置情報が利用できません</string>
+    <string name="location_permission_not_granted">位置情報の権限が付与されていません</string>
     <string name="recording_failed_invalid_state">録音失敗：無効な状態</string>
     <string name="recording_failed_mic_in_use">録音失敗：マイクが使用中</string>
     <string name="recording_failed_audio_unavailable">録音失敗：オーディオソースが利用できません</string>
