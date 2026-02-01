@@ -68,11 +68,9 @@
     <!-- Settings Preference Strings -->
     <string name="pref_category_recording_manager">Administrador de grabaciones</string>
     <string name="pref_recording_manager_open_title">Abrir Administrador de grabaciones</string>
-    <string name="pref_recording_manager_open_summary">Ver y administrar sus grabaciones</string>
-    <string name="pref_recordings_count_title">Total de grabaciones</string>
-    <string name="pref_recordings_count_summary">%d grabaciones almacenadas</string>
+    <string name="pref_recording_manager_open_summary">Ver y administrar sus grabaciones (%d grabaciones almacenadas)</string>
     <string name="pref_recording_duration_title">Duración de grabación</string>
-    <string name="pref_recording_duration_summary">Establecer la duración de cada grabación (1-99 segundos)</string>
+    <string name="pref_recording_duration_summary">Configurar temporizador de grabación (1-99 segundos)</string>
     
     <string name="pref_category_language">Preferencias de idioma</string>
     <string name="pref_app_language_title">Idioma de la aplicación</string>

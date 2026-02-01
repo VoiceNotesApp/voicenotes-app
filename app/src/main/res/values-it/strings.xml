@@ -68,11 +68,9 @@
     <!-- Settings Preference Strings -->
     <string name="pref_category_recording_manager">Gestione registrazioni</string>
     <string name="pref_recording_manager_open_title">Apri Gestione registrazioni</string>
-    <string name="pref_recording_manager_open_summary">Visualizza e gestisci le tue registrazioni</string>
-    <string name="pref_recordings_count_title">Registrazioni totali</string>
-    <string name="pref_recordings_count_summary">%d registrazioni archiviate</string>
+    <string name="pref_recording_manager_open_summary">Visualizza e gestisci le tue registrazioni (%d registrazioni archiviate)</string>
     <string name="pref_recording_duration_title">Durata registrazione</string>
-    <string name="pref_recording_duration_summary">Imposta la durata di ogni registrazione (1-99 secondi)</string>
+    <string name="pref_recording_duration_summary">Imposta il timer di registrazione (1-99 secondi)</string>
     
     <string name="pref_category_language">Preferenze lingua</string>
     <string name="pref_app_language_title">Lingua dell\'app</string>
