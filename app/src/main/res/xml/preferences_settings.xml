@@ -13,12 +13,6 @@
             android:summary="@string/pref_recording_manager_open_summary"
             android:icon="@android:drawable/ic_menu_view" />
 
-        <Preference
-            android:key="recordings_count"
-            android:title="@string/pref_recordings_count_title"
-            android:summary="@string/pref_recordings_count_summary"
-            android:selectable="false" />
-
         <SeekBarPreference
             android:key="recording_duration"
             android:title="@string/pref_recording_duration_title"

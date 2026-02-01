@@ -191,8 +191,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 db.recordingDao().getRecordingCount()
             }
             
-            findPreference<Preference>("recordings_count")?.summary = 
-                getString(R.string.pref_recordings_count_summary, count)
+            findPreference<Preference>("recording_manager_open")?.summary = 
+                getString(R.string.pref_recording_manager_open_summary, count)
         }
     }
 

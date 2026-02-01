@@ -68,11 +68,9 @@
     <!-- Settings Preference Strings -->
     <string name="pref_category_recording_manager">録音マネージャー</string>
     <string name="pref_recording_manager_open_title">録音マネージャーを開く</string>
-    <string name="pref_recording_manager_open_summary">録音を表示・管理</string>
-    <string name="pref_recordings_count_title">総録音数</string>
-    <string name="pref_recordings_count_summary">%d件の録音を保存</string>
+    <string name="pref_recording_manager_open_summary">録音を表示・管理（%d件の録音を保存）</string>
     <string name="pref_recording_duration_title">録音時間</string>
-    <string name="pref_recording_duration_summary">各録音の長さを設定（1～99秒）</string>
+    <string name="pref_recording_duration_summary">録音タイマーを設定（1～99秒）</string>
     
     <string name="pref_category_language">言語設定</string>
     <string name="pref_app_language_title">アプリの言語</string>

@@ -68,11 +68,9 @@
     <!-- Settings Preference Strings -->
     <string name="pref_category_recording_manager">录音管理器</string>
     <string name="pref_recording_manager_open_title">打开录音管理器</string>
-    <string name="pref_recording_manager_open_summary">查看和管理您的录音</string>
-    <string name="pref_recordings_count_title">总录音数</string>
-    <string name="pref_recordings_count_summary">已存储%d个录音</string>
+    <string name="pref_recording_manager_open_summary">查看和管理您的录音（已存储%d个录音）</string>
     <string name="pref_recording_duration_title">录音时长</string>
-    <string name="pref_recording_duration_summary">设置每个录音的长度（1-99秒）</string>
+    <string name="pref_recording_duration_summary">设置录音计时器（1-99秒）</string>
     
     <string name="pref_category_language">语言偏好</string>
     <string name="pref_app_language_title">应用语言</string>

@@ -68,11 +68,9 @@
     <!-- Settings Preference Strings -->
     <string name="pref_category_recording_manager">Recording Manager</string>
     <string name="pref_recording_manager_open_title">Open Recording Manager</string>
-    <string name="pref_recording_manager_open_summary">View and manage your recordings</string>
-    <string name="pref_recordings_count_title">Total Recordings</string>
-    <string name="pref_recordings_count_summary">%d recordings stored</string>
+    <string name="pref_recording_manager_open_summary">View and manage your recordings (%d recordings stored)</string>
     <string name="pref_recording_duration_title">Recording Duration</string>
-    <string name="pref_recording_duration_summary">Set the length of each recording (1-99 seconds)</string>
+    <string name="pref_recording_duration_summary">Set recording timer (1-99 seconds)</string>
     
     <string name="pref_category_language">Language Preferences</string>
     <string name="pref_app_language_title">App Language</string>

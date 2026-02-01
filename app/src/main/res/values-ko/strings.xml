@@ -68,11 +68,9 @@
     <!-- Settings Preference Strings -->
     <string name="pref_category_recording_manager">녹음 관리자</string>
     <string name="pref_recording_manager_open_title">녹음 관리자 열기</string>
-    <string name="pref_recording_manager_open_summary">녹음 보기 및 관리</string>
-    <string name="pref_recordings_count_title">총 녹음 수</string>
-    <string name="pref_recordings_count_summary">%d개의 녹음 저장됨</string>
+    <string name="pref_recording_manager_open_summary">녹음 보기 및 관리 (%d개의 녹음 저장됨)</string>
     <string name="pref_recording_duration_title">녹음 시간</string>
-    <string name="pref_recording_duration_summary">각 녹음의 길이 설정(1-99초)</string>
+    <string name="pref_recording_duration_summary">녹음 타이머 설정 (1-99초)</string>
     
     <string name="pref_category_language">언어 설정</string>
     <string name="pref_app_language_title">앱 언어</string>
