@@ -34,11 +34,8 @@ object VersionUtils {
             "dev-$cleanVersion$dirtySuffix"
         } else {
             // Tag is available, add 'v' prefix if not already present
-            if (version.startsWith("v")) {
-                version
-            } else {
-                "v$version"
-            }
+            val prefix = if (cleanVersion.startsWith("v")) "" else "v"
+            "$prefix$cleanVersion$dirtySuffix"
         }
     }
 }

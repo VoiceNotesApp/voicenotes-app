@@ -110,7 +110,7 @@ class VersionUtilsTest {
         if (version.contains("-dirty")) {
             assertTrue(
                 "Version with -dirty suffix should preserve it, got: $version",
-                version.endsWith("-dirty") || version.contains("-dirty")
+                version.endsWith("-dirty")
             )
         }
     }
