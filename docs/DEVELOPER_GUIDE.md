@@ -283,16 +283,80 @@ val serviceAccountJsonBase64 = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BAS
 
 **Location**: `SettingsActivity.kt`
 
-**Purpose**: Central configuration for all app features.
+**Purpose**: Central configuration for all app features using PreferenceFragmentCompat.
 
-**Settings available**:
-- Recording duration (1-99 seconds)
-- Google Cloud credentials (Base64)
-- Debug logging toggle
+**Architecture**:
+- Uses PreferenceFragmentCompat for modern preference management
+- Supports two-pane layout in landscape mode for tablets
+- Integrates with AppCompatDelegate for runtime locale switching
+- Uses ActivityResult API for permission handling
+
+**Preference Categories**:
+
+1. **Recording Manager**
+   - Open Recording Manager (clickable preference)
+   - Total Recordings count (read-only, dynamically updated)
+   - Recording Duration (SeekBarPreference, 1-99 seconds)
+
+2. **Language Preferences**
+   - App Language (ListPreference with "System" option)
+   - Primary Speech Language (for STT)
+   - Secondary Speech Language (for STT, optional)
+
+3. **Permissions**
+   - Grant Permissions (launches permission flow)
+   - Permission Status (displays current status)
+
+4. **Debugging**
+   - Enable Debug Logging (SwitchPreference)
+   - Show Debug Log (opens DebugLogActivity)
 
 **SharedPreferences keys**:
-- `recordingDuration`: Int (default 10)
-- `enableDebugLogging`: Boolean
+- `recordingDuration`: Int (default 10, range 1-99)
+- `app_language`: String (BCP-47 tag or "system", default "system")
+- `stt_primary_language`: String (BCP-47 tag, default "en-US")
+- `stt_secondary_language`: String (BCP-47 tag or empty, default "")
+- `enable_debug_logging`: Boolean (default false)
+
+**Language Support**:
+The app uses PreferenceFragmentCompat with SharedPreferences stored in `com.voicenotes.main_preferences`.
+
+**Language Preference Mapping**:
+
+App Language values (for UI):
+- `system` → Follow device language (uses AppCompatDelegate.setApplicationLocales with empty list)
+- `en` → English
+- `de` → German
+- `es` → Spanish
+- `fr` → French
+- `it` → Italian
+- `pt` → Portuguese
+- `ja` → Japanese
+- `ko` → Korean
+- `zh-CN` → Chinese (Simplified)
+- `zh-TW` → Chinese (Traditional)
+
+STT Language values (for transcription):
+- `en-US` → English (US)
+- `en-GB` → English (UK)
+- `de-DE` → German
+- `es-ES` → Spanish (Spain)
+- `es-419` → Spanish (Latin America)
+- `fr-FR` → French (France)
+- `it-IT` → Italian
+- `pt-BR` → Portuguese (Brazil)
+- `pt-PT` → Portuguese (Portugal)
+- `ja-JP` → Japanese
+- `ko-KR` → Korean
+- `cmn-Hans-CN` → Chinese (Mandarin, Simplified)
+- `cmn-Hant-TW` → Chinese (Mandarin, Traditional)
+
+**TranscriptionService Integration**:
+The TranscriptionService reads `stt_primary_language` and `stt_secondary_language` from SharedPreferences to configure the Google Cloud Speech-to-Text RecognitionConfig:
+- Primary language is set via `.setLanguageCode(primaryLanguage)`
+- Secondary language (if not empty) is added via `.addAllAlternativeLanguageCodes(listOf(secondaryLanguage))`
+
+This allows users to configure which languages the speech recognizer should attempt to detect and transcribe.
 
 ---
 
