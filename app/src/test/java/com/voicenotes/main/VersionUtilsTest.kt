@@ -89,29 +89,32 @@ class VersionUtilsTest {
     }
     
     @Test
-    fun testGetVersionString_preservesDirtySuffix() {
-        // Note: This test validates the logic for -dirty suffix preservation
-        // Actual test would require BuildConfig.VERSION_NAME to contain "-dirty"
-        
-        // When: Version contains -dirty suffix
-        // Then: The -dirty suffix should be preserved in the output
-        
-        // For commit hash: "83343ed-dirty" should become "dev-83343ed-dirty"
-        // For tag: "1.0.0-dirty" should become "v1.0.0-dirty"
-        
-        // Since we can't mock BuildConfig.VERSION_NAME easily, this test
-        // documents the expected behavior. Manual testing with uncommitted
-        // changes will verify this works correctly.
+    fun testGetVersionString_dirtySuffixDocumentation() {
+        // Note: This test documents the expected -dirty suffix preservation behavior.
+        // Since BuildConfig.VERSION_NAME is set at build time and cannot be easily mocked
+        // without additional dependencies, this test validates the current build state.
+        //
+        // Expected behavior (validated manually):
+        // - Tag versions: "1.0.0-dirty" -> "v1.0.0-dirty"
+        // - Commit hashes: "83343ed-dirty" -> "dev-83343ed-dirty"
+        // - Without dirty: "1.0.0" -> "v1.0.0", "83343ed" -> "dev-83343ed"
+        //
+        // Manual testing: Build with uncommitted changes to verify -dirty is preserved
         
         val version = VersionUtils.getVersionString()
         
-        // Verify that if -dirty is present, it's maintained
-        // (This will only be true if BuildConfig.VERSION_NAME has -dirty)
+        // If the current build has -dirty, verify it's at the end
         if (version.contains("-dirty")) {
             assertTrue(
-                "Version with -dirty suffix should preserve it, got: $version",
+                "Version with -dirty suffix must end with -dirty, got: $version",
                 version.endsWith("-dirty")
             )
         }
+        
+        // Verify version always starts with expected prefix
+        assertTrue(
+            "Version must start with 'v' or 'dev-', got: $version",
+            version.startsWith("v") || version.startsWith("dev-")
+        )
     }
 }
