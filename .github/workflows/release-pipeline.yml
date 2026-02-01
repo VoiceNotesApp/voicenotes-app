@@ -393,12 +393,32 @@ jobs:
             echo "has_opener_release=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Create and Push Git Tag
+        env:
+          RELEASE_TAG: ${{ steps.release_info.outputs.tag }}
+        run: |
+          set -euo pipefail
+          
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if tag already exists
+          if git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Tag $RELEASE_TAG already exists"
+          else
+            echo "Creating tag $RELEASE_TAG on commit $GITHUB_SHA"
+            git tag -a "$RELEASE_TAG" -m "Release $RELEASE_TAG"
+            git push origin "$RELEASE_TAG"
+            echo "Tag $RELEASE_TAG created and pushed successfully"
+          fi
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.release_info.outputs.tag }}
           name: Release ${{ steps.release_info.outputs.tag }}
-          draft: ${{ steps.release_info.outputs.is_release == 'false' }}
+          draft: true
           prerelease: ${{ steps.release_info.outputs.is_release == 'false' }}
           body: |
             ## Release ${{ steps.release_info.outputs.tag }}
