@@ -31,7 +31,7 @@ class SettingsPreferenceTest {
     @Before
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
-        sharedPreferences = context.getSharedPreferences("com.voicenotes.main_preferences", Context.MODE_PRIVATE)
+        sharedPreferences = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         // Clear any existing preferences
         sharedPreferences.edit().clear().commit()
     }

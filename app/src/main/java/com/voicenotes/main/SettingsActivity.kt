@@ -119,6 +119,8 @@ class SettingsFragment : PreferenceFragmentCompat(),
     )
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        // Use "AppPrefs" to maintain compatibility with existing code
+        preferenceManager.sharedPreferencesName = "AppPrefs"
         setPreferencesFromResource(R.xml.preferences_settings, rootKey)
         
         setupPreferenceListeners()

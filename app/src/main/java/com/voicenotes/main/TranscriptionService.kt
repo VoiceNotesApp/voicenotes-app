@@ -145,7 +145,7 @@ class TranscriptionService(private val context: Context) {
 
             try {
                 // Read language preferences from SharedPreferences
-                val sharedPrefs = context.getSharedPreferences("com.voicenotes.main_preferences", Context.MODE_PRIVATE)
+                val sharedPrefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
                 val primaryLanguage = sharedPrefs.getString("stt_primary_language", "en-US") ?: "en-US"
                 val secondaryLanguage = sharedPrefs.getString("stt_secondary_language", "") ?: ""
                 
