@@ -36,6 +36,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var quitButton: MaterialButton
     private lateinit var openFolderButton: MaterialButton
     private lateinit var buttonDebugLog: MaterialButton
+    private lateinit var debugCard: View
     private lateinit var appVersionText: TextView
 
     private val PERMISSIONS_REQUEST_CODE = 200
@@ -62,12 +63,18 @@ class SettingsActivity : AppCompatActivity() {
         quitButton = findViewById(R.id.quitButton)
         openFolderButton = findViewById(R.id.openFolderButton)
         buttonDebugLog = findViewById(R.id.buttonDebugLog)
+        debugCard = findViewById(R.id.debugCard)
         appVersionText = findViewById(R.id.appVersionText)
 
         // Configure NumberPicker
         durationNumberPicker.minValue = 1
         durationNumberPicker.maxValue = 99
         durationNumberPicker.wrapSelectorWheel = false
+        
+        // Hide Debug section in release builds
+        if (!BuildConfig.DEBUG) {
+            debugCard.visibility = View.GONE
+        }
         
         // Auto-save when value changes
         durationNumberPicker.setOnValueChangedListener { _, _, newVal ->
