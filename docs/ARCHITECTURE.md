@@ -158,7 +158,7 @@ User tap Transcribe → RecordingManagerActivity
 └── shared_prefs/         # Settings
 ```
 
-Filename format: `LAT,LON_YYYYMMDD_HHMMSS.ext`
+Filename format: `LAT,LON_YYYYMMDD_HHMMSS.ext` (coordinates to 6 decimal places)
 
 Example: `40.712800,-74.005900_20240115_123045.ogg`
 
