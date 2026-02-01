@@ -88,10 +88,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
     ) {
         updatePermissionStatus()
         if (Settings.canDrawOverlays(requireContext())) {
-            Toast.makeText(requireContext(), "Overlay permission granted", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.overlay_permission_granted), Toast.LENGTH_SHORT).show()
             checkAndRequestBatteryOptimization()
         } else {
-            Toast.makeText(requireContext(), "Overlay permission is required for the app to work", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.overlay_permission_required_for_app), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -100,7 +100,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     ) {
         val powerManager = requireContext().getSystemService(Context.POWER_SERVICE) as PowerManager
         if (powerManager.isIgnoringBatteryOptimizations(requireContext().packageName)) {
-            Toast.makeText(requireContext(), "Battery optimization disabled", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.battery_optimization_disabled), Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(requireContext(), "Background recording may be interrupted", Toast.LENGTH_LONG).show()
         }
@@ -223,9 +223,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val powerManager = requireContext().getSystemService(Context.POWER_SERVICE) as PowerManager
         val hasBatteryExemption = powerManager.isIgnoringBatteryOptimizations(requireContext().packageName)
         statusLines.add(if (hasBatteryExemption) {
-            "✓ Battery optimization (disabled)"
+            getString(R.string.battery_optimization_disabled_status)
         } else {
-            "✗ Battery optimization (enabled - may interrupt recording)"
+            getString(R.string.battery_optimization_enabled)
         })
 
         findPreference<Preference>("permission_status")?.summary = statusLines.joinToString("\n")
