@@ -302,7 +302,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
             if (location != null) {
                 currentLocation = location
-                updateOverlay("Using last known location")
+                updateOverlay(getString(R.string.using_last_known_location))
                 DebugLogger.logInfo(
                     service = "OverlayService",
                     message = "Using last known location: ${location.latitude}, ${location.longitude}"
@@ -311,7 +311,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                     onLocationAcquired()
                 }, 1000)
             } else {
-                updateOverlay("Location unavailable - please ensure GPS is enabled")
+                updateOverlay(getString(R.string.location_unavailable_enable_gps))
                 Log.e("OverlayService", "No location available - last known location is null")
                 DebugLogger.logError(
                     service = "OverlayService",
@@ -399,7 +399,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             }
 
             val location = currentLocation ?: run {
-                updateOverlay("Location not available")
+                updateOverlay(getString(R.string.location_not_available))
                 handler.postDelayed({ stopSelfAndFinish() }, 1000)
                 return
             }
@@ -456,7 +456,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
         } catch (e: IllegalStateException) {
             e.printStackTrace()
-            updateOverlay("Recording failed: Invalid state")
+            updateOverlay(getString(R.string.recording_failed_invalid_state))
             Log.e("OverlayService", "MediaRecorder illegal state", e)
             DebugLogger.logError(
                 service = "OverlayService",
@@ -467,9 +467,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         } catch (e: RuntimeException) {
             e.printStackTrace()
             val errorMsg = when {
-                e.message?.contains("start failed") == true -> "Recording failed: Microphone in use"
-                e.message?.contains("audio") == true -> "Recording failed: Audio source unavailable"
-                else -> "Recording failed: ${e.message ?: "Unknown error"}"
+                e.message?.contains("start failed") == true -> getString(R.string.recording_failed_mic_in_use)
+                e.message?.contains("audio") == true -> getString(R.string.recording_failed_audio_unavailable)
+                else -> getString(R.string.recording_failed_generic, e.message ?: "Unknown error")
             }
             updateOverlay(errorMsg)
             Log.e("OverlayService", "MediaRecorder runtime error", e)
@@ -481,7 +481,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             handler.postDelayed({ stopSelfAndFinish() }, 3000)
         } catch (e: Exception) {
             e.printStackTrace()
-            updateOverlay("Recording failed: ${e.message ?: "Unknown error"}")
+            updateOverlay(getString(R.string.recording_failed_generic, e.message ?: "Unknown error"))
             Log.e("OverlayService", "MediaRecorder error", e)
             DebugLogger.logError(
                 service = "OverlayService",
@@ -605,7 +605,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         startCountdown(resetTimer = false)
         
         // Update bubble to show extension
-        updateOverlay("Recording extended! ${remainingSeconds}s remaining")
+        updateOverlay(getString(R.string.recording_extended, remainingSeconds))
     }
     
     private fun stopRecording() {
@@ -635,7 +635,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
         } catch (e: Exception) {
             e.printStackTrace()
-            updateOverlay("Recording failed")
+            updateOverlay(getString(R.string.recording_failed))
             handler.postDelayed({ stopSelfAndFinish() }, 1000)
         }
     }
@@ -671,7 +671,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     
     private fun finishRecordingProcess() {
         // Show recording saved message
-        updateOverlay("Recording saved")
+        updateOverlay(getString(R.string.recording_saved))
 
         // Recording complete - all processing handled in Recording Manager
         Log.d("OverlayService", "Recording complete - quitting")
