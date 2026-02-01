@@ -144,6 +144,11 @@ class TranscriptionService(private val context: Context) {
             val speechClient = SpeechClient.create(speechSettings)
 
             try {
+                // Read language preferences from SharedPreferences
+                val sharedPrefs = context.getSharedPreferences("com.voicenotes.main_preferences", Context.MODE_PRIVATE)
+                val primaryLanguage = sharedPrefs.getString("stt_primary_language", "en-US") ?: "en-US"
+                val secondaryLanguage = sharedPrefs.getString("stt_secondary_language", "") ?: ""
+                
                 // Detect audio format from file extension
                 val isOggOpus = filePath.endsWith(".ogg", ignoreCase = true)
                 
@@ -155,15 +160,20 @@ class TranscriptionService(private val context: Context) {
                 }
                 val sampleRate = if (isOggOpus) 48000 else 44100
                 
-                val recognitionConfig = RecognitionConfig.newBuilder()
+                val configBuilder = RecognitionConfig.newBuilder()
                     .setEncoding(encoding)
                     .setSampleRateHertz(sampleRate)
-                    .setLanguageCode("en-US")
-                    .addAllAlternativeLanguageCodes(listOf("de-DE"))
+                    .setLanguageCode(primaryLanguage)
                     .setEnableAutomaticPunctuation(true)
                     .setModel("phone_call")
                     .setUseEnhanced(true)
-                    .build()
+                
+                // Add secondary language if configured
+                if (secondaryLanguage.isNotEmpty()) {
+                    configBuilder.addAllAlternativeLanguageCodes(listOf(secondaryLanguage))
+                }
+                
+                val recognitionConfig = configBuilder.build()
 
                 val audio = RecognitionAudio.newBuilder()
                     .setContent(audioByteString)

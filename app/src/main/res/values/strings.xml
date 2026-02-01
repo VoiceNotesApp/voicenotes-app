@@ -67,4 +67,33 @@
     <string name="playback_stopped">Playback stopped</string>
     <string name="playback_finished">Playback finished</string>
     <string name="playing_recording">Playing recording...</string>
+    
+    <!-- Settings Preference Strings -->
+    <string name="pref_category_recording_manager">Recording Manager</string>
+    <string name="pref_recording_manager_open_title">Open Recording Manager</string>
+    <string name="pref_recording_manager_open_summary">View and manage your recordings</string>
+    <string name="pref_recordings_count_title">Total Recordings</string>
+    <string name="pref_recordings_count_summary">%d recordings stored</string>
+    <string name="pref_recording_duration_title">Recording Duration</string>
+    <string name="pref_recording_duration_summary">Set the length of each recording (1-99 seconds)</string>
+    
+    <string name="pref_category_language">Language Preferences</string>
+    <string name="pref_app_language_title">App Language</string>
+    <string name="pref_app_language_summary">Select display language for the app</string>
+    <string name="pref_stt_primary_language_title">Primary Speech Language</string>
+    <string name="pref_stt_primary_language_summary">Primary language for speech-to-text transcription</string>
+    <string name="pref_stt_secondary_language_title">Secondary Speech Language</string>
+    <string name="pref_stt_secondary_language_summary">Optional secondary language for transcription</string>
+    
+    <string name="pref_category_permissions">Permissions</string>
+    <string name="pref_grant_permissions_title">Grant Permissions</string>
+    <string name="pref_grant_permissions_summary">Request microphone, location, and other permissions</string>
+    <string name="pref_permission_status_title">Permission Status</string>
+    <string name="pref_permission_status_summary">View current permission status</string>
+    
+    <string name="pref_category_debugging">Debugging</string>
+    <string name="pref_enable_debug_logging_title">Enable Debug Logging</string>
+    <string name="pref_enable_debug_logging_summary">Log detailed API calls and responses</string>
+    <string name="pref_show_debug_log_title">Show Debug Log</string>
+    <string name="pref_show_debug_log_summary">View detailed debug information</string>
 </resources>

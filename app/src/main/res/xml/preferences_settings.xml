@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Recording Manager Category -->
+    <PreferenceCategory
+        android:key="category_recording_manager"
+        android:title="@string/pref_category_recording_manager">
+
+        <Preference
+            android:key="recording_manager_open"
+            android:title="@string/pref_recording_manager_open_title"
+            android:summary="@string/pref_recording_manager_open_summary"
+            android:icon="@android:drawable/ic_menu_view" />
+
+        <Preference
+            android:key="recordings_count"
+            android:title="@string/pref_recordings_count_title"
+            android:summary="@string/pref_recordings_count_summary"
+            android:selectable="false" />
+
+        <SeekBarPreference
+            android:key="recording_duration"
+            android:title="@string/pref_recording_duration_title"
+            android:summary="@string/pref_recording_duration_summary"
+            android:defaultValue="10"
+            android:max="99"
+            app:min="1"
+            app:showSeekBarValue="true"
+            app:updatesContinuously="false" />
+
+    </PreferenceCategory>
+
+    <!-- Language Preferences Category -->
+    <PreferenceCategory
+        android:key="category_language"
+        android:title="@string/pref_category_language">
+
+        <ListPreference
+            android:key="app_language"
+            android:title="@string/pref_app_language_title"
+            android:summary="@string/pref_app_language_summary"
+            android:entries="@array/app_language_entries"
+            android:entryValues="@array/app_language_values"
+            android:defaultValue="system" />
+
+        <ListPreference
+            android:key="stt_primary_language"
+            android:title="@string/pref_stt_primary_language_title"
+            android:summary="@string/pref_stt_primary_language_summary"
+            android:entries="@array/stt_primary_language_entries"
+            android:entryValues="@array/stt_primary_language_values"
+            android:defaultValue="en-US" />
+
+        <ListPreference
+            android:key="stt_secondary_language"
+            android:title="@string/pref_stt_secondary_language_title"
+            android:summary="@string/pref_stt_secondary_language_summary"
+            android:entries="@array/stt_secondary_language_entries"
+            android:entryValues="@array/stt_secondary_language_values"
+            android:defaultValue="" />
+
+    </PreferenceCategory>
+
+    <!-- Permissions Category -->
+    <PreferenceCategory
+        android:key="category_permissions"
+        android:title="@string/pref_category_permissions">
+
+        <Preference
+            android:key="grant_permissions"
+            android:title="@string/pref_grant_permissions_title"
+            android:summary="@string/pref_grant_permissions_summary"
+            android:icon="@android:drawable/ic_lock_idle_lock" />
+
+        <Preference
+            android:key="permission_status"
+            android:title="@string/pref_permission_status_title"
+            android:summary="@string/pref_permission_status_summary"
+            android:selectable="false" />
+
+    </PreferenceCategory>
+
+    <!-- Debugging Category -->
+    <PreferenceCategory
+        android:key="category_debugging"
+        android:title="@string/pref_category_debugging">
+
+        <SwitchPreferenceCompat
+            android:key="enable_debug_logging"
+            android:title="@string/pref_enable_debug_logging_title"
+            android:summary="@string/pref_enable_debug_logging_summary"
+            android:defaultValue="false" />
+
+        <Preference
+            android:key="show_debug_log"
+            android:title="@string/pref_show_debug_log_title"
+            android:summary="@string/pref_show_debug_log_summary"
+            android:icon="@android:drawable/ic_menu_info_details" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
