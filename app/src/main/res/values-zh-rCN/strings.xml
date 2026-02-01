@@ -44,9 +44,6 @@
     <string name="shortcut_settings_long">语音备忘录管理器</string>
     <string name="online_transcribing">在线：转录中：</string>
     <string name="online_transcribing_failed">在线：转录：失败 :-(</string>
-    <string name="online_creating_osm_note">在线：创建OSM笔记</string>
-    <string name="online_osm_note_created">在线：OSM笔记已创建。</string>
-    <string name="online_osm_note_failed">在线：OSM笔记创建失败 :(</string>
     <string name="processing_complete">处理完成</string>
     <string name="overlay_permission_missing">使用此应用需要悬浮窗权限</string>
     <string name="permissions_missing_overlay_message">权限缺失：请通过[管理]或语音管理器授予麦克风、位置、蓝牙和悬浮窗权限</string>

@@ -44,9 +44,6 @@
     <string name="shortcut_settings_long">Gerenciador de Notas de Voz</string>
     <string name="online_transcribing">Online: Transcrevendo:</string>
     <string name="online_transcribing_failed">Online: Transcrição: falhou :-(</string>
-    <string name="online_creating_osm_note">Online: Criando nota OSM</string>
-    <string name="online_osm_note_created">Online: Nota OSM criada.</string>
-    <string name="online_osm_note_failed">Online: Criação de nota OSM falhou :(</string>
     <string name="processing_complete">Processamento concluído</string>
     <string name="overlay_permission_missing">A permissão de sobreposição é necessária para usar este aplicativo</string>
     <string name="permissions_missing_overlay_message">Permissões ausentes: Por favor, conceda microfone, localização, Bluetooth e sobreposição através de [Gerenciar] ou Gerenciador VN</string>

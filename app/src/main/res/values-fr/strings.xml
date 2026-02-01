@@ -44,9 +44,6 @@
     <string name="shortcut_settings_long">Gestionnaire de notes vocales</string>
     <string name="online_transcribing">En ligne : Transcription :</string>
     <string name="online_transcribing_failed">En ligne : Transcription : échec :-(</string>
-    <string name="online_creating_osm_note">En ligne : Création de note OSM</string>
-    <string name="online_osm_note_created">En ligne : Note OSM créée.</string>
-    <string name="online_osm_note_failed">En ligne : Échec de la création de note OSM :(</string>
     <string name="processing_complete">Traitement terminé</string>
     <string name="overlay_permission_missing">L\'autorisation de superposition est requise pour utiliser cette application</string>
     <string name="permissions_missing_overlay_message">Autorisations manquantes : Veuillez accorder les autorisations de microphone, localisation, Bluetooth et superposition via [Gérer] ou Gestionnaire VN</string>

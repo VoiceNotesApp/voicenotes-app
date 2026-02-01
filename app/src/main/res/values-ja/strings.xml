@@ -44,9 +44,6 @@
     <string name="shortcut_settings_long">ボイスメモマネージャー</string>
     <string name="online_transcribing">オンライン：文字起こし中：</string>
     <string name="online_transcribing_failed">オンライン：文字起こし：失敗しました :-(</string>
-    <string name="online_creating_osm_note">オンライン：OSMノートを作成中</string>
-    <string name="online_osm_note_created">オンライン：OSMノートを作成しました。</string>
-    <string name="online_osm_note_failed">オンライン：OSMノートの作成に失敗しました :(</string>
     <string name="processing_complete">処理が完了しました</string>
     <string name="overlay_permission_missing">このアプリを使用するにはオーバーレイ権限が必要です</string>
     <string name="permissions_missing_overlay_message">権限が不足しています：[管理]またはVNマネージャーからマイク、位置情報、Bluetooth、オーバーレイの権限を付与してください</string>

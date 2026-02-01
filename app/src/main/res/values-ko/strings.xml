@@ -44,9 +44,6 @@
     <string name="shortcut_settings_long">음성 메모 관리자</string>
     <string name="online_transcribing">온라인: 변환 중:</string>
     <string name="online_transcribing_failed">온라인: 변환: 실패 :-(</string>
-    <string name="online_creating_osm_note">온라인: OSM 노트 생성 중</string>
-    <string name="online_osm_note_created">온라인: OSM 노트가 생성되었습니다.</string>
-    <string name="online_osm_note_failed">온라인: OSM 노트 생성 실패 :(</string>
     <string name="processing_complete">처리 완료</string>
     <string name="overlay_permission_missing">이 앱을 사용하려면 오버레이 권한이 필요합니다</string>
     <string name="permissions_missing_overlay_message">권한 누락: [관리] 또는 VN 관리자를 통해 마이크, 위치, 블루투스 및 오버레이 권한을 부여하세요</string>

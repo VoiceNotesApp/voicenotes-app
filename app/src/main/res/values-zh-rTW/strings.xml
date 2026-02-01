@@ -44,9 +44,6 @@
     <string name="shortcut_settings_long">語音備忘錄管理器</string>
     <string name="online_transcribing">線上：轉錄中：</string>
     <string name="online_transcribing_failed">線上：轉錄：失敗 :-(</string>
-    <string name="online_creating_osm_note">線上：建立OSM筆記</string>
-    <string name="online_osm_note_created">線上：OSM筆記已建立。</string>
-    <string name="online_osm_note_failed">線上：OSM筆記建立失敗 :(</string>
     <string name="processing_complete">處理完成</string>
     <string name="overlay_permission_missing">使用此應用程式需要懸浮視窗權限</string>
     <string name="permissions_missing_overlay_message">權限缺失：請透過[管理]或語音管理器授予麥克風、位置、藍牙和懸浮視窗權限</string>

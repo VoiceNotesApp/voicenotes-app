@@ -44,9 +44,6 @@
     <string name="shortcut_settings_long">Gestione Note Vocali</string>
     <string name="online_transcribing">Online: Trascrizione:</string>
     <string name="online_transcribing_failed">Online: Trascrizione: fallita :-(</string>
-    <string name="online_creating_osm_note">Online: Creazione nota OSM</string>
-    <string name="online_osm_note_created">Online: Nota OSM creata.</string>
-    <string name="online_osm_note_failed">Online: Creazione nota OSM fallita :(</string>
     <string name="processing_complete">Elaborazione completata</string>
     <string name="overlay_permission_missing">L\'autorizzazione di sovrapposizione è richiesta per utilizzare questa app</string>
     <string name="permissions_missing_overlay_message">Autorizzazioni mancanti: Concedi microfono, posizione, Bluetooth e sovrapposizione tramite [Gestisci] o Gestione VN</string>

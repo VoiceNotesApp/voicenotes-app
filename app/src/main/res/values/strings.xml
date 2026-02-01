@@ -44,9 +44,6 @@
     <string name="shortcut_settings_long">Voice Notes Manager</string>
     <string name="online_transcribing">Online: Transcribing:</string>
     <string name="online_transcribing_failed">Online: Transcribing: failed :-(</string>
-    <string name="online_creating_osm_note">Online: Creating OSM Note</string>
-    <string name="online_osm_note_created">Online: OSM Note created.</string>
-    <string name="online_osm_note_failed">Online: OSM Note creation failed :(</string>
     <string name="processing_complete">Processing complete</string>
     <string name="overlay_permission_missing">Overlay permission is required to use this app</string>
     <string name="permissions_missing_overlay_message">Missing permissions: Please grant microphone, location, Bluetooth, and overlay via [Manage] or VN Manager</string>

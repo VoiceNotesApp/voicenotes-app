@@ -430,14 +430,6 @@ class TestSuite(private val context: Context) {
                 )
                 runBlocking { dao.updateRecording(updated) }
 
-                // Update 3: OSM processing
-                runBlocking { dao.updateRecording(updated) }
-
-                // Update 4: OSM completed
-                updated = updated.copy(
-                )
-                runBlocking { dao.updateRecording(updated) }
-
                 val final = runBlocking { dao.getRecordingById(id) }
 
                 if (final?.v2sStatus == V2SStatus.COMPLETED &&

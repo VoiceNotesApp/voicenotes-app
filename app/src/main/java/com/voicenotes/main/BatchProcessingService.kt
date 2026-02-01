@@ -316,16 +316,15 @@ class BatchProcessingService : LifecycleService() {
             
             // Create map links
             val googleMapsLink = "https://www.google.com/maps?q=$latStr,$lngStr"
-            val osmLink = "https://www.openstreetmap.org/?mlat=$latStr&mlon=$lngStr&zoom=17"
             
             if (csvFile.exists()) {
                 // Read existing content and check for duplicates
                 val existingLines = csvFile.readLines()
-                val updatedContent = replaceOrAddCsvEntry(existingLines, date, time, coordsStr, text, googleMapsLink, osmLink)
+                val updatedContent = replaceOrAddCsvEntry(existingLines, date, time, coordsStr, text, googleMapsLink)
                 csvFile.writeText(updatedContent)
             } else {
                 // Create new CSV file with UTF-8 BOM and header
-                val csvContent = buildNewCsvFile(date, time, coordsStr, text, googleMapsLink, osmLink)
+                val csvContent = buildNewCsvFile(date, time, coordsStr, text, googleMapsLink)
                 csvFile.writeText(csvContent)
             }
             
@@ -343,10 +342,9 @@ class BatchProcessingService : LifecycleService() {
         coords: String,
         text: String,
         googleMapsLink: String,
-        osmLink: String
     ): String {
         val utf8Bom = "\uFEFF"
-        val newEntry = buildCsvLine(date, time, coords, text, googleMapsLink, osmLink)
+        val newEntry = buildCsvLine(date, time, coords, text, googleMapsLink)
         
         // Check if we have a header (first line after BOM)
         if (existingLines.isEmpty()) {
@@ -394,16 +392,15 @@ class BatchProcessingService : LifecycleService() {
         coords: String,
         text: String,
         googleMapsLink: String,
-        osmLink: String
     ): String {
         val utf8Bom = "\uFEFF"
         val header = buildCsvHeader()
-        val entry = buildCsvLine(date, time, coords, text, googleMapsLink, osmLink)
+        val entry = buildCsvLine(date, time, coords, text, googleMapsLink)
         return utf8Bom + header + "\n" + entry
     }
     
     private fun buildCsvHeader(): String {
-        return "Date,Time,Coordinates,Text,Google Maps link,OSM link"
+        return "Date,Time,Coordinates,Text,Google Maps link"
     }
     
     private fun buildCsvLine(
@@ -412,9 +409,8 @@ class BatchProcessingService : LifecycleService() {
         coords: String,
         text: String,
         googleMapsLink: String,
-        osmLink: String
     ): String {
-        return "${escapeCsv(date)},${escapeCsv(time)},${escapeCsv(coords)},${escapeCsv(text)},${escapeCsv(googleMapsLink)},${escapeCsv(osmLink)}"
+        return "${escapeCsv(date)},${escapeCsv(time)},${escapeCsv(coords)},${escapeCsv(text)},${escapeCsv(googleMapsLink)}"
     }
     
     private fun escapeCsv(value: String): String {
