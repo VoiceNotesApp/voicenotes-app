@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="#F5F5F5">
+    android:background="@color/background">
 
     <TextView
         android:layout_width="match_parent"
@@ -13,7 +13,7 @@
         android:text="Debug Log"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="#212121"
+        android:textColor="@color/text_primary"
         android:layout_marginBottom="16dp" />
 
     <!-- Log Display Area -->
@@ -21,6 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        app:cardBackgroundColor="@color/background_card"
         app:cardElevation="2dp">
 
         <LinearLayout
@@ -35,7 +36,7 @@
                 android:text="Debug Log Output"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#212121"
+                android:textColor="@color/text_primary"
                 android:layout_marginBottom="8dp" />
 
             <LinearLayout
@@ -98,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:text="No log entries yet."
                     android:textSize="12sp"
-                    android:textColor="#424242"
+                    android:textColor="@color/text_hint"
                     android:fontFamily="monospace"
                     android:textIsSelectable="true"
                     android:padding="8dp" />

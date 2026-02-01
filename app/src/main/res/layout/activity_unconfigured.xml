@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="24dp"
-    android:background="#F5F5F5">
+    android:background="@color/background">
 
     <TextView
         android:id="@+id/unconfiguredInfo"
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="@string/permissions_required_for_recording"
         android:textSize="18sp"
-        android:textColor="#212121"
+        android:textColor="@color/text_primary"
         android:gravity="center"
         android:layout_marginBottom="24dp" />
 
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:text="@string/auto_closing_default"
         android:textSize="16sp"
-        android:textColor="#616161"
+        android:textColor="@color/text_tertiary"
         android:gravity="center"
         android:layout_marginBottom="32dp" />
 
