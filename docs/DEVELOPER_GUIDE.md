@@ -998,8 +998,6 @@ private fun startRecording(location: Location?) {
    }
    ```
 
-2. **Update AndroidManifest.xml** to include the permission.
-
 ---
 
 ## Troubleshooting
