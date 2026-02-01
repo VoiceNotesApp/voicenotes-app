@@ -313,6 +313,7 @@ jobs:
         env:
           DISPATCH_TAG: ${{ github.event.inputs.release_version }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
 
@@ -320,7 +321,7 @@ jobs:
           if [ -n "${DISPATCH_TAG:-}" ]; then
             TAG="${DISPATCH_TAG}"
           # 2) If run was triggered by a tag push, use the pushed tag
-          elif [ -n "${GITHUB_REF_NAME:-}" ]; then
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             TAG="${GITHUB_REF_NAME}"
           else
             # 3) Otherwise compute next patch from latest semver tag
