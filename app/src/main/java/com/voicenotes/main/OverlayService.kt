@@ -11,6 +11,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
 import android.location.Location
+import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.media.MediaRecorder
 import android.os.Build
@@ -406,8 +407,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 handler.post { onComplete() }
             }
 
-            override fun onError(utteranceId: String?) {
-                Log.e("OverlayService", "TTS: onError for: '$text'")
+            // Use the newer onError with errorCode (API 21+) instead of deprecated onError(utteranceId)
+            override fun onError(utteranceId: String?, errorCode: Int) {
+                Log.e("OverlayService", "TTS: onError for: '$text', errorCode: $errorCode")
                 handler.post { onComplete() }
             }
         })
@@ -584,16 +586,23 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
                 Log.d("OverlayService", "Bluetooth permission not granted, using VOICE_COMMUNICATION source")
                 return MediaRecorder.AudioSource.VOICE_COMMUNICATION
             }
+            
+            // Use modern setCommunicationDevice API on API 31+ (replaces deprecated startBluetoothSco)
+            return setupBluetoothCommunicationDevice(audioManager)
         }
         
+        // For API 26-30, use the legacy SCO methods (deprecated but only option for these API levels)
+        @Suppress("DEPRECATION")
         return if (audioManager.isBluetoothScoAvailableOffCall) {
-            Log.d("OverlayService", "Bluetooth SCO available, starting...")
+            Log.d("OverlayService", "Bluetooth SCO available (legacy), starting...")
+            @Suppress("DEPRECATION")
             audioManager.startBluetoothSco()
             
             // Store timeout reference
             bluetoothScoTimeoutRunnable = Runnable {
+                @Suppress("DEPRECATION")
                 if (!audioManager.isBluetoothScoOn) {
-                    Log.d("OverlayService", "Bluetooth SCO timeout")
+                    Log.d("OverlayService", "Bluetooth SCO timeout (legacy)")
                 }
             }
             handler.postDelayed(bluetoothScoTimeoutRunnable!!, 5000)
@@ -602,6 +611,33 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         } else {
             MediaRecorder.AudioSource.VOICE_COMMUNICATION
         }
+    }
+    
+    /**
+     * Set up Bluetooth communication device using the modern API (API 31+).
+     * Uses setCommunicationDevice instead of deprecated startBluetoothSco.
+     */
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.S)
+    private fun setupBluetoothCommunicationDevice(audioManager: AudioManager): Int {
+        try {
+            val devices = audioManager.availableCommunicationDevices
+            val scoDevice = devices.find { it.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO }
+            
+            if (scoDevice != null) {
+                val success = audioManager.setCommunicationDevice(scoDevice)
+                if (success) {
+                    Log.d("OverlayService", "Bluetooth communication device set successfully")
+                } else {
+                    Log.w("OverlayService", "Failed to set Bluetooth communication device")
+                }
+            } else {
+                Log.d("OverlayService", "No Bluetooth SCO device available")
+            }
+        } catch (e: Exception) {
+            Log.e("OverlayService", "Error setting up Bluetooth communication device", e)
+        }
+        
+        return MediaRecorder.AudioSource.VOICE_COMMUNICATION
     }
 
     private fun startCountdown(resetTimer: Boolean = true) {
@@ -757,10 +793,19 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
             }
         }
         
-        // Stop Bluetooth SCO if it was started
+        // Clean up Bluetooth audio routing
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        if (audioManager.isBluetoothScoOn) {
-            audioManager.stopBluetoothSco()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Use modern API to clear communication device
+            audioManager.clearCommunicationDevice()
+            Log.d("OverlayService", "Cleared communication device")
+        } else {
+            // Use legacy API for older devices
+            @Suppress("DEPRECATION")
+            if (audioManager.isBluetoothScoOn) {
+                @Suppress("DEPRECATION")
+                audioManager.stopBluetoothSco()
+            }
         }
         
         // Send broadcast to finish MainActivity

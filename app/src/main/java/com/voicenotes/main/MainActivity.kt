@@ -14,6 +14,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -63,13 +64,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val PERMISSIONS_REQUEST_CODE = 100
-    private val OVERLAY_PERMISSION_REQUEST_CODE = 101
     
     private lateinit var finishReceiver: FinishActivityReceiver
     private var isReceiverRegistered = false
     
     private var shouldShowUI = false
     private var countDownTimer: CountDownTimer? = null
+    
+    // Activity Result launcher for overlay permission (replaces deprecated startActivityForResult)
+    private val overlayPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { _ ->
+        // The result code is not meaningful for overlay permission - check the actual permission state
+        Log.d(TAG, "Overlay permission activity returned")
+        if (Settings.canDrawOverlays(this)) {
+            Log.d(TAG, "Overlay permission granted after settings")
+            startRecordingProcess()
+        } else {
+            Log.d(TAG, "Overlay permission still not granted")
+            Toast.makeText(this, getString(R.string.overlay_permission_is_required), Toast.LENGTH_LONG).show()
+            finish()
+        }
+    }
 
     // Required runtime permissions for headless mode
     // Note: BLUETOOTH_CONNECT is only required on API 31+ (Android 12+)
@@ -101,8 +117,22 @@ class MainActivity : AppCompatActivity() {
         
         val action = intent.action ?: "null"
         val categories = intent.categories?.joinToString(", ") ?: "none"
-        val extras = intent.extras?.keySet()?.joinToString(", ") { key ->
-            "$key=${intent.extras?.get(key)}"
+        val extras = intent.extras?.let { bundle ->
+            bundle.keySet().joinToString(", ") { key ->
+                // Use type-specific getters to avoid deprecated Bundle.get(String)
+                val value = when {
+                    bundle.containsKey(key) -> {
+                        // Try common types in order of likelihood for this app
+                        bundle.getString(key)
+                            ?: bundle.getBoolean(key, false).takeIf { bundle.containsKey(key) && it }?.toString()
+                            ?: bundle.getInt(key, Int.MIN_VALUE).takeIf { it != Int.MIN_VALUE }?.toString()
+                            ?: bundle.getLong(key, Long.MIN_VALUE).takeIf { it != Long.MIN_VALUE }?.toString()
+                            ?: "(value)"
+                    }
+                    else -> "null"
+                }
+                "$key=$value"
+            }
         } ?: "none"
         
         Log.d(TAG, "$context: Intent details - " +
@@ -286,29 +316,13 @@ class MainActivity : AppCompatActivity() {
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:$packageName")
                     )
-                    startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+                    overlayPermissionLauncher.launch(intent)
                 }
                 .setCancelable(false)
                 .show()
         } else {
             Log.d(TAG, "Overlay permission granted, starting recording process")
             startRecordingProcess()
-        }
-    }
-    
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d(TAG, "onActivityResult() requestCode: $requestCode, resultCode: $resultCode")
-        
-        if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
-            if (Settings.canDrawOverlays(this)) {
-                Log.d(TAG, "Overlay permission granted after settings")
-                startRecordingProcess()
-            } else {
-                Log.d(TAG, "Overlay permission still not granted")
-                Toast.makeText(this, getString(R.string.overlay_permission_is_required), Toast.LENGTH_LONG).show()
-                finish()
-            }
         }
     }
 
