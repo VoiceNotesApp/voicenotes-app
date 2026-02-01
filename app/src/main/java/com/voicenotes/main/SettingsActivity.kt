@@ -3,7 +3,6 @@ package com.voicenotes.main
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -70,8 +69,7 @@ class SettingsActivity : AppCompatActivity() {
 /**
  * Main settings fragment displaying all preferences.
  */
-class SettingsFragment : PreferenceFragmentCompat(), 
-    SharedPreferences.OnSharedPreferenceChangeListener {
+class SettingsFragment : PreferenceFragmentCompat() {
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -298,22 +296,11 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     override fun onResume() {
         super.onResume()
-        preferenceManager.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
         updateRecordingsCount()
         updatePermissionStatus()
     }
 
     override fun onPause() {
         super.onPause()
-        preferenceManager.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        // Handle preference changes if needed
-        when (key) {
-            "enable_debug_logging" -> {
-                // Debug logging preference changed
-            }
-        }
     }
 }

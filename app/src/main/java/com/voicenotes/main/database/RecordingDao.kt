@@ -19,12 +19,6 @@ interface RecordingDao {
     @Query("SELECT * FROM recordings WHERE id = :id")
     suspend fun getRecordingById(id: Long): Recording?
     
-    @Query("SELECT * FROM recordings WHERE filepath = :filepath LIMIT 1")
-    suspend fun getRecordingByFilepath(filepath: String): Recording?
-    
-    @Query("SELECT * FROM recordings WHERE v2sStatus = :status")
-    suspend fun getRecordingsByV2SStatus(status: V2SStatus): List<Recording>
-    
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecording(recording: Recording): Long
     
@@ -37,15 +31,6 @@ interface RecordingDao {
     @Delete
     suspend fun deleteRecording(recording: Recording)
     
-    @Query("DELETE FROM recordings WHERE id = :id")
-    suspend fun deleteRecordingById(id: Long)
-    
     @Query("SELECT COUNT(*) FROM recordings")
     suspend fun getRecordingCount(): Int
-    
-    @Query("SELECT COUNT(*) FROM recordings WHERE v2sStatus = :status")
-    suspend fun getRecordingCountByV2SStatus(status: V2SStatus): Int
-    
-    @Query("DELETE FROM recordings")
-    suspend fun deleteAllRecordings()
 }

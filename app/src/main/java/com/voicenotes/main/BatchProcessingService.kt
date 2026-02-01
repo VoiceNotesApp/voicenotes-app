@@ -2,7 +2,6 @@ package com.voicenotes.main
 
 import android.content.Context
 import android.content.Intent
-import android.location.Location
 import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.LifecycleService
