@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- On-Device Test Suite (TestSuite.kt)
+- Instrumentation tests (SettingsActivityInstrumentationTest.kt)
+- Debug Logging toggle UI from Debug Log screen
+- Firebase Test Lab integration from CI/CD workflows
+
 ### Added
 - MIT License
 - Comprehensive ProGuard/R8 configuration for release builds

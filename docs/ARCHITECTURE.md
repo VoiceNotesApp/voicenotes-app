@@ -220,7 +220,7 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 | **TranscriptionService** | Google Cloud Speech-to-Text API | HttpURLConnection, JSON parsing |
 | **RecordingDatabase** | Data persistence | Room library |
 | **SettingsActivity** | Configuration management | SharedPreferences |
-| **DebugLogActivity** | Logging and testing | TestSuite, DebugLogger |
+| **DebugLogActivity** | Logging viewer | DebugLogger |
 
 ---
 
@@ -589,8 +589,7 @@ BaseActivity (if exists)
     │   └─ SharedPreferences management
     │
     └─ DebugLogActivity
-        ├─ ScrollView (log display)
-        └─ TestSuite integration
+        └─ ScrollView (log display)
 ```
 
 ### RecordingManagerActivity Architecture
@@ -1067,117 +1066,10 @@ companion object {
 }
 ```
 
-**Test usage**:
-```kotlin
-// In TestSuite.kt
-private fun testDatabase() {
-    // Create isolated test database
-    val testDb = RecordingDatabase.getTestDatabase(context)
-    val dao = testDb.recordingDao()
+---
 
-    runTest("Insert Recording") {
-        val recording = Recording(...)
-        val id = runBlocking { dao.insertRecording(recording) }
-        // Test assertions
-    }
-
-    // Clean up
-    testDb.close()
+## Performance Considerations
 }
-```
-
-### Test Suite Architecture
-
-**Test categories** (82 tests total):
-
-```
-TestSuite
-├── testConfiguration() - 4 tests
-│   ├── SharedPreferences Read/Write
-│   ├── Save Directory Configuration
-│   └── Recording Duration Setting
-│
-├── testPermissions() - 4 tests
-│   ├── RECORD_AUDIO Permission
-│   ├── ACCESS_FINE_LOCATION Permission
-│   ├── BLUETOOTH_CONNECT Permission
-│   └── Overlay Permission
-│
-├── testDatabase() - 13 tests ★NEW★
-│   ├── Database Initialization
-│   ├── Insert Recording
-│   ├── Query Recording by ID
-│   ├── Update Recording Status
-│   ├── Query All Recordings
-│   ├── Delete Recording
-│   ├── V2S Status Enum Handling
-│   ├── Null Value Handling
-│   ├── Coordinate Precision
-│   ├── Empty String vs Null Handling
-│   ├── Multiple Status Updates
-│   └── Database Isolation from Production ★
-│
-├── testRecordingOperations() - 10 tests ★NEW★
-│   ├── File Format Selection (API Level Based)
-│   ├── Filename Generation Pattern
-│   ├── Coordinate Formatting in Filename
-│   ├── Filename Timestamp Parsing
-│   ├── Recording Duration Validation
-│   ├── Audio File Path Construction
-│   ├── Negative Coordinate Handling
-│   ├── Zero Coordinate Handling
-│   ├── Export Format Selection
-│   └── Recordings Directory Creation
-│
-├── testFileSystem() - 6 tests
-├── testLocationServices() - 4 tests
-├── testAudioSystem() - 5 tests
-├── testNetwork() - 5 tests
-├── testGoogleCloudIntegration() - 3 tests
-├── testGPXFile() - 3 tests
-├── testCSVFile() - 3 tests
-├── testServiceLifecycle() - 2 tests
-│
-└── testErrorHandling() - 14 tests ★NEW★
-    ├── Query Non-Existent Recording
-    ├── Invalid Coordinate Range (Latitude > 90)
-    ├── Invalid Coordinate Range (Longitude > 180)
-    ├── Empty Audio File Path
-    ├── Very Long Transcription Text
-    ├── Special Characters in Transcription
-    ├── Newlines in Transcription
-    ├── Update Non-Existent Recording
-    ├── Delete Non-Existent Recording
-    ├── Concurrent Database Operations
-    ├── Invalid Filename Pattern Parsing
-    ├── Timestamp Edge Cases (Year 2038)
-    └── Database Size Limit (Large Dataset)
-```
-
-### Test Execution Flow
-
-```
-User taps "Run Tests"
-        │
-        ▼
-TestSuite.runAllTests()
-        │
-        ├─ Create test database
-        ├─ Run test categories sequentially
-        │   ├─ testConfiguration()
-        │   ├─ testPermissions()
-        │   ├─ testDatabase()
-        │   ├─ ...
-        │   └─ testErrorHandling()
-        │
-        ├─ Close test database
-        └─ printSummary()
-                │
-                ▼
-        Results written to debug_log.txt
-                │
-                ▼
-        DebugLogActivity displays results
 ```
 
 ---
