@@ -8,8 +8,8 @@
         android:shortcutLongLabel="@string/shortcut_settings_long">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="com.voicenotes.motorcycle"
-            android:targetClass="com.voicenotes.motorcycle.SettingsActivity" />
+            android:targetPackage="com.voicenotes.main"
+            android:targetClass="com.voicenotes.main.SettingsActivity" />
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
 </shortcuts>

@@ -83,11 +83,11 @@ def getVersionCode() {
 }
 
 android {
-    namespace 'com.vnmanager.opener'
+    namespace 'com.voicenotes.manager'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.vnmanager.opener"
+        applicationId "com.voicenotes.manager"
         minSdk 26
         targetSdk 34
         versionCode getVersionCode()

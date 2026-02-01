@@ -494,7 +494,7 @@ Voice Notes only stores data **locally on your device**:
 
 Recordings are stored in internal app storage for security:
 ```
-/data/data/com.voicenotes.motorcycle/files/recordings/
+/data/data/com.voicenotes.main/files/recordings/
 ```
 
 **Note:** This location is not directly accessible via file manager (Android security restriction).
