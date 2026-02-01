@@ -159,8 +159,10 @@ class TranscriptionService(private val context: Context) {
                     .setEncoding(encoding)
                     .setSampleRateHertz(sampleRate)
                     .setLanguageCode("en-US")
+                    .addAllAlternativeLanguageCodes(listOf("de-DE"))
                     .setEnableAutomaticPunctuation(true)
-                    .setModel("default")
+                    .setModel("phone_call")
+                    .setUseEnhanced(true)
                     .build()
 
                 val audio = RecognitionAudio.newBuilder()
