@@ -43,7 +43,7 @@ Unit tests validate business logic and components without requiring an Android d
 ./gradlew testDebugUnitTest jacocoTestReport
 
 # Run specific test class
-./gradlew test --tests "com.voicenotes.motorcycle.FilenameUtilsTest"
+./gradlew test --tests "com.voicenotes.main.FilenameUtilsTest"
 
 # Run tests with detailed output
 ./gradlew testDebugUnitTest --info
@@ -75,7 +75,7 @@ Instrumentation tests run on Android devices or emulators and test the complete 
 ./gradlew connectedAndroidTest
 
 # Run specific test class
-./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.voicenotes.motorcycle.MainActivityTest
+./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.voicenotes.main.MainActivityTest
 ```
 
 ### Test APKs

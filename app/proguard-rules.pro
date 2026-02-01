@@ -197,10 +197,10 @@
 # ============================================
 
 # Keep BuildConfig
--keep class com.voicenotes.motorcycle.BuildConfig { *; }
+-keep class com.voicenotes.main.BuildConfig { *; }
 
 # Keep main application class
--keep public class com.voicenotes.motorcycle.** {
+-keep public class com.voicenotes.main.** {
     public protected *;
 }
 
@@ -215,37 +215,37 @@
 }
 
 # Keep database package
--keep class com.voicenotes.motorcycle.database.** {
+-keep class com.voicenotes.main.database.** {
     *;
 }
 
 # Keep V2SStatus enum explicitly
--keep enum com.voicenotes.motorcycle.database.V2SStatus {
+-keep enum com.voicenotes.main.database.V2SStatus {
     *;
 }
 
 # Keep Recording entity explicitly
--keep class com.voicenotes.motorcycle.database.Recording {
+-keep class com.voicenotes.main.database.Recording {
     *;
 }
 
 # Keep DAO explicitly
--keep interface com.voicenotes.motorcycle.database.RecordingDao {
+-keep interface com.voicenotes.main.database.RecordingDao {
     *;
 }
 
 # Keep TranscriptionService
--keep class com.voicenotes.motorcycle.TranscriptionService {
+-keep class com.voicenotes.main.TranscriptionService {
     public protected *;
 }
 
 # Keep OverlayService
--keep class com.voicenotes.motorcycle.OverlayService {
+-keep class com.voicenotes.main.OverlayService {
     public protected *;
 }
 
 # Keep BatchProcessingService
--keep class com.voicenotes.motorcycle.BatchProcessingService {
+-keep class com.voicenotes.main.BatchProcessingService {
     public protected *;
 }
 

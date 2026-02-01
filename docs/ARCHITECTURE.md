@@ -776,7 +776,7 @@ connection.setRequestProperty("Authorization", "Bearer $token")
 ### Storage Locations
 
 ```
-/data/data/com.voicenotes.motorcycle/
+/data/data/com.voicenotes.main/
 ├── files/
 │   ├── recordings/                    # Audio files
 │   │   ├── VN_2024-01-15_12-30-45_40.7128_-74.0060.ogg
@@ -913,7 +913,7 @@ proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard
    -keep @androidx.room.Dao class * { *; }
    
    # Application classes
-   -keep class com.voicenotes.motorcycle.database.** { *; }
+   -keep class com.voicenotes.main.database.** { *; }
    ```
 
 2. **Library-Specific Rules**:
@@ -989,7 +989,7 @@ ProGuard can break functionality if not configured correctly:
 ### Data Storage Security
 
 **1. Internal Storage** (app-private):
-- Audio files stored in `/data/data/com.voicenotes.motorcycle/files/`
+- Audio files stored in `/data/data/com.voicenotes.main/files/`
 - Only accessible by the app (unless device is rooted)
 - Automatically deleted when app is uninstalled
 

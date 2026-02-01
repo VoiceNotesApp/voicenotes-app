@@ -162,11 +162,11 @@ def getVersionCode() {
 }
 
 android {
-    namespace 'com.voicenotes.motorcycle'
+    namespace 'com.voicenotes.main'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.voicenotes.motorcycle"
+        applicationId "com.voicenotes.main"
         minSdk 26
         targetSdk 34
         versionCode getVersionCode()
@@ -179,7 +179,7 @@ android {
         
         // Read service account JSON from gradle.properties and base64-encode it
         buildConfigField "String", "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BASE64", "\"${(project.findProperty('GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON') ?: '')?.bytes?.encodeBase64()?.toString() ?: ''}\""
-        manifestPlaceholders = [appAuthRedirectScheme: "app.voicenotes.motorcycle"]
+        manifestPlaceholders = [appAuthRedirectScheme: "app.voicenotes.main"]
     }
 
     signingConfigs {

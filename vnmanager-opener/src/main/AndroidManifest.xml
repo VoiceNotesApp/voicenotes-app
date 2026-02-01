@@ -3,7 +3,7 @@
 
     <!-- Declare that we query for the Voice Notes app -->
     <queries>
-        <package android:name="com.voicenotes.motorcycle" />
+        <package android:name="com.voicenotes.main" />
     </queries>
 
     <application

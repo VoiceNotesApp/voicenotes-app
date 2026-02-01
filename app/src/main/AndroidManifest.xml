@@ -37,7 +37,7 @@
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask"
-            android:taskAffinity="com.voicenotes.motorcycle.recording"
+            android:taskAffinity="com.voicenotes.main.recording"
             android:excludeFromRecents="true"
             android:exported="true"
             android:screenOrientation="sensor">
@@ -52,7 +52,7 @@
 
         <activity
             android:name=".SettingsActivity"
-            android:taskAffinity="com.voicenotes.motorcycle.manager"
+            android:taskAffinity="com.voicenotes.main.manager"
             android:exported="true"
             android:label="@string/settings_title"
             android:parentActivityName=".MainActivity">
