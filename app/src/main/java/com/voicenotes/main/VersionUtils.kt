@@ -22,13 +22,16 @@ object VersionUtils {
         // Get version from BuildConfig (set during gradle build)
         val version = BuildConfig.VERSION_NAME
         
-        // Check if the version is a commit hash (7-40 hex characters, possibly with -dirty)
-        // This would happen if gradle is modified to allow building without tags
-        val cleanVersion = version.replace("-dirty", "")
+        // Extract -dirty suffix if present
+        val isDirty = version.endsWith("-dirty")
+        val cleanVersion = if (isDirty) version.removeSuffix("-dirty") else version
+        val dirtySuffix = if (isDirty) "-dirty" else ""
         
+        // Check if the version is a commit hash (7-40 hex characters)
+        // This would happen if gradle is modified to allow building without tags
         return if (cleanVersion.matches(Regex("^[0-9a-f]{7,40}$"))) {
-            // No tag available, use dev-<hash> format
-            "dev-$cleanVersion"
+            // No tag available, use dev-<hash> format, preserving -dirty suffix
+            "dev-$cleanVersion$dirtySuffix"
         } else {
             // Tag is available, add 'v' prefix if not already present
             if (version.startsWith("v")) {
