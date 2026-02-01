@@ -112,6 +112,7 @@
     <string name="no_recordings_to_export">Keine Aufnahmen zum Exportieren</string>
     <string name="exported_to_downloads">Exportiert nach Downloads/%s</string>
     <string name="export_failed">Export fehlgeschlagen: %s</string>
+    <string name="recording_file_not_found">Aufnahmedatei existiert nicht</string>
     <string name="error_playing_recording">Fehler beim Abspielen der Aufnahme: %s</string>
     <string name="error_opening_maps">Fehler beim Öffnen der Karten: %s</string>
     <string name="error_deleting">Fehler beim Löschen: %s</string>

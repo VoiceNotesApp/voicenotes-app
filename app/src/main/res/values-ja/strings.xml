@@ -112,6 +112,7 @@
     <string name="no_recordings_to_export">エクスポートする録音がありません</string>
     <string name="exported_to_downloads">ダウンロードフォルダにエクスポートされました/%s</string>
     <string name="export_failed">エクスポートに失敗しました: %s</string>
+    <string name="recording_file_not_found">録音ファイルが存在しません</string>
     <string name="error_playing_recording">録音の再生エラー: %s</string>
     <string name="error_opening_maps">地図を開くエラー: %s</string>
     <string name="error_deleting">削除エラー: %s</string>

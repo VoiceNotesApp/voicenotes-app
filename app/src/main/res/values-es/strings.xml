@@ -112,6 +112,7 @@
     <string name="no_recordings_to_export">No hay grabaciones para exportar</string>
     <string name="exported_to_downloads">Exportado a Descargas/%s</string>
     <string name="export_failed">Exportación fallida: %s</string>
+    <string name="recording_file_not_found">El archivo de grabación no existe</string>
     <string name="error_playing_recording">Error al reproducir grabación: %s</string>
     <string name="error_opening_maps">Error al abrir mapas: %s</string>
     <string name="error_deleting">Error al eliminar: %s</string>

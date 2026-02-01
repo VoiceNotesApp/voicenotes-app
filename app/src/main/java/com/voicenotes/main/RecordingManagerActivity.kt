@@ -257,6 +257,13 @@ class RecordingManagerActivity : AppCompatActivity() {
     }
 
     private fun downloadRecording(recording: Recording) {
+        // Check if the recording file exists before showing export options
+        val file = File(recording.filepath)
+        if (!file.exists()) {
+            Toast.makeText(this, getString(R.string.recording_file_not_found), Toast.LENGTH_LONG).show()
+            return
+        }
+        
         val options = arrayOf("Audio", "GPX", "CSV", "All")
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.export_format))
@@ -434,15 +441,20 @@ class RecordingManagerActivity : AppCompatActivity() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }
+        val nameFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
         val sb = StringBuilder()
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
         sb.append("<gpx version=\"1.1\" creator=\"VoiceNotes\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n")
 
         recordings.forEach { recording ->
+            val lat = String.format("%.6f", recording.latitude)
+            val lon = String.format("%.6f", recording.longitude)
+            val waypointName = "VoiceNote: $lat,$lon - ${nameFormat.format(Date(recording.timestamp))}"
+            
             sb.append("  <wpt lat=\"${recording.latitude}\" lon=\"${recording.longitude}\">\n")
             sb.append("    <time>${dateFormat.format(Date(recording.timestamp))}</time>\n")
-            sb.append("    <name>${escapeXml(recording.filename)}</name>\n")
+            sb.append("    <name>${escapeXml(waypointName)}</name>\n")
             sb.append("    <desc>${escapeXml(recording.v2sResult ?: "")}</desc>\n")
             sb.append("  </wpt>\n")
         }
@@ -631,9 +643,6 @@ class RecordingAdapter(
             downloadButton.setOnClickListener { onDownloadClick(recording) }
             openMapsButton.setOnClickListener { onOpenMapsClick(recording) }
             playButton.setOnClickListener { onPlayClick(recording, playButton) }
-            
-            // Download button is visible only when the recording file exists
-            downloadButton.visibility = if (shouldShowDownloadButton(recording)) View.VISIBLE else View.GONE
         }
         
         fun updateTranscriptionText(text: String) {
@@ -641,12 +650,6 @@ class RecordingAdapter(
             if (!transcriptionEditText.hasFocus()) {
                 transcriptionEditText.setText(text)
             }
-        }
-        
-        private fun shouldShowDownloadButton(recording: Recording): Boolean {
-            // Show download button if the recording file exists
-            val file = File(recording.filepath)
-            return file.exists()
         }
         
         // Helper function to get status configuration
