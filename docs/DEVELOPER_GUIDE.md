@@ -319,7 +319,7 @@ val serviceAccountJsonBase64 = BuildConfig.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON_BAS
 - `enable_debug_logging`: Boolean (default false)
 
 **Language Support**:
-The app uses PreferenceFragmentCompat with SharedPreferences stored in `com.voicenotes.main_preferences`.
+The app uses PreferenceFragmentCompat with SharedPreferences stored in `AppPrefs`.
 
 **Language Preference Mapping**:
 

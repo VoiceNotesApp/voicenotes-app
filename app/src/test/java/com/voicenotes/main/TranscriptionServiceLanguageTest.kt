@@ -33,7 +33,7 @@ class TranscriptionServiceLanguageTest {
         
         // Setup default mock behavior
         whenever(mockContext.getSharedPreferences(
-            "com.voicenotes.main_preferences", 
+            "AppPrefs", 
             Context.MODE_PRIVATE
         )).thenReturn(mockSharedPreferences)
     }
