@@ -185,6 +185,7 @@ class TranscriptionService(private val context: Context) {
                     rawPrimaryLanguage
                 }
                 
+                // Only convert "system" for secondary language if explicitly set, not if empty
                 val secondaryLanguage = if (rawSecondaryLanguage == "system") {
                     getDeviceLanguageCode()
                 } else {

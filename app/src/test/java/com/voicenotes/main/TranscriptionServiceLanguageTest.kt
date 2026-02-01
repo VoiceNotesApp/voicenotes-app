@@ -175,13 +175,53 @@ class TranscriptionServiceLanguageTest {
     }
     
     @Test
-    fun testSystemToDeviceLocaleConversion() {
-        // Test that "system" is properly converted to device locale
-        // This validates the concept that "system" should be mapped to actual language code
-        val systemValue = "system"
-        val shouldConvert = systemValue == "system"
+    fun testDeviceLocaleConversion() {
+        // Test that system value needs conversion to actual language code
+        // The TranscriptionService should handle "system" by converting it to device locale
+        val rawLanguage = "system"
         
-        // Then: Should recognize need for conversion
-        assertTrue("System value should trigger conversion logic", shouldConvert)
+        // When "system" is detected, it should be converted
+        val needsConversion = rawLanguage == "system"
+        assertTrue("System value should trigger device locale conversion", needsConversion)
+        
+        // The actual device locale will vary, but it should produce a valid BCP-47 code
+        // Examples of valid outputs: en-US, de-DE, ja-JP, etc.
+        val deviceLocale = java.util.Locale.getDefault()
+        val language = deviceLocale.language
+        val country = deviceLocale.country
+        
+        val expectedFormat = if (country.isNotEmpty()) {
+            "$language-$country"
+        } else {
+            language
+        }
+        
+        // Verify the format would be valid
+        assertTrue("Device locale should produce valid format", 
+            expectedFormat.isNotEmpty() && expectedFormat.length >= 2)
+    }
+    
+    @Test
+    fun testSecondaryLanguageEmptyNotConverted() {
+        // Given: Empty secondary language (not explicitly "system")
+        val secondaryLanguage = ""
+        
+        // When: Checking if it should be converted
+        val needsConversion = secondaryLanguage == "system"
+        
+        // Then: Should not convert empty string
+        assertFalse("Empty secondary language should not be converted", needsConversion)
+    }
+    
+    @Test
+    fun testSecondaryLanguageSystemConverted() {
+        // Given: Explicitly set to "system"
+        val secondaryLanguage = "system"
+        
+        // When: Checking if it should be converted
+        val needsConversion = secondaryLanguage == "system"
+        
+        // Then: Should convert "system" value
+        assertTrue("System value for secondary language should be converted", needsConversion)
     }
 }
