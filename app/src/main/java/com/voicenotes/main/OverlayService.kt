@@ -50,12 +50,7 @@ import java.util.*
  * Overlay service for Voice Notes recording functionality.
  * 
  * This service is responsible for:
- * 1. Configuration and Permission Validation: On startup, checks if the app is fully configured
- *    with all required permissions (overlay, microphone, location, Bluetooth) and settings 
- *    (save directory). If not configured, displays a brief, non-intrusive overlay bubble 
- *    message for ~3 seconds, then automatically stops the service.
- * 
- * 2. Recording Lifecycle: If fully configured, manages the complete recording lifecycle including:
+ * 1. Recording Lifecycle: Manages the complete recording lifecycle including:
  *    - GPS location acquisition
  *    - Audio recording with MediaRecorder
  *    - Visual feedback via overlay bubble
@@ -63,12 +58,12 @@ import java.util.*
  *    - Recording countdown and automatic stop
  *    - Saving recordings with metadata to database
  * 
- * 3. Bluetooth Audio Integration: Handles Bluetooth SCO (Synchronous Connection-Oriented) setup
+ * 2. Bluetooth Audio Integration: Handles Bluetooth SCO (Synchronous Connection-Oriented) setup
  *    for routing audio to/from Bluetooth devices.
  * 
  * The service never launches activities or switches to any UI screen. It operates entirely in
- * the background with only overlay bubble feedback. Configuration must be done through explicit
- * UI mode in MainActivity (via "Manage" action or VN Manager app).
+ * the background with only overlay bubble feedback. All configuration and permission validation
+ * is performed by MainActivity before this service is started.
  */
 class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
 
@@ -94,12 +89,10 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private var countdownRunnable: Runnable? = null
     private var ttsTimeoutRunnable: Runnable? = null
     private var bluetoothScoTimeoutRunnable: Runnable? = null
-    private var unconfiguredOverlayTimeoutRunnable: Runnable? = null
     
     // Flags to prevent double cleanup
     private var isOverlayRemoved = false
     private var isServiceStopping = false
-    private var isUnconfiguredMode = false
     
     // Exception handler for coroutines
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -146,9 +139,9 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Initialize TTS (but only if permissions are present will we use it)
         textToSpeech = TextToSpeech(this, this)
         
-        // Add TTS timeout - only proceeds to recording if permissions are present
+        // Add TTS timeout
         ttsTimeoutRunnable = Runnable {
-            if (!isTtsInitialized && !isUnconfiguredMode) {
+            if (!isTtsInitialized) {
                 Log.w("OverlayService", "TTS initialization timeout - proceeding without TTS")
                 DebugLogger.logError(
                     service = "OverlayService",
@@ -192,38 +185,17 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         val resetDuration = intent?.getIntExtra("additionalDuration", -1) ?: -1
         
         if (resetDuration > 0) {
-            // This is an extension request - verify app is still fully configured
-            if (!isAppFullyConfigured()) {
-                Log.w("OverlayService", "Extension request but app not fully configured - showing overlay and stopping")
-                handleOverlayMessage(getString(R.string.app_not_configured_message), 3000)
-                return START_NOT_STICKY
-            }
-            
-            // App still configured - reset timer to the duration from the intent
+            // This is an extension request - reset timer to the duration from the intent
             extendRecordingDuration(resetDuration)
             return START_NOT_STICKY
         }
         
-        // Normal startup flow - first check if app is fully configured
-        if (!isAppFullyConfigured()) {
-            // App not fully configured - show brief informational overlay and quit
-            Log.w("OverlayService", "App not fully configured on startup - showing overlay and stopping")
-            handleOverlayMessage(getString(R.string.app_not_configured_message), 3000)
-            return START_NOT_STICKY
-        }
-        
-        // App fully configured - wait for TTS initialization to start recording
+        // Normal startup flow - wait for TTS initialization to start recording
         return START_NOT_STICKY
     }
 
     override fun onInit(status: Int) {
         ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
-        
-        // Don't proceed with recording if we're in unconfigured mode (missing permissions)
-        if (isUnconfiguredMode) {
-            Log.d("OverlayService", "TTS initialized but in unconfigured mode (missing permissions), not starting recording")
-            return
-        }
         
         if (status == TextToSpeech.SUCCESS) {
             textToSpeech?.language = Locale.US
@@ -609,98 +581,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Update bubble to show extension
         updateOverlay("Recording extended! ${remainingSeconds}s remaining")
     }
-
-    private fun checkAllRequiredPermissions(): Boolean {
-        Log.d("OverlayService", "Checking all required permissions")
-        
-        // Note: Overlay permission already checked in onCreate()
-        
-        // Check microphone permission
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-            != PackageManager.PERMISSION_GRANTED) {
-            Log.w("OverlayService", "Missing permission: Microphone (RECORD_AUDIO)")
-            return false
-        }
-        
-        // Check location permission
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            Log.w("OverlayService", "Missing permission: Location (ACCESS_FINE_LOCATION)")
-            return false
-        }
-        
-        // Check Bluetooth permission (only on Android 12+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-                != PackageManager.PERMISSION_GRANTED) {
-                Log.w("OverlayService", "Missing permission: Bluetooth (BLUETOOTH_CONNECT)")
-                return false
-            }
-        }
-        
-        Log.d("OverlayService", "All required permissions are granted")
-        return true
-    }
     
-    /**
-     * Checks if the app is fully configured with all necessary permissions and settings.
-     * This includes:
-     * - All required runtime permissions (microphone, location, Bluetooth)
-     * - Save directory configured in SharedPreferences
-     * 
-     * Note: Overlay permission is already validated in onCreate() before this is called.
-     * Note: Recording duration defaults to 10 seconds if not explicitly set, so we don't
-     * check for it here.
-     * 
-     * @return true if app is fully configured, false otherwise
-     */
-    private fun isAppFullyConfigured(): Boolean {
-        Log.d("OverlayService", "Checking if app is fully configured")
-        
-        // Check all required runtime permissions (overlay already verified in onCreate)
-        if (!checkAllRequiredPermissions()) {
-            Log.w("OverlayService", "App not configured: Missing required permissions")
-            return false
-        }
-        
-        // Check if save directory is configured
-        // Note: SettingsActivity auto-configures this when first opened, so if it's null
-        // the user has never opened the settings/manager UI
-        val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        val saveDir = prefs.getString("saveDirectory", null)
-        if (saveDir.isNullOrEmpty()) {
-            Log.w("OverlayService", "App not configured: Save directory not set (user has not opened settings)")
-            return false
-        }
-        
-        Log.d("OverlayService", "App is fully configured")
-        return true
-    }
-    
-    private fun handleOverlayMessage(message: String, timeoutMs: Long) {
-        Log.d("OverlayService", "Handling overlay message display: $message (timeout: ${timeoutMs}ms)")
-        
-        // Set flag to prevent recording flow from starting
-        isUnconfiguredMode = true
-        
-        // Cancel TTS timeout since we're not using TTS for this flow
-        ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
-        
-        // Verify overlay was created successfully
-        if (overlayView == null || bubbleLine1 == null) {
-            Log.e("OverlayService", "Overlay not created - cannot show message")
-            stopSelf()
-            return
-        }
-        
-        // Show the message in the overlay
-        updateOverlay(message)
-        
-        // Schedule service stop after specified timeout
-        unconfiguredOverlayTimeoutRunnable = Runnable { stopSelfAndFinish() }
-        handler.postDelayed(unconfiguredOverlayTimeoutRunnable!!, timeoutMs)
-    }
-
     private fun stopRecording() {
         try {
             // Stop countdown
@@ -1062,9 +943,6 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         // Cancel countdown if running
         countdownRunnable?.let { handler.removeCallbacks(it) }
         
-        // Cancel unconfigured overlay timeout if running
-        unconfiguredOverlayTimeoutRunnable?.let { handler.removeCallbacks(it) }
-        
         // Clear recording state from SharedPreferences
         val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
         prefs.edit().apply {
@@ -1108,7 +986,6 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
         ttsTimeoutRunnable?.let { handler.removeCallbacks(it) }
         bluetoothScoTimeoutRunnable?.let { handler.removeCallbacks(it) }
         countdownRunnable?.let { handler.removeCallbacks(it) }
-        unconfiguredOverlayTimeoutRunnable?.let { handler.removeCallbacks(it) }
         
         textToSpeech?.shutdown()
         mediaRecorder?.release()
