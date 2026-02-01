@@ -7,4 +7,20 @@
     <color name="status_fallback">#FB8C00</color>
     <color name="status_error">#E53935</color>
     <color name="status_disabled">#9E9E9E</color>
+
+    <!-- Theme colors - Light mode -->
+    <color name="colorPrimary">#1976D2</color>
+    <color name="colorPrimaryDark">#1565C0</color>
+    <color name="colorAccent">#FF6F00</color>
+
+    <!-- Semantic colors for layouts - Light mode -->
+    <color name="background">#F5F5F5</color>
+    <color name="background_card">#FFFFFF</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_tertiary">#616161</color>
+    <color name="text_hint">#424242</color>
+    <color name="divider">#E0E0E0</color>
+    <color name="icon_tint">#757575</color>
+    <color name="input_background">#F5F5F5</color>
 </resources>

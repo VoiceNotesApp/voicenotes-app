@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     android:stateListAnimator="@animator/card_elevation"
+    app:cardBackgroundColor="@color/background_card"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
 
@@ -28,7 +29,7 @@
                 android:src="@android:drawable/ic_menu_recent_history"
                 android:contentDescription="Time"
                 android:layout_marginEnd="8dp"
-                app:tint="#757575" />
+                app:tint="@color/icon_tint" />
 
             <TextView
                 android:id="@+id/dateTimeText"
@@ -38,7 +39,7 @@
                 android:text="Jan 25, 2026 14:30"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#212121" />
+                android:textColor="@color/text_primary" />
 
         </LinearLayout>
 
@@ -56,7 +57,7 @@
                 android:src="@android:drawable/ic_menu_mylocation"
                 android:contentDescription="Location"
                 android:layout_marginEnd="8dp"
-                app:tint="#757575" />
+                app:tint="@color/icon_tint" />
 
             <TextView
                 android:id="@+id/locationText"
@@ -65,7 +66,7 @@
                 android:layout_weight="1"
                 android:text="47.123456, 8.654321"
                 android:textSize="14sp"
-                android:textColor="#616161"
+                android:textColor="@color/text_tertiary"
                 android:fontFamily="monospace" />
 
         </LinearLayout>
@@ -74,7 +75,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E0E0E0"
+            android:background="@color/divider"
             android:layout_marginBottom="12dp" />
 
         <!-- Transcription Section -->
@@ -98,14 +99,14 @@
                     android:text="Transcription:"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="#424242"
+                    android:textColor="@color/text_secondary"
                     android:layout_marginEnd="8dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="#F5F5F5"
+                    android:background="@color/input_background"
                     app:boxBackgroundMode="none"
                     app:hintEnabled="false">
 
@@ -115,7 +116,7 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/transcription_hint"
                         android:textSize="14sp"
-                        android:textColor="#212121"
+                        android:textColor="@color/text_primary"
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp"
                         android:paddingTop="8dp"
