@@ -448,9 +448,7 @@ class RecordingManagerActivity : AppCompatActivity() {
         sb.append("<gpx version=\"1.1\" creator=\"VoiceNotes\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n")
 
         recordings.forEach { recording ->
-            val lat = String.format("%.6f", recording.latitude)
-            val lon = String.format("%.6f", recording.longitude)
-            val waypointName = "VoiceNote: $lat,$lon - ${nameFormat.format(Date(recording.timestamp))}"
+            val waypointName = "VoiceNote: ${nameFormat.format(Date(recording.timestamp))}"
             
             sb.append("  <wpt lat=\"${recording.latitude}\" lon=\"${recording.longitude}\">\n")
             sb.append("    <time>${dateFormat.format(Date(recording.timestamp))}</time>\n")
@@ -478,16 +476,17 @@ class RecordingManagerActivity : AppCompatActivity() {
     }
 
     private fun generateCSV(recordings: List<Recording>): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+        val fmtDate = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val fmtTime = SimpleDateFormat("HH:mm", Locale.US)
 
         val sb = StringBuilder()
-        sb.append("Latitude,Longitude,Timestamp,Filename,Transcription\n")
+        sb.append("Latitude,Longitude,Date,Time,Text\n")
 
         recordings.forEach { recording ->
             sb.append("${recording.latitude},")
             sb.append("${recording.longitude},")
-            sb.append("${dateFormat.format(Date(recording.timestamp))},")
-            sb.append("${escapeCsv(recording.filename)},")
+            sb.append("${fmtDate.format(Date(recording.timestamp))},")
+            sb.append("${fmtTime.format(Date(recording.timestamp))},")
             sb.append("${escapeCsv(recording.v2sResult ?: "")}\n")
         }
 
