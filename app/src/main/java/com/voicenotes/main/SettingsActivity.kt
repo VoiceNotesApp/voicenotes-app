@@ -40,6 +40,9 @@ class SettingsActivity : AppCompatActivity() {
         // Enable Up navigation
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         
+        // Set version in subtitle
+        supportActionBar?.subtitle = VersionUtils.getVersionString()
+        
         setContentView(R.layout.activity_settings)
         
         if (savedInstanceState == null) {
