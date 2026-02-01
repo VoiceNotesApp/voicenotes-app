@@ -129,4 +129,15 @@
     <string name="overlay_permission_granted">오버레이 권한이 부여되었습니다</string>
     <string name="overlay_permission_required_for_app">앱이 작동하려면 오버레이 권한이 필요합니다</string>
     <string name="overlay_permission_is_required">오버레이 권한이 필요합니다</string>
+    
+    <!-- Additional permission and error strings -->
+    <string name="error_starting_transcription">오류: %s</string>
+    <string name="some_permissions_denied">일부 권한이 거부되었습니다</string>
+    <string name="background_recording_may_be_interrupted">백그라운드 녹음이 중단될 수 있습니다</string>
+    <string name="grant">허용</string>
+    <string name="battery_optimization_title">배터리 최적화</string>
+    <string name="battery_optimization_message">안정적인 백그라운드 녹음을 보장하려면 이 앱에 무제한 배터리 액세스 권한이 필요합니다.\n\n이렇게 하면 화면이 꺼져 있거나 앱이 백그라운드에 있을 때 Android가 녹음을 중지하는 것을 방지합니다.</string>
+    <string name="unable_to_open_battery_settings">배터리 설정을 열 수 없습니다</string>
+    <string name="skip">건너뛰기</string>
+    <string name="all_permissions_granted">모든 권한이 허용되었습니다</string>
 </resources>

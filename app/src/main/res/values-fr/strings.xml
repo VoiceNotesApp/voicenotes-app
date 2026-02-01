@@ -129,4 +129,15 @@
     <string name="overlay_permission_granted">Permission de superposition accordée</string>
     <string name="overlay_permission_required_for_app">La permission de superposition est requise pour que l\'application fonctionne</string>
     <string name="overlay_permission_is_required">La permission de superposition est requise</string>
+    
+    <!-- Additional permission and error strings -->
+    <string name="error_starting_transcription">Erreur : %s</string>
+    <string name="some_permissions_denied">Certaines autorisations ont été refusées</string>
+    <string name="background_recording_may_be_interrupted">L\'enregistrement en arrière-plan peut être interrompu</string>
+    <string name="grant">Accorder</string>
+    <string name="battery_optimization_title">Optimisation de la batterie</string>
+    <string name="battery_optimization_message">Pour garantir un enregistrement fiable en arrière-plan, cette application nécessite un accès illimité à la batterie.\n\nCela empêchera Android d\'arrêter l\'enregistrement lorsque l\'écran est éteint ou que l\'application est en arrière-plan.</string>
+    <string name="unable_to_open_battery_settings">Impossible d\'ouvrir les paramètres de batterie</string>
+    <string name="skip">Ignorer</string>
+    <string name="all_permissions_granted">Toutes les autorisations accordées</string>
 </resources>

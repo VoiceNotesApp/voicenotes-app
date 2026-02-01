@@ -129,4 +129,15 @@
     <string name="overlay_permission_granted">Permiso de superposición concedido</string>
     <string name="overlay_permission_required_for_app">Se requiere el permiso de superposición para que funcione la aplicación</string>
     <string name="overlay_permission_is_required">Se requiere el permiso de superposición</string>
+    
+    <!-- Additional permission and error strings -->
+    <string name="error_starting_transcription">Error: %s</string>
+    <string name="some_permissions_denied">Algunos permisos fueron denegados</string>
+    <string name="background_recording_may_be_interrupted">La grabación en segundo plano puede interrumpirse</string>
+    <string name="grant">Conceder</string>
+    <string name="battery_optimization_title">Optimización de batería</string>
+    <string name="battery_optimization_message">Para garantizar una grabación confiable en segundo plano, esta aplicación necesita acceso sin restricciones a la batería.\n\nEsto evitará que Android detenga la grabación cuando la pantalla esté apagada o la aplicación esté en segundo plano.</string>
+    <string name="unable_to_open_battery_settings">No se puede abrir la configuración de batería</string>
+    <string name="skip">Omitir</string>
+    <string name="all_permissions_granted">Todos los permisos concedidos</string>
 </resources>

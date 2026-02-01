@@ -129,4 +129,15 @@
     <string name="overlay_permission_granted">Overlay-Berechtigung erteilt</string>
     <string name="overlay_permission_required_for_app">Overlay-Berechtigung ist für die App erforderlich</string>
     <string name="overlay_permission_is_required">Overlay-Berechtigung ist erforderlich</string>
+    
+    <!-- Additional permission and error strings -->
+    <string name="error_starting_transcription">Fehler: %s</string>
+    <string name="some_permissions_denied">Einige Berechtigungen wurden verweigert</string>
+    <string name="background_recording_may_be_interrupted">Hintergrundaufnahme kann unterbrochen werden</string>
+    <string name="grant">Erteilen</string>
+    <string name="battery_optimization_title">Akkuoptimierung</string>
+    <string name="battery_optimization_message">Um eine zuverlässige Hintergrundaufnahme zu gewährleisten, benötigt diese App uneingeschränkten Akkuzugriff.\n\nDies verhindert, dass Android die Aufnahme stoppt, wenn der Bildschirm ausgeschaltet ist oder die App im Hintergrund läuft.</string>
+    <string name="unable_to_open_battery_settings">Akkueinstellungen können nicht geöffnet werden</string>
+    <string name="skip">Überspringen</string>
+    <string name="all_permissions_granted">Alle Berechtigungen erteilt</string>
 </resources>

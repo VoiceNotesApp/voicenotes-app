@@ -177,7 +177,7 @@ class RecordingManagerActivity : AppCompatActivity() {
 
             } catch (e: Exception) {
                 Log.e("RecordingManager", "Error starting transcription", e)
-                Toast.makeText(this@RecordingManagerActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@RecordingManagerActivity, getString(R.string.error_starting_transcription, e.message), Toast.LENGTH_LONG).show()
             }
         }
     }

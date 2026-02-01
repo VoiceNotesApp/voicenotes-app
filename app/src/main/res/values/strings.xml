@@ -119,6 +119,7 @@
     <string name="error_opening_maps">Error opening maps: %s</string>
     <string name="error_deleting">Error deleting: %s</string>
     <string name="error_saving">Error saving: %s</string>
+    <string name="error_starting_transcription">Error: %s</string>
     
     <!-- Battery optimization strings -->
     <string name="battery_optimization_disabled">Battery optimization disabled</string>
@@ -129,4 +130,14 @@
     <string name="overlay_permission_granted">Overlay permission granted</string>
     <string name="overlay_permission_required_for_app">Overlay permission is required for the app to work</string>
     <string name="overlay_permission_is_required">Overlay permission is required</string>
+    
+    <!-- Settings Activity strings -->
+    <string name="some_permissions_denied">Some permissions were denied</string>
+    <string name="background_recording_may_be_interrupted">Background recording may be interrupted</string>
+    <string name="grant">Grant</string>
+    <string name="battery_optimization_title">Battery Optimization</string>
+    <string name="battery_optimization_message">To ensure reliable background recording, this app needs unrestricted battery access.\n\nThis will prevent Android from stopping the recording when the screen is off or the app is in the background.</string>
+    <string name="unable_to_open_battery_settings">Unable to open battery settings</string>
+    <string name="skip">Skip</string>
+    <string name="all_permissions_granted">All permissions granted</string>
 </resources>
