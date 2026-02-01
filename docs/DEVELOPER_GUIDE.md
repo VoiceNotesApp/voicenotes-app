@@ -65,7 +65,6 @@ app/
 │   │   │   ├── TranscriptionService.kt      # Google Cloud Speech-to-Text
 │   │   │   ├── DebugLogActivity.kt          # Debug log viewer
 │   │   │   ├── DebugLogger.kt               # Logging utility
-│   │   │   ├── TestSuite.kt                 # On-device test suite
 │   │   │   └── NetworkUtils.kt              # Network connectivity helpers
 │   │   ├── res/
 │   │   │   ├── layout/              # XML layouts (6 files)
@@ -470,17 +469,6 @@ The project includes JUnit unit tests for core functionality:
 - `V2SStatusTest.kt` - Enum conversions and transitions
 - `DateTimeUtilsTest.kt` - Date/time formatting and timezone handling
 
-#### On-Device Integration Tests
-
-```bash
-# Run on-device tests (via app UI)
-# 1. Install app
-# 2. Open Settings → Debug Log
-# 3. Tap "Run Tests" button
-```
-
-The on-device test suite includes 82 tests covering database operations, file system, permissions, and API integrations.
-
 ### Running Lint
 
 ```bash
@@ -503,91 +491,6 @@ open app/build/reports/lint-results-debug.html
 ---
 
 ## Testing
-
-### Test Suite Structure
-
-**Location**: `TestSuite.kt`
-
-**Test categories** (82 total tests):
-1. Configuration Tests (4 tests)
-2. Permission Tests (5 tests)
-3. **Database Tests (13 tests)** - NEW
-4. **Recording Operations Tests (10 tests)** - NEW
-5. File System Tests (6 tests)
-6. Location Services Tests (4 tests)
-7. Audio System Tests (5 tests)
-8. Network Tests (5 tests)
-9. Google Cloud Integration Tests (3 tests)
-10. GPX File Tests (3 tests)
-11. CSV File Tests (3 tests)
-13. Service Lifecycle Tests (2 tests)
-14. **Error Handling Tests (14 tests)** - NEW
-
-### Database Test Isolation
-
-**CRITICAL**: Tests use isolated in-memory database.
-
-```kotlin
-// Production database
-val db = RecordingDatabase.getDatabase(context)
-
-// Test database (isolated, in-memory)
-val testDb = RecordingDatabase.getTestDatabase(context)
-```
-
-**Test database characteristics**:
-- In-memory (no persistence)
-- Allows main thread queries
-- Cleared when process ends
-- Zero impact on production data
-
-### Writing New Tests
-
-Add tests to `TestSuite.kt`:
-
-```kotlin
-private fun testMyFeature() {
-    log("[TEST] === My Feature Tests ===")
-
-    runTest("Test Name") {
-        try {
-            // Test logic here
-            val result = myFunction()
-
-            if (result == expected) {
-                TestResult("Test Name", true, "Test passed")
-            } else {
-                TestResult("Test Name", false, "Expected $expected, got $result")
-            }
-        } catch (e: Exception) {
-            TestResult("Test Name", false, "Exception: ${e.message}")
-        }
-    }
-
-    log("")
-}
-```
-
-**Add to test suite**:
-```kotlin
-fun runAllTests() {
-    // ...
-    testMyFeature()
-    // ...
-}
-```
-
-### Running Tests
-
-1. Install app on device/emulator
-2. Open Settings (manager icon)
-3. Scroll to Debug Log section
-4. Tap "View Debug Log"
-5. Tap "Run Tests" button
-6. Wait for completion (1-2 minutes)
-7. Review results in log
-
-**Expected result**: `Total: 82, Passed: 82, Failed: 0`
 
 ### Testing & QA
 
@@ -749,14 +652,7 @@ This section consolidates testing procedures and implementation notes for key fe
    val formats = arrayOf("Audio Only", "GPX Only", "CSV Only", "JSON", "All Formats")
    ```
 
-4. **Add tests** (`TestSuite.kt`):
-   ```kotlin
-   runTest("JSON Export Format") {
-       // Test implementation
-   }
-   ```
-
-5. **Update documentation** (`USER_GUIDE.md`, this file)
+4. **Update documentation** (`USER_GUIDE.md`, this file)
 
 ### Debugging Tips
 
@@ -884,7 +780,6 @@ cat app/build/outputs/mapping/release/usage.txt
 
 1. **Run all tests**:
    - [ ] Unit tests pass: `./gradlew test`
-   - [ ] On-device test suite passes (82/82)
    - [ ] Manual testing of all features
    - [ ] Test on multiple Android versions (8, 10, 12, 14)
 
@@ -1103,15 +998,7 @@ private fun startRecording(location: Location?) {
    }
    ```
 
-3. **Add to test suite** (`TestSuite.kt`):
-   ```kotlin
-   runTest("NEW_PERMISSION Permission") {
-       val granted = ContextCompat.checkSelfPermission(context,
-           Manifest.permission.NEW_PERMISSION) == PackageManager.PERMISSION_GRANTED
-       TestResult("NEW_PERMISSION Permission", true,
-           if (granted) "Permission granted" else "Permission not granted")
-   }
-   ```
+2. **Update AndroidManifest.xml** to include the permission.
 
 ---
 
