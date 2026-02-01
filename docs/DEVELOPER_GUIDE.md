@@ -25,15 +25,16 @@ app/src/main/java/com/voicenotes/main/
 │   ├── RecordingDatabase.kt  # Database singleton
 │   ├── Converters.kt         # Type converters
 │   └── RecordingMigration.kt # Migrations
-├── MainActivity.kt           # App entry, starts OverlayService
-├── OverlayService.kt         # Recording service
-├── RecordingManagerActivity.kt # Recording list/management
 ├── BatchProcessingService.kt # Background transcription
-├── TranscriptionService.kt   # Google Cloud STT
-├── SettingsActivity.kt       # Preferences
 ├── DebugLogActivity.kt       # Log viewer
 ├── DebugLogger.kt            # Logging utility
+├── FinishActivityReceiver.kt # Broadcast receiver
+├── MainActivity.kt           # App entry, starts OverlayService
 ├── NetworkUtils.kt           # Network helpers
+├── OverlayService.kt         # Recording service
+├── RecordingManagerActivity.kt # Recording list/management
+├── SettingsActivity.kt       # Preferences
+├── TranscriptionService.kt   # Google Cloud STT
 └── VersionUtils.kt           # Version info
 ```
 
@@ -114,7 +115,7 @@ V2SStatus values: NOT_STARTED, PROCESSING, COMPLETED, FALLBACK, ERROR, DISABLED
 ./gradlew lintDebug
 ```
 
-Unit tests in `app/src/test/java/com/voicenotes/motorcycle/`.
+Unit tests in `app/src/test/java/com/voicenotes/main/`.
 
 ## Versioning
 
@@ -145,12 +146,19 @@ git push origin v1.0.0
 Runtime (dangerous):
 - RECORD_AUDIO
 - ACCESS_FINE_LOCATION
+- ACCESS_COARSE_LOCATION
 - BLUETOOTH_CONNECT (API 31+)
+- POST_NOTIFICATIONS
 
 Install-time (normal):
+- BLUETOOTH (API <= 30)
+- MODIFY_AUDIO_SETTINGS
 - INTERNET
 - ACCESS_NETWORK_STATE
+- REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 - FOREGROUND_SERVICE
+- FOREGROUND_SERVICE_LOCATION
+- FOREGROUND_SERVICE_MICROPHONE
 - SYSTEM_ALERT_WINDOW
 
 ## Code Style

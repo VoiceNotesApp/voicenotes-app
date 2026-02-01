@@ -42,4 +42,4 @@ See [Developer Guide](docs/DEVELOPER_GUIDE.md) for release builds.
 
 ## License
 
-CC BY-NC 4.0 License - see [LICENSE](LICENSE).
+MIT License - see [LICENSE](LICENSE).

@@ -101,12 +101,15 @@ PreferenceFragmentCompat-based settings:
 Room database with Recording entity.
 
 DAO operations:
-- insertRecording
-- getRecordingById
-- getAllRecordings
+- getAllRecordings (Flow)
+- getAllRecordingsList
 - getAllRecordingsLiveData
+- getRecordingById
+- insertRecording
+- insertRecordings
 - updateRecording
 - deleteRecording
+- getRecordingCount
 
 Test database: In-memory, isolated from production.
 
@@ -148,21 +151,26 @@ User tap Transcribe → RecordingManagerActivity
 
 ```
 /data/data/com.voicenotes.main/
-├── files/recordings/     # Audio files
+├── files/
+│   ├── recordings/       # Audio files
+│   └── debug_log.txt     # Debug log
 ├── databases/            # SQLite database
 └── shared_prefs/         # Settings
 ```
 
-Filename format: `VN_YYYY-MM-DD_HH-mm-ss_LAT_LON.ext`
+Filename format: `LAT,LON_YYYYMMDD_HHMMSS.ext`
+
+Example: `40.712800,-74.005900_20240115_123045.ogg`
 
 ## Export Formats
 
 GPX:
 ```xml
-<gpx version="1.1">
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="VoiceNotes" xmlns="http://www.topografix.com/GPX/1/1">
   <wpt lat="40.7128" lon="-74.0060">
     <time>2024-01-15T12:30:45Z</time>
-    <name>Voice Note</name>
+    <name>VoiceNote: 2024-01-15 12:30:45</name>
     <desc>Transcription text</desc>
   </wpt>
 </gpx>
@@ -170,8 +178,8 @@ GPX:
 
 CSV:
 ```
-Latitude,Longitude,Timestamp,Filename,Transcription
-40.7128,-74.0060,2024-01-15 12:30:45,"recording.ogg","text"
+Latitude,Longitude,Date,Time,Text
+40.7128,-74.0060,2024-01-15,12:30,"Transcription text"
 ```
 
 ## Security
@@ -186,10 +194,17 @@ Latitude,Longitude,Timestamp,Filename,Transcription
 Runtime:
 - RECORD_AUDIO
 - ACCESS_FINE_LOCATION
+- ACCESS_COARSE_LOCATION
 - BLUETOOTH_CONNECT
+- POST_NOTIFICATIONS
 
 Install-time:
+- BLUETOOTH (API <= 30)
+- MODIFY_AUDIO_SETTINGS
 - INTERNET
 - ACCESS_NETWORK_STATE
+- REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 - FOREGROUND_SERVICE
+- FOREGROUND_SERVICE_LOCATION
+- FOREGROUND_SERVICE_MICROPHONE
 - SYSTEM_ALERT_WINDOW
