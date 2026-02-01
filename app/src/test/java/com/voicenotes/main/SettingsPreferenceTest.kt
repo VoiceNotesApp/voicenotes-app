@@ -176,7 +176,7 @@ class SettingsPreferenceTest {
         // Test valid BCP-47 language tags
         val validAppLanguages = listOf("system", "en", "de", "es", "fr", "it", "pt", "ja", "ko", "zh-CN", "zh-TW")
         val validSTTLanguages = listOf("en-US", "en-GB", "de-DE", "es-ES", "es-419", "fr-FR", "it-IT", 
-                                       "pt-BR", "pt-PT", "ja-JP", "ko-KR", "cmn-Hans-CN", "cmn-Hant-TW")
+                                       "pt-BR", "pt-PT", "ja-JP", "ko-KR", "zh-CN", "zh-TW")
         
         // Verify all tags are strings
         validAppLanguages.forEach { tag ->
