@@ -12,6 +12,7 @@ import org.robolectric.annotation.Config
  * Tests cover:
  * - Version string formatting with tag
  * - Version string formatting without tag (commit hash)
+ * - Proper 'v' prefix handling
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -71,7 +72,7 @@ class VersionUtilsTest {
             val versionPart = version.substring(1) // Remove 'v' prefix
             
             // Should contain version-like content (numbers, dots, dashes)
-            // e.g., "1.0.0", "1.0.0-beta", "1.0.0-5-g83343ed"
+            // e.g., "1.0.0", "1.0.0-beta", "1.0.0-5-g83343ed", "1.0.0-dirty"
             assertTrue(
                 "Version tag should contain valid characters, got: $versionPart",
                 versionPart.matches(Regex("^[0-9a-zA-Z._-]+$"))
@@ -81,16 +82,18 @@ class VersionUtilsTest {
     }
     
     @Test
-    fun testGetCurrentCommitHash_returnsValidHashOrEmpty() {
-        // When: Getting the current commit hash
-        val hash = VersionUtils.getCurrentCommitHash()
+    fun testGetVersionString_stripsVPrefixAndAddsItBack() {
+        // When: Getting the version string
+        val version = VersionUtils.getVersionString()
         
-        // Then: Should be either empty (if git not available) or a valid hash
-        assertTrue(
-            "Commit hash should be empty or 7-40 hex characters, got: '$hash'",
-            hash.isEmpty() || hash.matches(Regex("^[0-9a-f]{7,40}$"))
-        )
-        
-        println("Debug: Current commit hash = '$hash'")
+        // Then: If it's a tag version, it should start with 'v'
+        // (gradle strips 'v' from git tags, this function adds it back)
+        if (!version.startsWith("dev-")) {
+            assertTrue(
+                "Tag version should start with 'v', got: $version",
+                version.startsWith("v")
+            )
+            println("Debug: Version correctly has 'v' prefix: '$version'")
+        }
     }
 }
