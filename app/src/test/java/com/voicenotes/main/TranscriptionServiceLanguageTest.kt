@@ -122,7 +122,8 @@ class TranscriptionServiceLanguageTest {
             Pair("en-US", "de-DE"),  // English primary, German secondary
             Pair("de-DE", "en-US"),  // German primary, English secondary
             Pair("es-ES", "fr-FR"),  // Spanish primary, French secondary
-            Pair("ja-JP", "")        // Japanese primary, no secondary
+            Pair("ja-JP", ""),       // Japanese primary, no secondary
+            Pair("zh-CN", "zh-TW")   // Simplified Chinese primary, Traditional Chinese secondary
         )
         
         testCases.forEach { (primary, secondary) ->
@@ -131,7 +132,8 @@ class TranscriptionServiceLanguageTest {
             
             if (secondary.isNotEmpty()) {
                 assertTrue("Non-empty secondary should be valid BCP-47", 
-                    secondary.matches(Regex("[a-z]{2,3}-[A-Z]{2}")))
+                    secondary.matches(Regex("[a-z]{2,3}-[A-Z]{2,3}")) ||
+                    secondary.matches(Regex("[a-z]{2,3}-[0-9]{3}")))
             }
         }
     }
@@ -140,21 +142,21 @@ class TranscriptionServiceLanguageTest {
     fun testLanguageTagFormat() {
         // Test that language tags follow expected BCP-47 format
         val validPrimaryTags = listOf("en-US", "de-DE", "es-ES", "fr-FR", "it-IT", 
-                                      "pt-BR", "ja-JP", "ko-KR")
-        val validSecondaryTags = listOf("", "en-GB", "es-419", "cmn-Hans-CN", "cmn-Hant-TW")
+                                      "pt-BR", "ja-JP", "ko-KR", "zh-CN", "zh-TW")
+        val validSecondaryTags = listOf("", "en-GB", "es-419")
         
-        // Verify primary tags match standard format (xx-XX)
+        // Verify primary tags match standard format (xx-XX or xx-XXX for special cases)
         validPrimaryTags.forEach { tag ->
             assertTrue("Primary tag should match format: $tag", 
-                tag.matches(Regex("[a-z]{2,3}-[A-Z]{2}")))
+                tag.matches(Regex("[a-z]{2,3}-[A-Z]{2,3}")))
         }
         
-        // Verify secondary tags are empty or valid
+        // Verify secondary tags are empty or match standard format or have numeric region codes
         validSecondaryTags.forEach { tag ->
             if (tag.isNotEmpty()) {
                 assertTrue("Secondary tag should be valid: $tag", 
-                    tag.matches(Regex("[a-z]{2,3}(-[A-Z][a-z]+)?-[A-Z]{2,3}")) || 
-                    tag.matches(Regex("[a-z]{2,3}-[A-Z0-9]+")))
+                    tag.matches(Regex("[a-z]{2,3}-[A-Z]{2,3}")) || 
+                    tag.matches(Regex("[a-z]{2,3}-[0-9]{3}")))
             }
         }
     }

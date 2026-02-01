@@ -58,8 +58,8 @@
         <item>pt-PT</item>
         <item>ja-JP</item>
         <item>ko-KR</item>
-        <item>cmn-Hans-CN</item>
-        <item>cmn-Hant-TW</item>
+        <item>zh-CN</item>
+        <item>zh-TW</item>
     </string-array>
 
     <!-- STT Secondary Language Options (includes None) -->
@@ -93,7 +93,7 @@
         <item>pt-PT</item>
         <item>ja-JP</item>
         <item>ko-KR</item>
-        <item>cmn-Hans-CN</item>
-        <item>cmn-Hant-TW</item>
+        <item>zh-CN</item>
+        <item>zh-TW</item>
     </string-array>
 </resources>

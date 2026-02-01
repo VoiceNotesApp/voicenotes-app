@@ -348,8 +348,8 @@ STT Language values (for transcription):
 - `pt-PT` → Portuguese (Portugal)
 - `ja-JP` → Japanese
 - `ko-KR` → Korean
-- `cmn-Hans-CN` → Chinese (Mandarin, Simplified)
-- `cmn-Hant-TW` → Chinese (Mandarin, Traditional)
+- `zh-CN` → Chinese (Mandarin, Simplified)
+- `zh-TW` → Chinese (Mandarin, Traditional)
 
 **TranscriptionService Integration**:
 The TranscriptionService reads `stt_primary_language` and `stt_secondary_language` from SharedPreferences to configure the Google Cloud Speech-to-Text RecognitionConfig:
