@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -32,8 +33,6 @@ import kotlinx.coroutines.withContext
  * - Language preferences (app UI and STT)
  * - Permission management
  * - Debug logging
- * 
- * Two-pane landscape mode: Shows preferences split across two fragments for better usability on tablets.
  */
 class SettingsActivity : AppCompatActivity() {
 
@@ -46,24 +45,10 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
         
         if (savedInstanceState == null) {
-            // Check if we're in two-pane landscape mode
-            val isLandscape = findViewById<View>(R.id.settings_container_left) != null
-            
-            if (isLandscape) {
-                // Two-pane landscape mode: Load settings in left pane
-                // The preference list will be displayed in the left pane with scrolling
-                // Right pane can be used for future detail views or remain empty
-                supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.settings_container_left, SettingsFragment())
-                    .commit()
-            } else {
-                // Single-pane portrait mode
-                supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.settings_container, SettingsFragment())
-                    .commit()
-            }
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.settings_container, SettingsFragment())
+                .commit()
         }
     }
     
