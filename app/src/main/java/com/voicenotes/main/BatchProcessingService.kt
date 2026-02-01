@@ -144,28 +144,30 @@ class BatchProcessingService : LifecycleService() {
                     db.recordingDao().updateRecording(updated)
                 }
                 
-                // Create/update GPX and CSV (legacy support)
-                try {
-                    broadcastProgress(recording.filename, "creating GPX", currentFile, totalFiles)
-                    
-                    DebugLogger.logInfo(
-                        service = "BatchProcessingService",
-                        message = "Creating GPX waypoint for ${recording.filename} at $coords"
-                    )
-                    createGpxWaypointFromRecording(recording, finalText, coords)
-                    
-                    DebugLogger.logInfo(
-                        service = "BatchProcessingService",
-                        message = "Creating CSV entry for ${recording.filename} at $coords"
-                    )
-                    createCsvEntryFromRecording(recording, finalText, coords)
-                } catch (e: Exception) {
-                    Log.e("BatchProcessing", "Failed to create GPX/CSV", e)
-                    DebugLogger.logError(
-                        service = "BatchProcessingService",
-                        error = "Failed to create GPX/CSV for ${recording.filename}",
-                        exception = e
-                    )
+                // Create/update GPX and CSV (legacy support) - skip if transcribeOnly
+                if (!transcribeOnly) {
+                    try {
+                        broadcastProgress(recording.filename, "creating GPX", currentFile, totalFiles)
+                        
+                        DebugLogger.logInfo(
+                            service = "BatchProcessingService",
+                            message = "Creating GPX waypoint for ${recording.filename} at $coords"
+                        )
+                        createGpxWaypoint(finalText, coords)
+                        
+                        DebugLogger.logInfo(
+                            service = "BatchProcessingService",
+                            message = "Creating CSV entry for ${recording.filename} at $coords"
+                        )
+                        createCsvEntry(finalText, coords)
+                    } catch (e: Exception) {
+                        Log.e("BatchProcessing", "Failed to create GPX/CSV", e)
+                        DebugLogger.logError(
+                            service = "BatchProcessingService",
+                            error = "Failed to create GPX/CSV for ${recording.filename}",
+                            exception = e
+                        )
+                    }
                 }
                 
                 // Send completion status for this file
@@ -209,7 +211,7 @@ class BatchProcessingService : LifecycleService() {
         }
     }
     
-    private fun createGpxWaypointFromRecording(recording: Recording, text: String, coords: String) {
+    private fun createGpxWaypoint(text: String, coords: String) {
         try {
             val (lat, lng) = parseCoordinates(coords)
             
@@ -294,7 +296,7 @@ class BatchProcessingService : LifecycleService() {
         }.format(java.util.Date())
     }
     
-    private fun createCsvEntryFromRecording(recording: Recording, text: String, coords: String) {
+    private fun createCsvEntry(text: String, coords: String) {
         try {
             val (lat, lng) = parseCoordinates(coords)
             
