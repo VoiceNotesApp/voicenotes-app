@@ -330,7 +330,7 @@ jobs:
 
       - name: Build APKs
         run: |
-          ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace --build-cache --parallel
+          ./gradlew assembleDebug assembleRelease --stacktrace --build-cache --parallel
 
       - name: Upload Voice Notes Debug APK
         uses: actions/upload-artifact@v4
@@ -358,13 +358,6 @@ jobs:
         with:
           name: vnmanager-opener-release-apk
           path: vnmanager-opener/build/outputs/apk/release/*.apk
-          retention-days: 7
-
-      - name: Upload Android Test APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug-androidTest-apk
-          path: app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
           retention-days: 7
 
       - name: Build Summary

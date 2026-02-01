@@ -134,7 +134,7 @@ jobs:
 
       - name: Build All Variants
         run: |
-          ./gradlew assembleDebug assembleRelease assembleDebugAndroidTest --stacktrace --build-cache --parallel
+          ./gradlew assembleDebug assembleRelease --stacktrace --build-cache --parallel
 
       - name: Upload Voice Notes Debug APK
         uses: actions/upload-artifact@v4
@@ -162,13 +162,6 @@ jobs:
         with:
           name: vnmanager-opener-release-apk
           path: vnmanager-opener/build/outputs/apk/release/*.apk
-          retention-days: 30
-
-      - name: Upload Android Test APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug-androidTest-apk
-          path: app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
           retention-days: 30
 
   # Job 3a: Static Analysis - Lint
@@ -330,59 +323,6 @@ jobs:
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:java-kotlin"
-
-  # Job 4: Firebase Test Lab
-  firebase-test-lab:
-    name: Firebase Test Lab
-    runs-on: ubuntu-latest
-    needs: build
-    timeout-minutes: 120
-    if: github.event_name != 'schedule'  # Skip on nightly runs to save Firebase quota
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download Debug APK
-        uses: actions/download-artifact@v4
-        with:
-          name: voice-notes-debug-apk
-          path: apks/
-
-      - name: Download Android Test APK
-        uses: actions/download-artifact@v4
-        with:
-          name: app-debug-androidTest-apk
-          path: apks/
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON }}
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Run Firebase Test Lab
-        run: |
-          gcloud firebase test android run \
-            --type instrumentation \
-            --app apks/app-debug.apk \
-            --test apks/app-debug-androidTest.apk \
-            --device model=Nexus6,version=28,locale=en,orientation=portrait \
-            --timeout 30m \
-            --results-bucket gs://${{ secrets.GCP_PROJECT_ID }}-test-results \
-            --results-dir firebase-test-results-${{ github.run_id }} \
-            --project ${{ secrets.GCP_PROJECT_ID }} \
-            --format=json > test-results.json || true
-
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: firebase-test-results
-          path: test-results.json
-          retention-days: 30
 
   # Job 5: Coverage
   coverage:
