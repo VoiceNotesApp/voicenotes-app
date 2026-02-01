@@ -41,6 +41,48 @@ class TranscriptionService(private val context: Context) {
                    serviceAccountJson.contains("\"private_key\"")
         }
     }
+    
+    /**
+     * Get device language code for speech recognition
+     * Returns a BCP-47 language code based on device locale
+     * 
+     * When the device has a complete locale (language + country), uses that directly.
+     * When only language is available, defaults to common regions for Google Cloud STT support:
+     * - English -> en-US (most widely supported)
+     * - German -> de-DE (Germany)
+     * - Spanish -> es-ES (Spain)
+     * - French -> fr-FR (France)
+     * - Italian -> it-IT (Italy)
+     * - Portuguese -> pt-BR (Brazil - largest Portuguese-speaking population; users in 
+     *                Portugal should manually select pt-PT for European Portuguese)
+     * - Japanese -> ja-JP (Japan)
+     * - Korean -> ko-KR (South Korea)
+     * - Chinese -> zh-CN (Mainland China - Simplified)
+     * - Others -> en-US (fallback)
+     */
+    private fun getDeviceLanguageCode(): String {
+        val locale = java.util.Locale.getDefault()
+        
+        // If locale has both language and country, use the properly formatted BCP-47 tag
+        if (locale.country.isNotEmpty()) {
+            return locale.toLanguageTag()
+        }
+        
+        // Otherwise, provide sensible defaults for common languages
+        // These defaults prioritize the most populous or widely-supported variants
+        return when (locale.language) {
+            "en" -> "en-US"
+            "de" -> "de-DE"
+            "es" -> "es-ES"
+            "fr" -> "fr-FR"
+            "it" -> "it-IT"
+            "pt" -> "pt-BR"
+            "ja" -> "ja-JP"
+            "ko" -> "ko-KR"
+            "zh" -> "zh-CN"
+            else -> "en-US" // Fallback to English US
+        }
+    }
 
     /**
      * Transcribes an audio file using Google Cloud Speech-to-Text API
@@ -146,8 +188,27 @@ class TranscriptionService(private val context: Context) {
             try {
                 // Read language preferences from SharedPreferences
                 val sharedPrefs = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-                val primaryLanguage = sharedPrefs.getString("stt_primary_language", "en-US") ?: "en-US"
-                val secondaryLanguage = sharedPrefs.getString("stt_secondary_language", "") ?: ""
+                val rawPrimaryLanguage = sharedPrefs.getString("stt_primary_language", "system") ?: "system"
+                val rawSecondaryLanguage = sharedPrefs.getString("stt_secondary_language", "") ?: ""
+                
+                // Convert "system" to device locale language code
+                val primaryLanguage = if (rawPrimaryLanguage == "system") {
+                    getDeviceLanguageCode()
+                } else {
+                    rawPrimaryLanguage
+                }
+                
+                // Only convert "system" for secondary language if explicitly set, not if empty
+                val secondaryLanguage = if (rawSecondaryLanguage == "system") {
+                    getDeviceLanguageCode()
+                } else {
+                    rawSecondaryLanguage
+                }
+                
+                DebugLogger.logInfo(
+                    service = "Google Cloud Speech-to-Text",
+                    message = "Using language codes - Primary: $primaryLanguage, Secondary: $secondaryLanguage"
+                )
                 
                 // Detect audio format from file extension
                 val isOggOpus = filePath.endsWith(".ogg", ignoreCase = true)

@@ -143,7 +143,7 @@
             </LinearLayout>
 
             <!-- Action Buttons Row -->
-            <LinearLayout
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -160,11 +160,10 @@
                     android:layout_marginEnd="8dp"
                     app:backgroundTint="#D32F2F"
                     android:textColor="#FFFFFF" />
+                android:scrollbars="none">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/downloadButton"
-                    style="@style/AppButton"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/download"
@@ -210,8 +209,70 @@
                     android:textSize="13sp"
                     app:backgroundTint="#1976D2"
                     android:textColor="#FFFFFF" />
+                    android:orientation="horizontal"
+                    android:gravity="start|center_vertical">
 
-            </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/deleteButton"
+                        style="@style/AppButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Delete"
+                        android:textSize="13sp"
+                        android:layout_marginEnd="8dp"
+                        app:backgroundTint="#D32F2F"
+                        android:textColor="#FFFFFF" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/downloadButton"
+                        style="@style/AppButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Download"
+                        android:textSize="13sp"
+                        android:layout_marginEnd="8dp"
+                        android:visibility="gone"
+                        app:backgroundTint="#424242"
+                        android:textColor="#FFFFFF" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/transcribeButton"
+                        style="@style/AppButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Transcode"
+                        android:textSize="13sp"
+                        android:drawableEnd="@drawable/ic_status_not_started"
+                        android:drawablePadding="4dp"
+                        android:layout_marginEnd="8dp"
+                        app:backgroundTint="#424242"
+                        android:textColor="#FFFFFF" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/openMapsButton"
+                        style="@style/AppButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Open Maps"
+                        android:textSize="13sp"
+                        android:layout_marginEnd="8dp"
+                        app:backgroundTint="#4CAF50"
+                        android:textColor="#FFFFFF" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/playButton"
+                        style="@style/AppButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Play"
+                        android:textSize="13sp"
+                        android:layout_marginEnd="8dp"
+                        app:backgroundTint="#1976D2"
+                        android:textColor="#FFFFFF" />
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
 
         </LinearLayout>
 
