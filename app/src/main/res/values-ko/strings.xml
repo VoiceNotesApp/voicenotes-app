@@ -112,6 +112,7 @@
     <string name="no_recordings_to_export">내보낼 녹음이 없습니다</string>
     <string name="exported_to_downloads">다운로드로 내보내기 완료/%s</string>
     <string name="export_failed">내보내기 실패: %s</string>
+    <string name="recording_file_not_found">녹음 파일이 존재하지 않습니다</string>
     <string name="error_playing_recording">녹음 재생 오류: %s</string>
     <string name="error_opening_maps">지도 열기 오류: %s</string>
     <string name="error_deleting">삭제 오류: %s</string>

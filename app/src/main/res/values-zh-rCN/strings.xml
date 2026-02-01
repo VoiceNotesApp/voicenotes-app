@@ -112,6 +112,7 @@
     <string name="no_recordings_to_export">没有录音可导出</string>
     <string name="exported_to_downloads">已导出到下载/%s</string>
     <string name="export_failed">导出失败: %s</string>
+    <string name="recording_file_not_found">录音文件不存在</string>
     <string name="error_playing_recording">播放录音出错: %s</string>
     <string name="error_opening_maps">打开地图出错: %s</string>
     <string name="error_deleting">删除出错: %s</string>
