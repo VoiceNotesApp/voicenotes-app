@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Note Vocali</string>
+    <string name="settings_title">Gestione Note Vocali</string>
+    <string name="settings_launcher_name">Gestione VN</string>
+    <string name="location_acquired">Posizione acquisita</string>
+    <string name="recording_stopped">Registrazione interrotta</string>
+    <string name="permission_required">Autorizzazioni richieste</string>
+    <string name="grant_permissions">Questa app richiede i permessi del microfono e della posizione per registrare note vocali con coordinate GPS</string>
+    <string name="location_failed">Impossibile acquisire la posizione GPS</string>
+    <string name="recording_failed">Si è verificato un errore di registrazione</string>
+    <string name="choose_directory">Scegli cartella</string>
+    <string name="save_directory">Posizione di archiviazione</string>
+    <string name="not_set">Non configurato</string>
+    <string name="open_settings">Apri Gestione Note Vocali</string>
+    <string name="grant_all_permissions">Concedi autorizzazioni richieste</string>
+    <string name="configuration_info">Configura posizione di archiviazione e durata della registrazione</string>
+    <string name="quit_app">Esci</string>
+    <string name="recording_duration">Durata registrazione</string>
+    <string name="recording_duration_description">Imposta la durata della registrazione (1-99 secondi). Suggerimento: Avvia nuovamente l\'app durante la registrazione per reimpostare il timer.</string>
+    <string name="duration_hint">Inserisci 1-99 secondi</string>
+    <string name="invalid_duration">La durata deve essere compresa tra 1 e 99 secondi</string>
+    <string name="duration_saved">Durata registrazione impostata a %d secondi</string>
+    <string name="set_duration_button">Imposta durata</string>
+    <string name="checking_permissions">Verifica autorizzazioni...</string>
+    <string name="tts_not_available">Sintesi vocale non disponibile</string>
+    <string name="acquiring_location">Acquisizione posizione...</string>
+    <string name="location_acquired_coords">Posizione acquisita: %s</string>
+    <string name="recording_countdown">Registrazione... %d secondi</string>
+    <string name="recording_stopped_msg">Registrazione interrotta</string>
+    <string name="file_saved">File salvato.</string>
+    <string name="recording_started">Registrazione avviata</string>
+    <string name="overlay_permission_required">Autorizzazione sovrapposizione richiesta</string>
+    <string name="overlay_permission_message">Questa app necessita dell\'autorizzazione per visualizzarsi sopra altre app per la funzione di bolla sovrapposta</string>
+    <string name="permission_status_title">Stato autorizzazioni:</string>
+    <string name="permission_granted">✓ %s (concessa)</string>
+    <string name="permission_not_granted">✗ %s (non concessa)</string>
+    <string name="permission_microphone">Microfono</string>
+    <string name="permission_location">Posizione</string>
+    <string name="permission_bluetooth">Bluetooth</string>
+    <string name="permission_overlay">Sovrapposizione</string>
+    <string name="permissions_description">Concedi tutte le autorizzazioni richieste per il funzionamento dell\'app</string>
+    <string name="shortcut_settings_short">Gestione</string>
+    <string name="shortcut_settings_long">Gestione Note Vocali</string>
+    <string name="online_transcribing">Online: Trascrizione:</string>
+    <string name="online_transcribing_failed">Online: Trascrizione: fallita :-(</string>
+    <string name="online_creating_osm_note">Online: Creazione nota OSM</string>
+    <string name="online_osm_note_created">Online: Nota OSM creata.</string>
+    <string name="online_osm_note_failed">Online: Creazione nota OSM fallita :(</string>
+    <string name="processing_complete">Elaborazione completata</string>
+    <string name="overlay_permission_missing">L\'autorizzazione di sovrapposizione è richiesta per utilizzare questa app</string>
+    <string name="permissions_missing_overlay_message">Autorizzazioni mancanti: Concedi microfono, posizione, Bluetooth e sovrapposizione tramite [Gestisci] o Gestione VN</string>
+    <string name="app_not_configured_message">Note Vocali non è configurata. Apri le impostazioni tramite l\'azione Gestisci o l\'app Gestione VN per completare la configurazione.</string>
+    
+    <!-- Transcription strings -->
+    <string name="transcribe">Trascrivi</string>
+    <string name="retranscribe">Ritrascrivi</string>
+    <string name="processing">Elaborazione</string>
+    <string name="retry">Riprova</string>
+    <string name="disabled">Disabilitato</string>
+    <string name="transcription_in_progress">Trascrizione in corso...</string>
+    <string name="starting_transcription">Avvio trascrizione...</string>
+    
+    <!-- Playback strings -->
+    <string name="play">Riproduci</string>
+    <string name="stop">Ferma</string>
+    <string name="playback_stopped">Riproduzione interrotta</string>
+    <string name="playback_finished">Riproduzione completata</string>
+    <string name="playing_recording">Riproduzione registrazione...</string>
+    
+    <!-- Settings Preference Strings -->
+    <string name="pref_category_recording_manager">Gestione registrazioni</string>
+    <string name="pref_recording_manager_open_title">Apri Gestione registrazioni</string>
+    <string name="pref_recording_manager_open_summary">Visualizza e gestisci le tue registrazioni</string>
+    <string name="pref_recordings_count_title">Registrazioni totali</string>
+    <string name="pref_recordings_count_summary">%d registrazioni archiviate</string>
+    <string name="pref_recording_duration_title">Durata registrazione</string>
+    <string name="pref_recording_duration_summary">Imposta la durata di ogni registrazione (1-99 secondi)</string>
+    
+    <string name="pref_category_language">Preferenze lingua</string>
+    <string name="pref_app_language_title">Lingua dell\'app</string>
+    <string name="pref_app_language_summary">Seleziona la lingua di visualizzazione dell\'app</string>
+    <string name="pref_stt_primary_language_title">Lingua vocale principale</string>
+    <string name="pref_stt_primary_language_summary">Lingua principale per la trascrizione vocale</string>
+    <string name="pref_stt_secondary_language_title">Lingua vocale secondaria</string>
+    <string name="pref_stt_secondary_language_summary">Lingua secondaria opzionale per la trascrizione</string>
+    
+    <string name="pref_category_permissions">Autorizzazioni</string>
+    <string name="pref_grant_permissions_title">Concedi autorizzazioni</string>
+    <string name="pref_grant_permissions_summary">Richiedi autorizzazioni microfono, posizione e altre</string>
+    <string name="pref_permission_status_title">Stato autorizzazioni</string>
+    <string name="pref_permission_status_summary">Visualizza stato attuale delle autorizzazioni</string>
+    
+    <string name="pref_category_debugging">Debug</string>
+    <string name="pref_enable_debug_logging_title">Abilita log di debug</string>
+    <string name="pref_enable_debug_logging_summary">Registra chiamate e risposte API dettagliate</string>
+    <string name="pref_show_debug_log_title">Mostra log di debug</string>
+    <string name="pref_show_debug_log_summary">Visualizza informazioni di debug dettagliate</string>
+</resources>
