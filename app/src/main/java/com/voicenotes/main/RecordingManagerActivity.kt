@@ -223,50 +223,6 @@ class RecordingManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeTranscriptionText(recording: Recording) {
-        // Create a TextInputEditText for the dialog
-        val editText = TextInputEditText(this).apply {
-            setText(recording.v2sResult ?: "")
-            hint = "Enter transcription text"
-            setSingleLine(false)
-            maxLines = 5
-            setPadding(50, 20, 50, 20)
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Edit Transcription")
-            .setMessage("Modify the transcribed text:")
-            .setView(editText)
-            .setPositiveButton("Save") { _, _ ->
-                val newText = editText.text.toString().trim()
-                if (newText.isNotEmpty()) {
-                    lifecycleScope.launch {
-                        try {
-                            val db = RecordingDatabase.getDatabase(this@RecordingManagerActivity)
-                            val updated = recording.copy(
-                                v2sResult = newText,
-                                v2sStatus = V2SStatus.COMPLETED,
-                                updatedAt = System.currentTimeMillis()
-                            )
-                            db.recordingDao().updateRecording(updated)
-
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(this@RecordingManagerActivity, "Transcription updated successfully", Toast.LENGTH_SHORT).show()
-                            }
-                        } catch (e: Exception) {
-                            Log.e("RecordingManager", "Error updating transcription", e)
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(this@RecordingManagerActivity, "Error updating: ${e.message}", Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    }
-                } else {
-                    Toast.makeText(this, "Transcription cannot be empty", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
 
     private fun deleteRecording(recording: Recording) {
         MaterialAlertDialogBuilder(this)
