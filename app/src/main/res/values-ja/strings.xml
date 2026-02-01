@@ -153,7 +153,7 @@
     
     <!-- MainActivity strings -->
     <string name="auto_closing_countdown">%d秒後に自動的に閉じます...</string>
-    <string name="migrated_recordings">%d件の既存の録音%sを移行しました</string>
+    <string name="migrated_recordings">%1$d件の既存の録音%2$sを移行しました</string>
     <string name="ok">OK</string>
     <string name="failed_to_initialize_ui">UIの初期化に失敗しました：%s</string>
     

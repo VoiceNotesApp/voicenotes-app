@@ -153,7 +153,7 @@
     
     <!-- MainActivity strings -->
     <string name="auto_closing_countdown">Fermeture automatique dans %d secondes...</string>
-    <string name="migrated_recordings">%d enregistrement%s existant migré</string>
+    <string name="migrated_recordings">%1$d enregistrement%2$s existant migré</string>
     <string name="ok">OK</string>
     <string name="failed_to_initialize_ui">Échec de l\'initialisation de l\'UI : %s</string>
     

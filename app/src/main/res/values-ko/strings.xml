@@ -153,7 +153,7 @@
     
     <!-- MainActivity strings -->
     <string name="auto_closing_countdown">%d초 후 자동으로 닫힙니다...</string>
-    <string name="migrated_recordings">%d개의 기존 녹음%s 마이그레이션됨</string>
+    <string name="migrated_recordings">%1$d개의 기존 녹음%2$s 마이그레이션됨</string>
     <string name="ok">확인</string>
     <string name="failed_to_initialize_ui">UI 초기화 실패: %s</string>
     

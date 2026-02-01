@@ -153,7 +153,7 @@
     
     <!-- MainActivity strings -->
     <string name="auto_closing_countdown">%d秒后自动关闭...</string>
-    <string name="migrated_recordings">已迁移%d条现有录音%s</string>
+    <string name="migrated_recordings">已迁移%1$d条现有录音%2$s</string>
     <string name="ok">确定</string>
     <string name="failed_to_initialize_ui">UI初始化失败：%s</string>
     
