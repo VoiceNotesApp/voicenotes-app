@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sprachnotizen</string>
+    <string name="settings_title">Sprachnotizen-Manager</string>
+    <string name="settings_launcher_name">VN Manager</string>
+    <string name="location_acquired">Standort ermittelt</string>
+    <string name="recording_stopped">Aufnahme gestoppt</string>
+    <string name="permission_required">Berechtigungen erforderlich</string>
+    <string name="grant_permissions">Diese App benötigt Mikrofon- und Standortberechtigungen, um Sprachnotizen mit GPS-Koordinaten aufzuzeichnen</string>
+    <string name="location_failed">GPS-Standort konnte nicht ermittelt werden</string>
+    <string name="recording_failed">Aufnahmefehler aufgetreten</string>
+    <string name="choose_directory">Ordner wählen</string>
+    <string name="save_directory">Speicherort</string>
+    <string name="not_set">Nicht konfiguriert</string>
+    <string name="open_settings">Sprachnotizen-Manager öffnen</string>
+    <string name="grant_all_permissions">Erforderliche Berechtigungen erteilen</string>
+    <string name="configuration_info">Speicherort und Dauer der Aufnahme konfigurieren</string>
+    <string name="quit_app">Beenden</string>
+    <string name="recording_duration">Aufnahmedauer</string>
+    <string name="recording_duration_description">Aufnahmelänge einstellen (1-99 Sekunden). Tipp: Starten Sie die App während der Aufnahme erneut, um den Timer zurückzusetzen.</string>
+    <string name="duration_hint">1-99 Sekunden eingeben</string>
+    <string name="invalid_duration">Dauer muss zwischen 1 und 99 Sekunden liegen</string>
+    <string name="duration_saved">Aufnahmedauer auf %d Sekunden eingestellt</string>
+    <string name="set_duration_button">Dauer festlegen</string>
+    <string name="checking_permissions">Berechtigungen werden überprüft...</string>
+    <string name="tts_not_available">Text-zu-Sprache nicht verfügbar</string>
+    <string name="acquiring_location">Standort wird ermittelt...</string>
+    <string name="location_acquired_coords">Standort ermittelt: %s</string>
+    <string name="recording_countdown">Aufnahme... %d Sekunden</string>
+    <string name="recording_stopped_msg">Aufnahme gestoppt</string>
+    <string name="file_saved">Datei gespeichert.</string>
+    <string name="recording_started">Aufnahme gestartet</string>
+    <string name="overlay_permission_required">Overlay-Berechtigung erforderlich</string>
+    <string name="overlay_permission_message">Diese App benötigt die Berechtigung, über anderen Apps anzuzeigen, für die Bubble-Overlay-Funktion</string>
+    <string name="permission_status_title">Berechtigungsstatus:</string>
+    <string name="permission_granted">✓ %s (erteilt)</string>
+    <string name="permission_not_granted">✗ %s (nicht erteilt)</string>
+    <string name="permission_microphone">Mikrofon</string>
+    <string name="permission_location">Standort</string>
+    <string name="permission_bluetooth">Bluetooth</string>
+    <string name="permission_overlay">Overlay</string>
+    <string name="permissions_description">Alle erforderlichen Berechtigungen für die Funktionsfähigkeit der App erteilen</string>
+    <string name="shortcut_settings_short">Manager</string>
+    <string name="shortcut_settings_long">Sprachnotizen-Manager</string>
+    <string name="online_transcribing">Online: Transkribieren:</string>
+    <string name="online_transcribing_failed">Online: Transkribieren: fehlgeschlagen :-(</string>
+    <string name="online_creating_osm_note">Online: OSM-Notiz erstellen</string>
+    <string name="online_osm_note_created">Online: OSM-Notiz erstellt.</string>
+    <string name="online_osm_note_failed">Online: OSM-Notiz-Erstellung fehlgeschlagen :(</string>
+    <string name="processing_complete">Verarbeitung abgeschlossen</string>
+    <string name="overlay_permission_missing">Overlay-Berechtigung ist erforderlich, um diese App zu verwenden</string>
+    <string name="permissions_missing_overlay_message">Fehlende Berechtigungen: Bitte erteilen Sie Mikrofon-, Standort-, Bluetooth- und Overlay-Berechtigungen über [Verwalten] oder VN Manager</string>
+    <string name="app_not_configured_message">Sprachnotizen ist nicht konfiguriert. Öffnen Sie die Einstellungen über die Verwalten-Aktion oder die VN Manager-App, um die Einrichtung abzuschließen.</string>
+    
+    <!-- Transcription strings -->
+    <string name="transcribe">Transkribieren</string>
+    <string name="retranscribe">Neu transkribieren</string>
+    <string name="processing">Verarbeitung</string>
+    <string name="retry">Wiederholen</string>
+    <string name="disabled">Deaktiviert</string>
+    <string name="transcription_in_progress">Transkription läuft...</string>
+    <string name="starting_transcription">Transkription wird gestartet...</string>
+    
+    <!-- Playback strings -->
+    <string name="play">Abspielen</string>
+    <string name="stop">Stoppen</string>
+    <string name="playback_stopped">Wiedergabe gestoppt</string>
+    <string name="playback_finished">Wiedergabe beendet</string>
+    <string name="playing_recording">Aufnahme wird abgespielt...</string>
+    
+    <!-- Settings Preference Strings -->
+    <string name="pref_category_recording_manager">Aufnahme-Manager</string>
+    <string name="pref_recording_manager_open_title">Aufnahme-Manager öffnen</string>
+    <string name="pref_recording_manager_open_summary">Ihre Aufnahmen anzeigen und verwalten</string>
+    <string name="pref_recordings_count_title">Gesamtzahl der Aufnahmen</string>
+    <string name="pref_recordings_count_summary">%d Aufnahmen gespeichert</string>
+    <string name="pref_recording_duration_title">Aufnahmedauer</string>
+    <string name="pref_recording_duration_summary">Länge jeder Aufnahme festlegen (1-99 Sekunden)</string>
+    
+    <string name="pref_category_language">Spracheinstellungen</string>
+    <string name="pref_app_language_title">App-Sprache</string>
+    <string name="pref_app_language_summary">Anzeigesprache für die App auswählen</string>
+    <string name="pref_stt_primary_language_title">Primäre Spracherkennungssprache</string>
+    <string name="pref_stt_primary_language_summary">Primäre Sprache für Sprache-zu-Text-Transkription</string>
+    <string name="pref_stt_secondary_language_title">Sekundäre Spracherkennungssprache</string>
+    <string name="pref_stt_secondary_language_summary">Optionale sekundäre Sprache für Transkription</string>
+    
+    <string name="pref_category_permissions">Berechtigungen</string>
+    <string name="pref_grant_permissions_title">Berechtigungen erteilen</string>
+    <string name="pref_grant_permissions_summary">Mikrofon-, Standort- und andere Berechtigungen anfordern</string>
+    <string name="pref_permission_status_title">Berechtigungsstatus</string>
+    <string name="pref_permission_status_summary">Aktuellen Berechtigungsstatus anzeigen</string>
+    
+    <string name="pref_category_debugging">Debugging</string>
+    <string name="pref_enable_debug_logging_title">Debug-Protokollierung aktivieren</string>
+    <string name="pref_enable_debug_logging_summary">Detaillierte API-Aufrufe und -Antworten protokollieren</string>
+    <string name="pref_show_debug_log_title">Debug-Protokoll anzeigen</string>
+    <string name="pref_show_debug_log_summary">Detaillierte Debug-Informationen anzeigen</string>
+</resources>

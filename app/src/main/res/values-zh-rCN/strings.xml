@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">语音备忘录</string>
+    <string name="settings_title">语音备忘录管理器</string>
+    <string name="settings_launcher_name">语音管理器</string>
+    <string name="location_acquired">已获取位置</string>
+    <string name="recording_stopped">录音已停止</string>
+    <string name="permission_required">需要权限</string>
+    <string name="grant_permissions">此应用需要麦克风和位置权限来录制带GPS坐标的语音备忘录</string>
+    <string name="location_failed">无法获取GPS位置</string>
+    <string name="recording_failed">录音出错</string>
+    <string name="choose_directory">选择文件夹</string>
+    <string name="save_directory">存储位置</string>
+    <string name="not_set">未配置</string>
+    <string name="open_settings">打开语音备忘录管理器</string>
+    <string name="grant_all_permissions">授予所需权限</string>
+    <string name="configuration_info">配置录音存储位置和时长</string>
+    <string name="quit_app">退出</string>
+    <string name="recording_duration">录音时长</string>
+    <string name="recording_duration_description">设置录音长度（1-99秒）。提示：在录音时重新启动应用可以重置计时器。</string>
+    <string name="duration_hint">输入1-99秒</string>
+    <string name="invalid_duration">时长必须在1到99秒之间</string>
+    <string name="duration_saved">录音时长已设置为%d秒</string>
+    <string name="set_duration_button">设置时长</string>
+    <string name="checking_permissions">正在检查权限...</string>
+    <string name="tts_not_available">文字转语音不可用</string>
+    <string name="acquiring_location">正在获取位置...</string>
+    <string name="location_acquired_coords">已获取位置：%s</string>
+    <string name="recording_countdown">录音中... %d秒</string>
+    <string name="recording_stopped_msg">录音已停止</string>
+    <string name="file_saved">文件已保存。</string>
+    <string name="recording_started">录音已开始</string>
+    <string name="overlay_permission_required">需要悬浮窗权限</string>
+    <string name="overlay_permission_message">此应用需要悬浮窗权限以使用气泡悬浮功能</string>
+    <string name="permission_status_title">权限状态：</string>
+    <string name="permission_granted">✓ %s（已授予）</string>
+    <string name="permission_not_granted">✗ %s（未授予）</string>
+    <string name="permission_microphone">麦克风</string>
+    <string name="permission_location">位置</string>
+    <string name="permission_bluetooth">蓝牙</string>
+    <string name="permission_overlay">悬浮窗</string>
+    <string name="permissions_description">授予应用正常运行所需的所有权限</string>
+    <string name="shortcut_settings_short">管理器</string>
+    <string name="shortcut_settings_long">语音备忘录管理器</string>
+    <string name="online_transcribing">在线：转录中：</string>
+    <string name="online_transcribing_failed">在线：转录：失败 :-(</string>
+    <string name="online_creating_osm_note">在线：创建OSM笔记</string>
+    <string name="online_osm_note_created">在线：OSM笔记已创建。</string>
+    <string name="online_osm_note_failed">在线：OSM笔记创建失败 :(</string>
+    <string name="processing_complete">处理完成</string>
+    <string name="overlay_permission_missing">使用此应用需要悬浮窗权限</string>
+    <string name="permissions_missing_overlay_message">权限缺失：请通过[管理]或语音管理器授予麦克风、位置、蓝牙和悬浮窗权限</string>
+    <string name="app_not_configured_message">语音备忘录未配置。通过管理操作或语音管理器应用打开设置以完成设置。</string>
+    
+    <!-- Transcription strings -->
+    <string name="transcribe">转录</string>
+    <string name="retranscribe">重新转录</string>
+    <string name="processing">处理中</string>
+    <string name="retry">重试</string>
+    <string name="disabled">已禁用</string>
+    <string name="transcription_in_progress">转录进行中...</string>
+    <string name="starting_transcription">开始转录...</string>
+    
+    <!-- Playback strings -->
+    <string name="play">播放</string>
+    <string name="stop">停止</string>
+    <string name="playback_stopped">播放已停止</string>
+    <string name="playback_finished">播放已完成</string>
+    <string name="playing_recording">正在播放录音...</string>
+    
+    <!-- Settings Preference Strings -->
+    <string name="pref_category_recording_manager">录音管理器</string>
+    <string name="pref_recording_manager_open_title">打开录音管理器</string>
+    <string name="pref_recording_manager_open_summary">查看和管理您的录音</string>
+    <string name="pref_recordings_count_title">总录音数</string>
+    <string name="pref_recordings_count_summary">已存储%d个录音</string>
+    <string name="pref_recording_duration_title">录音时长</string>
+    <string name="pref_recording_duration_summary">设置每个录音的长度（1-99秒）</string>
+    
+    <string name="pref_category_language">语言偏好</string>
+    <string name="pref_app_language_title">应用语言</string>
+    <string name="pref_app_language_summary">选择应用的显示语言</string>
+    <string name="pref_stt_primary_language_title">主要语音语言</string>
+    <string name="pref_stt_primary_language_summary">语音转文字的主要语言</string>
+    <string name="pref_stt_secondary_language_title">次要语音语言</string>
+    <string name="pref_stt_secondary_language_summary">用于转录的可选次要语言</string>
+    
+    <string name="pref_category_permissions">权限</string>
+    <string name="pref_grant_permissions_title">授予权限</string>
+    <string name="pref_grant_permissions_summary">请求麦克风、位置和其他权限</string>
+    <string name="pref_permission_status_title">权限状态</string>
+    <string name="pref_permission_status_summary">查看当前权限状态</string>
+    
+    <string name="pref_category_debugging">调试</string>
+    <string name="pref_enable_debug_logging_title">启用调试日志</string>
+    <string name="pref_enable_debug_logging_summary">记录详细的API调用和响应</string>
+    <string name="pref_show_debug_log_title">显示调试日志</string>
+    <string name="pref_show_debug_log_summary">查看详细的调试信息</string>
+</resources>

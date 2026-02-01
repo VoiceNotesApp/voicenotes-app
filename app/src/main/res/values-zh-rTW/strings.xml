@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">語音備忘錄</string>
+    <string name="settings_title">語音備忘錄管理器</string>
+    <string name="settings_launcher_name">語音管理器</string>
+    <string name="location_acquired">已獲取位置</string>
+    <string name="recording_stopped">錄音已停止</string>
+    <string name="permission_required">需要權限</string>
+    <string name="grant_permissions">此應用程式需要麥克風和位置權限來錄製帶GPS座標的語音備忘錄</string>
+    <string name="location_failed">無法獲取GPS位置</string>
+    <string name="recording_failed">錄音出錯</string>
+    <string name="choose_directory">選擇資料夾</string>
+    <string name="save_directory">儲存位置</string>
+    <string name="not_set">未配置</string>
+    <string name="open_settings">開啟語音備忘錄管理器</string>
+    <string name="grant_all_permissions">授予所需權限</string>
+    <string name="configuration_info">配置錄音儲存位置和時長</string>
+    <string name="quit_app">退出</string>
+    <string name="recording_duration">錄音時長</string>
+    <string name="recording_duration_description">設定錄音長度（1-99秒）。提示：在錄音時重新啟動應用程式可以重置計時器。</string>
+    <string name="duration_hint">輸入1-99秒</string>
+    <string name="invalid_duration">時長必須在1到99秒之間</string>
+    <string name="duration_saved">錄音時長已設定為%d秒</string>
+    <string name="set_duration_button">設定時長</string>
+    <string name="checking_permissions">正在檢查權限...</string>
+    <string name="tts_not_available">文字轉語音不可用</string>
+    <string name="acquiring_location">正在獲取位置...</string>
+    <string name="location_acquired_coords">已獲取位置：%s</string>
+    <string name="recording_countdown">錄音中... %d秒</string>
+    <string name="recording_stopped_msg">錄音已停止</string>
+    <string name="file_saved">檔案已儲存。</string>
+    <string name="recording_started">錄音已開始</string>
+    <string name="overlay_permission_required">需要懸浮視窗權限</string>
+    <string name="overlay_permission_message">此應用程式需要懸浮視窗權限以使用氣泡懸浮功能</string>
+    <string name="permission_status_title">權限狀態：</string>
+    <string name="permission_granted">✓ %s（已授予）</string>
+    <string name="permission_not_granted">✗ %s（未授予）</string>
+    <string name="permission_microphone">麥克風</string>
+    <string name="permission_location">位置</string>
+    <string name="permission_bluetooth">藍牙</string>
+    <string name="permission_overlay">懸浮視窗</string>
+    <string name="permissions_description">授予應用程式正常運作所需的所有權限</string>
+    <string name="shortcut_settings_short">管理器</string>
+    <string name="shortcut_settings_long">語音備忘錄管理器</string>
+    <string name="online_transcribing">線上：轉錄中：</string>
+    <string name="online_transcribing_failed">線上：轉錄：失敗 :-(</string>
+    <string name="online_creating_osm_note">線上：建立OSM筆記</string>
+    <string name="online_osm_note_created">線上：OSM筆記已建立。</string>
+    <string name="online_osm_note_failed">線上：OSM筆記建立失敗 :(</string>
+    <string name="processing_complete">處理完成</string>
+    <string name="overlay_permission_missing">使用此應用程式需要懸浮視窗權限</string>
+    <string name="permissions_missing_overlay_message">權限缺失：請透過[管理]或語音管理器授予麥克風、位置、藍牙和懸浮視窗權限</string>
+    <string name="app_not_configured_message">語音備忘錄未配置。透過管理操作或語音管理器應用程式開啟設定以完成設定。</string>
+    
+    <!-- Transcription strings -->
+    <string name="transcribe">轉錄</string>
+    <string name="retranscribe">重新轉錄</string>
+    <string name="processing">處理中</string>
+    <string name="retry">重試</string>
+    <string name="disabled">已停用</string>
+    <string name="transcription_in_progress">轉錄進行中...</string>
+    <string name="starting_transcription">開始轉錄...</string>
+    
+    <!-- Playback strings -->
+    <string name="play">播放</string>
+    <string name="stop">停止</string>
+    <string name="playback_stopped">播放已停止</string>
+    <string name="playback_finished">播放已完成</string>
+    <string name="playing_recording">正在播放錄音...</string>
+    
+    <!-- Settings Preference Strings -->
+    <string name="pref_category_recording_manager">錄音管理器</string>
+    <string name="pref_recording_manager_open_title">開啟錄音管理器</string>
+    <string name="pref_recording_manager_open_summary">檢視和管理您的錄音</string>
+    <string name="pref_recordings_count_title">總錄音數</string>
+    <string name="pref_recordings_count_summary">已儲存%d個錄音</string>
+    <string name="pref_recording_duration_title">錄音時長</string>
+    <string name="pref_recording_duration_summary">設定每個錄音的長度（1-99秒）</string>
+    
+    <string name="pref_category_language">語言偏好</string>
+    <string name="pref_app_language_title">應用程式語言</string>
+    <string name="pref_app_language_summary">選擇應用程式的顯示語言</string>
+    <string name="pref_stt_primary_language_title">主要語音語言</string>
+    <string name="pref_stt_primary_language_summary">語音轉文字的主要語言</string>
+    <string name="pref_stt_secondary_language_title">次要語音語言</string>
+    <string name="pref_stt_secondary_language_summary">用於轉錄的可選次要語言</string>
+    
+    <string name="pref_category_permissions">權限</string>
+    <string name="pref_grant_permissions_title">授予權限</string>
+    <string name="pref_grant_permissions_summary">請求麥克風、位置和其他權限</string>
+    <string name="pref_permission_status_title">權限狀態</string>
+    <string name="pref_permission_status_summary">檢視目前權限狀態</string>
+    
+    <string name="pref_category_debugging">偵錯</string>
+    <string name="pref_enable_debug_logging_title">啟用偵錯日誌</string>
+    <string name="pref_enable_debug_logging_summary">記錄詳細的API呼叫和回應</string>
+    <string name="pref_show_debug_log_title">顯示偵錯日誌</string>
+    <string name="pref_show_debug_log_summary">檢視詳細的偵錯資訊</string>
+</resources>

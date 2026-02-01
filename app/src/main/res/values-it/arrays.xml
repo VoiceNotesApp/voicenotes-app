@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Language Options -->
+    <string-array name="app_language_entries">
+        <item>Sistema (segui dispositivo)</item>
+        <item>Inglese</item>
+        <item>Tedesco</item>
+        <item>Spagnolo</item>
+        <item>Francese</item>
+        <item>Italiano</item>
+        <item>Portoghese</item>
+        <item>Giapponese</item>
+        <item>Coreano</item>
+        <item>Cinese (Semplificato)</item>
+        <item>Cinese (Tradizionale)</item>
+    </string-array>
+
+    <!-- STT Primary Language Options -->
+    <string-array name="stt_primary_language_entries">
+        <item>Inglese (Stati Uniti)</item>
+        <item>Inglese (Regno Unito)</item>
+        <item>Tedesco</item>
+        <item>Spagnolo (Spagna)</item>
+        <item>Spagnolo (America Latina)</item>
+        <item>Francese (Francia)</item>
+        <item>Italiano</item>
+        <item>Portoghese (Brasile)</item>
+        <item>Portoghese (Portogallo)</item>
+        <item>Giapponese</item>
+        <item>Coreano</item>
+        <item>Cinese (Mandarino, Semplificato)</item>
+        <item>Cinese (Mandarino, Tradizionale)</item>
+    </string-array>
+
+    <!-- STT Secondary Language Options (includes None) -->
+    <string-array name="stt_secondary_language_entries">
+        <item>Nessuna</item>
+        <item>Inglese (Stati Uniti)</item>
+        <item>Inglese (Regno Unito)</item>
+        <item>Tedesco</item>
+        <item>Spagnolo (Spagna)</item>
+        <item>Spagnolo (America Latina)</item>
+        <item>Francese (Francia)</item>
+        <item>Italiano</item>
+        <item>Portoghese (Brasile)</item>
+        <item>Portoghese (Portogallo)</item>
+        <item>Giapponese</item>
+        <item>Coreano</item>
+        <item>Cinese (Mandarino, Semplificato)</item>
+        <item>Cinese (Mandarino, Tradizionale)</item>
+    </string-array>
+</resources>

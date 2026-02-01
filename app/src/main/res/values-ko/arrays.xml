@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Language Options -->
+    <string-array name="app_language_entries">
+        <item>시스템 (기기 설정 따르기)</item>
+        <item>영어</item>
+        <item>독일어</item>
+        <item>스페인어</item>
+        <item>프랑스어</item>
+        <item>이탈리아어</item>
+        <item>포르투갈어</item>
+        <item>일본어</item>
+        <item>한국어</item>
+        <item>중국어 (간체)</item>
+        <item>중국어 (번체)</item>
+    </string-array>
+
+    <!-- STT Primary Language Options -->
+    <string-array name="stt_primary_language_entries">
+        <item>영어 (미국)</item>
+        <item>영어 (영국)</item>
+        <item>독일어</item>
+        <item>스페인어 (스페인)</item>
+        <item>스페인어 (라틴 아메리카)</item>
+        <item>프랑스어 (프랑스)</item>
+        <item>이탈리아어</item>
+        <item>포르투갈어 (브라질)</item>
+        <item>포르투갈어 (포르투갈)</item>
+        <item>일본어</item>
+        <item>한국어</item>
+        <item>중국어 (표준어, 간체)</item>
+        <item>중국어 (표준어, 번체)</item>
+    </string-array>
+
+    <!-- STT Secondary Language Options (includes None) -->
+    <string-array name="stt_secondary_language_entries">
+        <item>없음</item>
+        <item>영어 (미국)</item>
+        <item>영어 (영국)</item>
+        <item>독일어</item>
+        <item>스페인어 (스페인)</item>
+        <item>스페인어 (라틴 아메리카)</item>
+        <item>프랑스어 (프랑스)</item>
+        <item>이탈리아어</item>
+        <item>포르투갈어 (브라질)</item>
+        <item>포르투갈어 (포르투갈)</item>
+        <item>일본어</item>
+        <item>한국어</item>
+        <item>중국어 (표준어, 간체)</item>
+        <item>중국어 (표준어, 번체)</item>
+    </string-array>
+</resources>

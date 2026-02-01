@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">음성 메모</string>
+    <string name="settings_title">음성 메모 관리자</string>
+    <string name="settings_launcher_name">VN 관리자</string>
+    <string name="location_acquired">위치 확보</string>
+    <string name="recording_stopped">녹음 중지됨</string>
+    <string name="permission_required">권한 필요</string>
+    <string name="grant_permissions">이 앱은 GPS 좌표가 포함된 음성 메모를 녹음하기 위해 마이크 및 위치 권한이 필요합니다</string>
+    <string name="location_failed">GPS 위치를 가져올 수 없습니다</string>
+    <string name="recording_failed">녹음 오류가 발생했습니다</string>
+    <string name="choose_directory">폴더 선택</string>
+    <string name="save_directory">저장 위치</string>
+    <string name="not_set">설정되지 않음</string>
+    <string name="open_settings">음성 메모 관리자 열기</string>
+    <string name="grant_all_permissions">필수 권한 부여</string>
+    <string name="configuration_info">저장 위치 및 녹음 시간 구성</string>
+    <string name="quit_app">종료</string>
+    <string name="recording_duration">녹음 시간</string>
+    <string name="recording_duration_description">녹음 길이 설정(1-99초). 팁: 녹음 중에 앱을 다시 시작하면 타이머가 재설정됩니다.</string>
+    <string name="duration_hint">1-99초 입력</string>
+    <string name="invalid_duration">시간은 1에서 99초 사이여야 합니다</string>
+    <string name="duration_saved">녹음 시간을 %d초로 설정했습니다</string>
+    <string name="set_duration_button">시간 설정</string>
+    <string name="checking_permissions">권한 확인 중...</string>
+    <string name="tts_not_available">텍스트 음성 변환 사용 불가</string>
+    <string name="acquiring_location">위치 확보 중...</string>
+    <string name="location_acquired_coords">위치 확보됨: %s</string>
+    <string name="recording_countdown">녹음 중... %d초</string>
+    <string name="recording_stopped_msg">녹음 중지됨</string>
+    <string name="file_saved">파일이 저장되었습니다.</string>
+    <string name="recording_started">녹음 시작됨</string>
+    <string name="overlay_permission_required">오버레이 권한 필요</string>
+    <string name="overlay_permission_message">이 앱은 버블 오버레이 기능을 위해 다른 앱 위에 표시할 권한이 필요합니다</string>
+    <string name="permission_status_title">권한 상태:</string>
+    <string name="permission_granted">✓ %s (부여됨)</string>
+    <string name="permission_not_granted">✗ %s (부여되지 않음)</string>
+    <string name="permission_microphone">마이크</string>
+    <string name="permission_location">위치</string>
+    <string name="permission_bluetooth">블루투스</string>
+    <string name="permission_overlay">오버레이</string>
+    <string name="permissions_description">앱이 작동하는 데 필요한 모든 권한 부여</string>
+    <string name="shortcut_settings_short">관리자</string>
+    <string name="shortcut_settings_long">음성 메모 관리자</string>
+    <string name="online_transcribing">온라인: 변환 중:</string>
+    <string name="online_transcribing_failed">온라인: 변환: 실패 :-(</string>
+    <string name="online_creating_osm_note">온라인: OSM 노트 생성 중</string>
+    <string name="online_osm_note_created">온라인: OSM 노트가 생성되었습니다.</string>
+    <string name="online_osm_note_failed">온라인: OSM 노트 생성 실패 :(</string>
+    <string name="processing_complete">처리 완료</string>
+    <string name="overlay_permission_missing">이 앱을 사용하려면 오버레이 권한이 필요합니다</string>
+    <string name="permissions_missing_overlay_message">권한 누락: [관리] 또는 VN 관리자를 통해 마이크, 위치, 블루투스 및 오버레이 권한을 부여하세요</string>
+    <string name="app_not_configured_message">음성 메모가 구성되지 않았습니다. 관리 작업 또는 VN 관리자 앱을 통해 설정을 열어 설정을 완료하세요.</string>
+    
+    <!-- Transcription strings -->
+    <string name="transcribe">변환</string>
+    <string name="retranscribe">재변환</string>
+    <string name="processing">처리 중</string>
+    <string name="retry">다시 시도</string>
+    <string name="disabled">비활성화됨</string>
+    <string name="transcription_in_progress">변환 진행 중...</string>
+    <string name="starting_transcription">변환 시작 중...</string>
+    
+    <!-- Playback strings -->
+    <string name="play">재생</string>
+    <string name="stop">중지</string>
+    <string name="playback_stopped">재생 중지됨</string>
+    <string name="playback_finished">재생 완료됨</string>
+    <string name="playing_recording">녹음 재생 중...</string>
+    
+    <!-- Settings Preference Strings -->
+    <string name="pref_category_recording_manager">녹음 관리자</string>
+    <string name="pref_recording_manager_open_title">녹음 관리자 열기</string>
+    <string name="pref_recording_manager_open_summary">녹음 보기 및 관리</string>
+    <string name="pref_recordings_count_title">총 녹음 수</string>
+    <string name="pref_recordings_count_summary">%d개의 녹음 저장됨</string>
+    <string name="pref_recording_duration_title">녹음 시간</string>
+    <string name="pref_recording_duration_summary">각 녹음의 길이 설정(1-99초)</string>
+    
+    <string name="pref_category_language">언어 설정</string>
+    <string name="pref_app_language_title">앱 언어</string>
+    <string name="pref_app_language_summary">앱의 표시 언어 선택</string>
+    <string name="pref_stt_primary_language_title">기본 음성 언어</string>
+    <string name="pref_stt_primary_language_summary">음성-텍스트 변환의 기본 언어</string>
+    <string name="pref_stt_secondary_language_title">보조 음성 언어</string>
+    <string name="pref_stt_secondary_language_summary">변환을 위한 선택적 보조 언어</string>
+    
+    <string name="pref_category_permissions">권한</string>
+    <string name="pref_grant_permissions_title">권한 부여</string>
+    <string name="pref_grant_permissions_summary">마이크, 위치 및 기타 권한 요청</string>
+    <string name="pref_permission_status_title">권한 상태</string>
+    <string name="pref_permission_status_summary">현재 권한 상태 보기</string>
+    
+    <string name="pref_category_debugging">디버깅</string>
+    <string name="pref_enable_debug_logging_title">디버그 로깅 활성화</string>
+    <string name="pref_enable_debug_logging_summary">상세한 API 호출 및 응답 로깅</string>
+    <string name="pref_show_debug_log_title">디버그 로그 표시</string>
+    <string name="pref_show_debug_log_summary">상세한 디버그 정보 보기</string>
+</resources>

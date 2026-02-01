@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ボイスメモ</string>
+    <string name="settings_title">ボイスメモマネージャー</string>
+    <string name="settings_launcher_name">VNマネージャー</string>
+    <string name="location_acquired">位置情報を取得しました</string>
+    <string name="recording_stopped">録音を停止しました</string>
+    <string name="permission_required">権限が必要です</string>
+    <string name="grant_permissions">このアプリは、GPS座標付きの音声メモを録音するために、マイクと位置情報の権限が必要です</string>
+    <string name="location_failed">GPS位置情報を取得できません</string>
+    <string name="recording_failed">録音エラーが発生しました</string>
+    <string name="choose_directory">フォルダを選択</string>
+    <string name="save_directory">保存場所</string>
+    <string name="not_set">未設定</string>
+    <string name="open_settings">ボイスメモマネージャーを開く</string>
+    <string name="grant_all_permissions">必要な権限を付与</string>
+    <string name="configuration_info">保存場所と録音時間を設定</string>
+    <string name="quit_app">終了</string>
+    <string name="recording_duration">録音時間</string>
+    <string name="recording_duration_description">録音の長さを設定（1～99秒）。ヒント：録音中にアプリを再起動すると、タイマーがリセットされます。</string>
+    <string name="duration_hint">1～99秒を入力</string>
+    <string name="invalid_duration">時間は1～99秒の間である必要があります</string>
+    <string name="duration_saved">録音時間を%d秒に設定しました</string>
+    <string name="set_duration_button">時間を設定</string>
+    <string name="checking_permissions">権限を確認中...</string>
+    <string name="tts_not_available">テキスト読み上げは利用できません</string>
+    <string name="acquiring_location">位置情報を取得中...</string>
+    <string name="location_acquired_coords">位置情報を取得しました: %s</string>
+    <string name="recording_countdown">録音中... %d秒</string>
+    <string name="recording_stopped_msg">録音を停止しました</string>
+    <string name="file_saved">ファイルを保存しました。</string>
+    <string name="recording_started">録音を開始しました</string>
+    <string name="overlay_permission_required">オーバーレイ権限が必要です</string>
+    <string name="overlay_permission_message">このアプリは、バブルオーバーレイ機能のために他のアプリの上に表示する権限が必要です</string>
+    <string name="permission_status_title">権限ステータス：</string>
+    <string name="permission_granted">✓ %s（許可済み）</string>
+    <string name="permission_not_granted">✗ %s（未許可）</string>
+    <string name="permission_microphone">マイク</string>
+    <string name="permission_location">位置情報</string>
+    <string name="permission_bluetooth">Bluetooth</string>
+    <string name="permission_overlay">オーバーレイ</string>
+    <string name="permissions_description">アプリが機能するために必要なすべての権限を付与</string>
+    <string name="shortcut_settings_short">マネージャー</string>
+    <string name="shortcut_settings_long">ボイスメモマネージャー</string>
+    <string name="online_transcribing">オンライン：文字起こし中：</string>
+    <string name="online_transcribing_failed">オンライン：文字起こし：失敗しました :-(</string>
+    <string name="online_creating_osm_note">オンライン：OSMノートを作成中</string>
+    <string name="online_osm_note_created">オンライン：OSMノートを作成しました。</string>
+    <string name="online_osm_note_failed">オンライン：OSMノートの作成に失敗しました :(</string>
+    <string name="processing_complete">処理が完了しました</string>
+    <string name="overlay_permission_missing">このアプリを使用するにはオーバーレイ権限が必要です</string>
+    <string name="permissions_missing_overlay_message">権限が不足しています：[管理]またはVNマネージャーからマイク、位置情報、Bluetooth、オーバーレイの権限を付与してください</string>
+    <string name="app_not_configured_message">ボイスメモが設定されていません。管理アクションまたはVNマネージャーアプリから設定を開いて、セットアップを完了してください。</string>
+    
+    <!-- Transcription strings -->
+    <string name="transcribe">文字起こし</string>
+    <string name="retranscribe">再文字起こし</string>
+    <string name="processing">処理中</string>
+    <string name="retry">再試行</string>
+    <string name="disabled">無効</string>
+    <string name="transcription_in_progress">文字起こし中...</string>
+    <string name="starting_transcription">文字起こしを開始中...</string>
+    
+    <!-- Playback strings -->
+    <string name="play">再生</string>
+    <string name="stop">停止</string>
+    <string name="playback_stopped">再生を停止しました</string>
+    <string name="playback_finished">再生が完了しました</string>
+    <string name="playing_recording">録音を再生中...</string>
+    
+    <!-- Settings Preference Strings -->
+    <string name="pref_category_recording_manager">録音マネージャー</string>
+    <string name="pref_recording_manager_open_title">録音マネージャーを開く</string>
+    <string name="pref_recording_manager_open_summary">録音を表示・管理</string>
+    <string name="pref_recordings_count_title">総録音数</string>
+    <string name="pref_recordings_count_summary">%d件の録音を保存</string>
+    <string name="pref_recording_duration_title">録音時間</string>
+    <string name="pref_recording_duration_summary">各録音の長さを設定（1～99秒）</string>
+    
+    <string name="pref_category_language">言語設定</string>
+    <string name="pref_app_language_title">アプリの言語</string>
+    <string name="pref_app_language_summary">アプリの表示言語を選択</string>
+    <string name="pref_stt_primary_language_title">主音声言語</string>
+    <string name="pref_stt_primary_language_summary">音声テキスト変換の主要言語</string>
+    <string name="pref_stt_secondary_language_title">副音声言語</string>
+    <string name="pref_stt_secondary_language_summary">文字起こしのオプション副言語</string>
+    
+    <string name="pref_category_permissions">権限</string>
+    <string name="pref_grant_permissions_title">権限を付与</string>
+    <string name="pref_grant_permissions_summary">マイク、位置情報、その他の権限をリクエスト</string>
+    <string name="pref_permission_status_title">権限ステータス</string>
+    <string name="pref_permission_status_summary">現在の権限ステータスを表示</string>
+    
+    <string name="pref_category_debugging">デバッグ</string>
+    <string name="pref_enable_debug_logging_title">デバッグログを有効化</string>
+    <string name="pref_enable_debug_logging_summary">詳細なAPI呼び出しと応答をログに記録</string>
+    <string name="pref_show_debug_log_title">デバッグログを表示</string>
+    <string name="pref_show_debug_log_summary">詳細なデバッグ情報を表示</string>
+</resources>

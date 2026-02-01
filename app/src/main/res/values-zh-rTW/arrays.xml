@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Language Options -->
+    <string-array name="app_language_entries">
+        <item>系統（跟隨裝置）</item>
+        <item>英語</item>
+        <item>德語</item>
+        <item>西班牙語</item>
+        <item>法語</item>
+        <item>義大利語</item>
+        <item>葡萄牙語</item>
+        <item>日語</item>
+        <item>韓語</item>
+        <item>中文（簡體）</item>
+        <item>中文（繁體）</item>
+    </string-array>
+
+    <!-- STT Primary Language Options -->
+    <string-array name="stt_primary_language_entries">
+        <item>英語（美國）</item>
+        <item>英語（英國）</item>
+        <item>德語</item>
+        <item>西班牙語（西班牙）</item>
+        <item>西班牙語（拉丁美洲）</item>
+        <item>法語（法國）</item>
+        <item>義大利語</item>
+        <item>葡萄牙語（巴西）</item>
+        <item>葡萄牙語（葡萄牙）</item>
+        <item>日語</item>
+        <item>韓語</item>
+        <item>中文（普通話，簡體）</item>
+        <item>中文（普通話，繁體）</item>
+    </string-array>
+
+    <!-- STT Secondary Language Options (includes None) -->
+    <string-array name="stt_secondary_language_entries">
+        <item>無</item>
+        <item>英語（美國）</item>
+        <item>英語（英國）</item>
+        <item>德語</item>
+        <item>西班牙語（西班牙）</item>
+        <item>西班牙語（拉丁美洲）</item>
+        <item>法語（法國）</item>
+        <item>義大利語</item>
+        <item>葡萄牙語（巴西）</item>
+        <item>葡萄牙語（葡萄牙）</item>
+        <item>日語</item>
+        <item>韓語</item>
+        <item>中文（普通話，簡體）</item>
+        <item>中文（普通話，繁體）</item>
+    </string-array>
+</resources>
