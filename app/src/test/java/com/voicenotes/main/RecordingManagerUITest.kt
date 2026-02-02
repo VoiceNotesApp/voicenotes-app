@@ -66,8 +66,10 @@ class RecordingManagerUITest {
             
             val shouldShow = shouldShowDownloadButton(recording)
             
-            assertFalse(
-                "Download button should not be visible for $status when file doesn't exist",
+            // Download button should always be visible, regardless of file existence
+            // If the file doesn't exist, a "file not found" error will be shown when clicked
+            assertTrue(
+                "Download button should always be visible, even when file doesn't exist for $status",
                 shouldShow
             )
         }
@@ -149,25 +151,27 @@ class RecordingManagerUITest {
 
     @Test
     fun testDownloadButtonVisibility_EdgeCases() {
-        // Test with empty filepath
+        // Test with empty filepath - download button should still be visible
+        // User will see "file not found" error when clicking
         val recordingEmptyPath = createRecording(
             filepath = "",
             v2sStatus = V2SStatus.COMPLETED,
             v2sResult = "text"
         )
-        assertFalse(
-            "Download button should not show for empty filepath",
+        assertTrue(
+            "Download button should always be visible, even with empty filepath",
             shouldShowDownloadButton(recordingEmptyPath)
         )
         
         // Test with very long filepath that doesn't exist
+        // Download button should still be visible
         val longPath = "/tmp/" + "a".repeat(1000) + ".ogg"
         val recordingLongPath = createRecording(
             filepath = longPath,
             v2sStatus = V2SStatus.COMPLETED
         )
-        assertFalse(
-            "Download button should not show for non-existent long filepath",
+        assertTrue(
+            "Download button should always be visible, even with non-existent long filepath",
             shouldShowDownloadButton(recordingLongPath)
         )
     }
@@ -200,11 +204,11 @@ class RecordingManagerUITest {
     }
 
     // Helper function to determine if download button should be shown
-    // This mirrors the logic from shouldShowDownloadButton() in RecordingManagerActivity
+    // Download button should always be visible - file existence is checked when clicked
+    // If file doesn't exist, a "file not found" error is shown to the user
     private fun shouldShowDownloadButton(recording: Recording): Boolean {
-        // Show download button if the recording file exists
-        val file = File(recording.filepath)
-        return file.exists()
+        // Always show download button - error shown on click if file doesn't exist
+        return true
     }
 
     // Helper function to determine if processing animation should start
