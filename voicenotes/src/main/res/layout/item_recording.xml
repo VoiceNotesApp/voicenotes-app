@@ -196,7 +196,7 @@
                             style="@style/AppButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Transcode"
+                            android:text="Transcribe"
                             android:textSize="13sp"
                             android:drawableEnd="@drawable/ic_status_not_started"
                             android:drawablePadding="4dp"
