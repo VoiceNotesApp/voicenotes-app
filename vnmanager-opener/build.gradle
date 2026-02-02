@@ -5,25 +5,23 @@ plugins {
 
 def getVersionName() {
     try {
-        // Check if .git directory exists
+        // Check if .git file or directory exists
         def gitDir = new File(rootProject.projectDir, '.git')
         if (!gitDir.exists()) {
             return "unknown"
         }
         
-        // Check if git is available
-        def gitCheckProcess = 'git --version'.execute()
-        gitCheckProcess.waitFor()
+        // Try to get the exact tag on current commit
+        def tagProcess = 'git describe --tags --always --dirty'.execute()
+        tagProcess.waitFor()
+
+        // Git call failed
         if (gitCheckProcess.exitValue() != 0) {
             return "unknown"
         }
-        
-        // Try to get the exact tag on current commit
-        def tagProcess = 'git describe --tags --exact-match'.execute()
-        tagProcess.waitFor()
-        
+
+        // Git call was successful
         if (tagProcess.exitValue() == 0) {
-            // On a tagged commit
             def version = tagProcess.text.trim()
             // Strip 'v' prefix if present (v0.0.15 -> 0.0.15)
             if (version.startsWith('v')) {
@@ -31,6 +29,15 @@ def getVersionName() {
             }
             return version
         }
+
+        // Fallback
+        return "unknown"
+        
+    } catch (Exception e) {
+        // Git not available or other error
+        return "unknown"
+    }
+}
         
         // Not on a tagged commit, get short commit hash
         def hashProcess = 'git rev-parse --short HEAD'.execute()
