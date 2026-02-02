@@ -1,4 +1,6 @@
-# Voice Notes
+[<img src="assets/banners/banner-07-features.svg">](https://github.com/c0dev0id/autorecord-app/releases/latest)
+
+# Voice Notes App (designed for Motorcycle Riders)
 
 Android app for recording GPS-tagged voice notes.
 
