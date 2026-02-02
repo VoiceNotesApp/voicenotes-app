@@ -40,7 +40,7 @@
     <string name="permission_bluetooth">블루투스</string>
     <string name="permission_overlay">오버레이</string>
     <string name="permissions_description">앱이 작동하는 데 필요한 모든 권한 부여</string>
-    <string name="shortcut_settings_short">관리자</string>
+    <string name="shortcut_settings_short">VN 관리자</string>
     <string name="shortcut_settings_long">음성 메모 관리자</string>
     <string name="online_transcribing">온라인: 변환 중:</string>
     <string name="online_transcribing_failed">온라인: 변환: 실패 :-(</string>

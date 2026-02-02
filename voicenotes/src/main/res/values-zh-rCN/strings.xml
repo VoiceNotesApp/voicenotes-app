@@ -40,7 +40,7 @@
     <string name="permission_bluetooth">蓝牙</string>
     <string name="permission_overlay">悬浮窗</string>
     <string name="permissions_description">授予应用正常运行所需的所有权限</string>
-    <string name="shortcut_settings_short">管理器</string>
+    <string name="shortcut_settings_short">语音管理器</string>
     <string name="shortcut_settings_long">语音备忘录管理器</string>
     <string name="online_transcribing">在线：转录中：</string>
     <string name="online_transcribing_failed">在线：转录：失败 :-(</string>
