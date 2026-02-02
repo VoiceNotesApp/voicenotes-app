@@ -293,7 +293,7 @@
 # Suppress Apache HTTP GSS Auth (server-only, safe to ignore for Android)
 -dontwarn org.apache.http.impl.auth.GGSSchemeBase
 
-# (Optional: If app/build/outputs/mapping/release/missing_rules.txt suggests specific keep rules, add them below)
+# (Optional: If voicenotes/build/outputs/mapping/release/missing_rules.txt suggests specific keep rules, add them below)
 # -keep class <whatever> { *; }
 
 # Keep commonly used classes and methods (already in many Android default rulesets, but can re-assert here for custom builds)

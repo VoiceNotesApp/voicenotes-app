@@ -35,13 +35,13 @@ echo ""
 
 # Check 1: ProGuard is enabled
 echo "1. ProGuard Configuration"
-if grep -q "minifyEnabled true" app/build.gradle; then
+if grep -q "minifyEnabled true" voicenotes/build.gradle; then
     success "ProGuard is enabled"
 else
     error "ProGuard is NOT enabled - release builds must have minifyEnabled true"
 fi
 
-if grep -q "shrinkResources true" app/build.gradle; then
+if grep -q "shrinkResources true" voicenotes/build.gradle; then
     success "Resource shrinking is enabled"
 else
     warning "Resource shrinking is NOT enabled - consider enabling for smaller APK"
@@ -69,9 +69,9 @@ echo ""
 
 # Check 3: Version is not "unknown"
 echo "3. Version Configuration"
-if grep -q '"0.0.0-unknown"' app/build.gradle; then
+if grep -q '"0.0.0-unknown"' voicenotes/build.gradle; then
     error "Version fallback is still 0.0.0-unknown (should be 1.0.0-unknown)"
-elif grep -q '"1.0.0-unknown"' app/build.gradle; then
+elif grep -q '"1.0.0-unknown"' voicenotes/build.gradle; then
     success "Version fallback is correctly set to 1.0.0-unknown"
 else
     warning "Unable to verify version fallback"
@@ -108,23 +108,23 @@ echo ""
 
 # Check 5: ProGuard rules exist
 echo "5. ProGuard Rules"
-if [ -f "app/proguard-rules.pro" ]; then
+if [ -f "voicenotes/proguard-rules.pro" ]; then
     success "ProGuard rules file exists"
     
     # Check for critical rules
-    if grep -q "androidx.room" app/proguard-rules.pro; then
+    if grep -q "androidx.room" voicenotes/proguard-rules.pro; then
         success "Room database rules present"
     else
         warning "Room database rules may be missing"
     fi
     
-    if grep -q "com.google.cloud" app/proguard-rules.pro; then
+    if grep -q "com.google.cloud" voicenotes/proguard-rules.pro; then
         success "Google Cloud rules present"
     else
         warning "Google Cloud rules may be missing"
     fi
     
-    if grep -q "kotlinx.coroutines" app/proguard-rules.pro; then
+    if grep -q "kotlinx.coroutines" voicenotes/proguard-rules.pro; then
         success "Kotlin coroutines rules present"
     else
         warning "Kotlin coroutines rules may be missing"
@@ -136,7 +136,7 @@ echo ""
 
 # Check 6: Lint configuration
 echo "6. Lint Configuration"
-if [ -f "app/lint.xml" ]; then
+if [ -f "voicenotes/lint.xml" ]; then
     success "Lint configuration exists"
 else
     warning "Lint configuration not found"
@@ -160,8 +160,8 @@ echo ""
 
 # Check 7: Unit tests
 echo "7. Unit Tests"
-if [ -d "app/src/test" ]; then
-    TEST_COUNT=$(find app/src/test -name "*.kt" | wc -l)
+if [ -d "voicenotes/src/test" ]; then
+    TEST_COUNT=$(find voicenotes/src/test -name "*.kt" | wc -l)
     if [ "$TEST_COUNT" -gt 0 ]; then
         success "Found $TEST_COUNT unit test files"
         
@@ -219,11 +219,11 @@ echo ""
 
 # Check 10: Release build exists
 echo "10. Release APK"
-if [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
+if [ -f "voicenotes/build/outputs/apk/release/voicenotes-release.apk" ]; then
     success "Release APK found"
     
     # Check APK size
-    APK_SIZE=$(stat -f%z "app/build/outputs/apk/release/app-release.apk" 2>/dev/null || stat -c%s "app/build/outputs/apk/release/app-release.apk" 2>/dev/null || echo "0")
+    APK_SIZE=$(stat -f%z "voicenotes/build/outputs/apk/release/voicenotes-release.apk" 2>/dev/null || stat -c%s "voicenotes/build/outputs/apk/release/voicenotes-release.apk" 2>/dev/null || echo "0")
     APK_SIZE_MB=$((APK_SIZE / 1024 / 1024))
     echo "   APK size: ${APK_SIZE_MB} MB"
     
@@ -232,7 +232,7 @@ if [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
     fi
     
     # Check ProGuard mapping
-    if [ -f "app/build/outputs/mapping/release/mapping.txt" ]; then
+    if [ -f "voicenotes/build/outputs/mapping/release/mapping.txt" ]; then
         success "ProGuard mapping file exists"
         echo "   ⚠️  REMEMBER: Save mapping.txt for crash report deobfuscation!"
     else
@@ -267,9 +267,9 @@ else
     echo "Fix the errors above before distributing the release."
     echo ""
     echo "Common fixes:"
-    echo "  - Enable ProGuard in app/build.gradle"
+    echo "  - Enable ProGuard in voicenotes/build.gradle"
     echo "  - Create and configure keystore.properties"
-    echo "  - Update version fallback in app/build.gradle"
+    echo "  - Update version fallback in voicenotes/build.gradle"
     echo "  - Add credentials to gradle.properties"
     echo "  - Fix failing tests"
     echo ""

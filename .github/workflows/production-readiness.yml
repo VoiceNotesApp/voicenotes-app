@@ -140,28 +140,28 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: voice-notes-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: voicenotes/build/outputs/apk/debug/*.apk
           retention-days: 30
 
       - name: Upload Voice Notes Release APK
         uses: actions/upload-artifact@v4
         with:
           name: voice-notes-release-apk
-          path: app/build/outputs/apk/release/*.apk
+          path: voicenotes/build/outputs/apk/release/*.apk
           retention-days: 30
 
       - name: Upload VN Manager Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: vnmanager-opener-debug-apk
-          path: vnmanager-opener/build/outputs/apk/debug/*.apk
+          name: vnmanager-debug-apk
+          path: vnmanager/build/outputs/apk/debug/*.apk
           retention-days: 30
 
       - name: Upload VN Manager Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: vnmanager-opener-release-apk
-          path: vnmanager-opener/build/outputs/apk/release/*.apk
+          name: vnmanager-release-apk
+          path: vnmanager/build/outputs/apk/release/*.apk
           retention-days: 30
 
   # Job 3a: Static Analysis - Lint
@@ -221,8 +221,8 @@ jobs:
         with:
           name: lint-results
           path: |
-            app/build/reports/lint-results-*.html
-            app/build/reports/lint-results-*.xml
+            voicenotes/build/reports/lint-results-*.html
+            voicenotes/build/reports/lint-results-*.xml
           retention-days: 30
 
   # Job 3b: Static Analysis - KtLint/Detekt
@@ -248,7 +248,7 @@ jobs:
         run: |
           curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.0.1/ktlint
           chmod +x ktlint
-          ./ktlint "app/src/**/*.kt" --reporter=plain --reporter=checkstyle,output=ktlint-report.xml || true
+          ./ktlint "voicenotes/src/**/*.kt" --reporter=plain --reporter=checkstyle,output=ktlint-report.xml || true
 
       - name: Upload KtLint Report
         if: always()
@@ -379,7 +379,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: app/build/reports/jacoco/
+          path: voicenotes/build/reports/jacoco/
           retention-days: 30
 
   # Job 6: Upload Artifacts - Creates draft release with raw APKs
@@ -411,13 +411,13 @@ jobs:
       - name: Download VN Manager Debug APK
         uses: actions/download-artifact@v4
         with:
-          name: vnmanager-opener-debug-apk
+          name: vnmanager-debug-apk
           path: apks/vnmanager/debug/
 
       - name: Download VN Manager Release APK
         uses: actions/download-artifact@v4
         with:
-          name: vnmanager-opener-release-apk
+          name: vnmanager-release-apk
           path: apks/vnmanager/release/
 
       - name: Generate Release Tag

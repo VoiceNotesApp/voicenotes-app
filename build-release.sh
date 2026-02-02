@@ -58,7 +58,7 @@ echo "Running lint checks..."
 ./gradlew lintRelease || {
     echo ""
     echo "WARNING: Lint checks failed!"
-    echo "Review the lint report: app/build/reports/lint-results-release.html"
+    echo "Review the lint report: voicenotes/build/reports/lint-results-release.html"
     echo ""
     read -p "Continue anyway? (y/n) " -n 1 -r
     echo ""
@@ -99,29 +99,29 @@ if [ $? -eq 0 ]; then
     if [ -f "keystore.properties" ]; then
         echo "✓ Release APK is signed and ready for distribution"
         echo ""
-        echo "APK location: app/build/outputs/apk/release/app-release.apk"
+        echo "APK location: voicenotes/build/outputs/apk/release/voicenotes-release.apk"
     else
         echo "⚠ Release APK is unsigned"
         echo ""
-        echo "APK location: app/build/outputs/apk/release/app-release-unsigned.apk"
+        echo "APK location: voicenotes/build/outputs/apk/release/voicenotes-release-unsigned.apk"
         echo ""
         echo "To sign the APK, configure keystore.properties and rebuild"
         echo "See docs/SECURITY.md for signing instructions"
     fi
     
     echo ""
-    echo "ProGuard mapping file: app/build/outputs/mapping/release/mapping.txt"
+    echo "ProGuard mapping file: voicenotes/build/outputs/mapping/release/mapping.txt"
     echo "⚠ IMPORTANT: Save the mapping file for crash report deobfuscation!"
     echo ""
     echo "To install on a connected device:"
-    echo "  adb install app/build/outputs/apk/release/app-release.apk"
+    echo "  adb install voicenotes/build/outputs/apk/release/voicenotes-release.apk"
     echo ""
     
     # Show APK info
     if command -v aapt &> /dev/null; then
         echo "APK Information:"
-        if [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
-            aapt dump badging app/build/outputs/apk/release/app-release.apk | grep -E "package:|versionCode|versionName"
+        if [ -f "voicenotes/build/outputs/apk/release/voicenotes-release.apk" ]; then
+            aapt dump badging voicenotes/build/outputs/apk/release/voicenotes-release.apk | grep -E "package:|versionCode|versionName"
         fi
         echo ""
     fi

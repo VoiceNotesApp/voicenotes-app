@@ -45,7 +45,7 @@ Before marking a PR as ready:
 ### Code Quality Standards
 - All code must pass Android lint checks
 - Build must succeed with no errors
-- APK must be generated successfully in `app/build/outputs/apk/debug/`
+- APK must be generated successfully in `voicenotes/build/outputs/apk/debug/`
 - Keep the code clean and follow best practices
 - Remove unused functions and variables during code reviews
 - Keep documentation updated and consistent with code changes
@@ -93,7 +93,7 @@ When implementing features, always follow these testing practices:
 For **each requested feature**, create:
 
 **a) Unit Tests:**
-- Place unit tests in the `tests` folder (or `app/src/test/` for Android standard structure)
+- Place unit tests in the `tests` folder (or `voicenotes/src/test/` for Android standard structure)
 - Test individual components, methods, and classes in isolation
 - Mock external dependencies
 - Cover edge cases and error scenarios
@@ -101,7 +101,7 @@ For **each requested feature**, create:
 - Each test should have descriptive names that explain what is being tested
 
 **b) End-to-End On-Device Tests:**
-- Create instrumented tests in `app/src/androidTest/` for Android
+- Create instrumented tests in `voicenotes/src/androidTest/` for Android
 - Test complete user workflows and interactions
 - Verify actual device behavior and UI functionality
 - Test integration between multiple components
