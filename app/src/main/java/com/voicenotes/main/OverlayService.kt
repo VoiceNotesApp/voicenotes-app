@@ -429,7 +429,7 @@ class OverlayService : LifecycleService(), TextToSpeech.OnInitListener {
     private fun prepareRecording() {
         try {
             val prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-            recordingDuration = prefs.getInt("recordingDuration", 10)
+            recordingDuration = prefs.getInt("recording_duration", 10)
             
             // Save recording state to SharedPreferences
             prefs.edit().apply {

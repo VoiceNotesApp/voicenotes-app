@@ -209,7 +209,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "Recording in progress - extending recording")
                 // Start service with extension request
                 val serviceIntent = Intent(this, OverlayService::class.java)
-                val configuredDuration = prefs.getInt("recordingDuration", 10)
+                val configuredDuration = prefs.getInt("recording_duration", 10)
                 serviceIntent.putExtra("additionalDuration", configuredDuration)
                 ContextCompat.startForegroundService(this, serviceIntent)
             } else {
@@ -349,7 +349,7 @@ class MainActivity : AppCompatActivity() {
     
     private fun extendRecording() {
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        val configuredDuration = prefs.getInt("recordingDuration", 10)
+        val configuredDuration = prefs.getInt("recording_duration", 10)
 
         // Update the initial duration to the configured duration (reset, don't add)
         prefs.edit().apply {
