@@ -5,62 +5,48 @@ plugins {
 
 def getVersionName() {
     try {
-        // Try to get version from git describe (includes tag and distance from tag)
-        def process = 'git describe --tags --always --dirty'.execute()
-        process.waitFor()
-        
-        if (process.exitValue() == 0) {
-            def version = process.text.trim()
-            if (version && !version.isEmpty()) {
-                // Strip 'v' prefix if present (v1.0.0 -> 1.0.0)
-                if (version.startsWith('v')) {
-                    version = version.substring(1)
-                }
-                
-                // Check if the result is just a commit hash (no tags exist)
-                def isDirty = version.endsWith('-dirty')
-                def versionWithoutDirty = version.replace('-dirty', '')
-                if (versionWithoutDirty.matches('^[0-9a-f]{7,40}$')) {
-                    // No tags exist - use default version
-                    return "1.0.0"
-                }
-                
-                return version
-            }
+        // Check if .git directory exists
+        def gitDir = new File(rootProject.projectDir, '.git')
+        if (!gitDir.exists()) {
+            return "unknown"
         }
         
-        // If git describe failed, try fetching tags once
-        def fetchProcess = 'git fetch --tags --quiet'.execute()
-        fetchProcess.waitFor()
-        
-        // Retry git describe after fetching tags
-        def retryProcess = 'git describe --tags --always --dirty'.execute()
-        retryProcess.waitFor()
-        
-        if (retryProcess.exitValue() == 0) {
-            def version = retryProcess.text.trim()
-            if (version && !version.isEmpty()) {
-                // Strip 'v' prefix if present
-                if (version.startsWith('v')) {
-                    version = version.substring(1)
-                }
-                
-                // Check again if result is just a commit hash (no tags)
-                def isDirty = version.endsWith('-dirty')
-                def versionWithoutDirty = version.replace('-dirty', '')
-                if (versionWithoutDirty.matches('^[0-9a-f]{7,40}$')) {
-                    return "1.0.0"
-                }
-                
-                return version
-            }
+        // Check if git is available
+        def gitCheckProcess = 'git --version'.execute()
+        gitCheckProcess.waitFor()
+        if (gitCheckProcess.exitValue() != 0) {
+            return "unknown"
         }
-    } catch (Exception ignored) {
-        // Git not available
+        
+        // Try to get the exact tag on current commit
+        def tagProcess = 'git describe --tags --exact-match'.execute()
+        tagProcess.waitFor()
+        
+        if (tagProcess.exitValue() == 0) {
+            // On a tagged commit
+            def version = tagProcess.text.trim()
+            // Strip 'v' prefix if present (v0.0.15 -> 0.0.15)
+            if (version.startsWith('v')) {
+                version = version.substring(1)
+            }
+            return version
+        }
+        
+        // Not on a tagged commit, get short commit hash
+        def hashProcess = 'git rev-parse --short HEAD'.execute()
+        hashProcess.waitFor()
+        
+        if (hashProcess.exitValue() == 0) {
+            def hash = hashProcess.text.trim()
+            return "dev-${hash}"
+        }
+        
+        return "unknown"
+        
+    } catch (Exception e) {
+        // Git not available or other error
+        return "unknown"
     }
-
-    // Fallback version
-    return "1.0.0"
 }
 
 def getVersionCode() {

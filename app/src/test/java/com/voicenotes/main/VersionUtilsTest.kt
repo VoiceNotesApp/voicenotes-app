@@ -10,9 +10,8 @@ import org.robolectric.annotation.Config
  * Unit tests for VersionUtils.
  * 
  * Tests cover:
- * - Version string formatting with tag
- * - Version string formatting without tag (commit hash)
- * - Proper 'v' prefix handling
+ * - Version string format: "Version <version>"
+ * - Expected formats: "Version X.Y.Z", "Version dev-<hash>", "Version unknown"
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -29,92 +28,51 @@ class VersionUtilsTest {
     }
     
     @Test
-    fun testGetVersionString_hasCorrectFormat() {
+    fun testGetVersionString_startsWithVersion() {
         // When: Getting the version string
         val version = VersionUtils.getVersionString()
         
-        // Then: Should start with 'v' or 'dev-'
+        // Then: Should start with "Version "
         assertTrue(
-            "Version string should start with 'v' or 'dev-', got: $version",
-            version.startsWith("v") || version.startsWith("dev-")
+            "Version string should start with 'Version ', got: $version",
+            version.startsWith("Version ")
         )
     }
     
     @Test
-    fun testGetVersionString_commitHashFormat() {
-        // When: Version is a commit hash (like "83343ed")
-        val version = VersionUtils.getVersionString()
-        
-        // Then: If it starts with 'dev-', it should have the commit hash
-        if (version.startsWith("dev-")) {
-            val hashPart = version.replace("-dirty", "").substring(4) // Remove "dev-" prefix and -dirty if present
-            assertTrue(
-                "Commit hash should be 7-40 hex characters, got: $hashPart",
-                hashPart.matches(Regex("^[0-9a-f]{7,40}$"))
-            )
-        }
-    }
-    
-    @Test
-    fun testGetVersionString_tagFormat() {
+    fun testGetVersionString_hasValidFormat() {
         // When: Getting the version string
         val version = VersionUtils.getVersionString()
         
-        // Then: If it starts with 'v' and is not a commit hash
-        if (version.startsWith("v") && !version.startsWith("dev-")) {
-            val versionPart = version.substring(1) // Remove 'v' prefix
-            
-            // Should contain version-like content (numbers, dots, dashes)
-            // e.g., "1.0.0", "1.0.0-beta", "1.0.0-5-g83343ed", "1.0.0-dirty"
-            assertTrue(
-                "Version tag should contain valid characters, got: $versionPart",
-                versionPart.matches(Regex("^[0-9a-zA-Z._-]+$"))
-            )
-        }
-    }
-    
-    @Test
-    fun testGetVersionString_stripsVPrefixAndAddsItBack() {
-        // When: Getting the version string
-        val version = VersionUtils.getVersionString()
+        // Then: Should match one of the expected formats:
+        // - "Version X.Y.Z" (tagged release)
+        // - "Version dev-<hash>" (untagged commit)
+        // - "Version unknown" (no git)
+        val versionPart = version.removePrefix("Version ")
         
-        // Then: If it's a tag version, it should start with 'v'
-        // (gradle strips 'v' from git tags, this function adds it back)
-        if (!version.startsWith("dev-")) {
-            assertTrue(
-                "Tag version should start with 'v', got: $version",
-                version.startsWith("v")
-            )
-        }
-    }
-    
-    @Test
-    fun testGetVersionString_dirtySuffixDocumentation() {
-        // Note: This test documents the expected -dirty suffix preservation behavior.
-        // Since BuildConfig.VERSION_NAME is set at build time and cannot be easily mocked
-        // without additional dependencies, this test validates the current build state.
-        //
-        // Expected behavior (validated manually):
-        // - Tag versions: "1.0.0-dirty" -> "v1.0.0-dirty"
-        // - Commit hashes: "83343ed-dirty" -> "dev-83343ed-dirty"
-        // - Without dirty: "1.0.0" -> "v1.0.0", "83343ed" -> "dev-83343ed"
-        //
-        // Manual testing: Build with uncommitted changes to verify -dirty is preserved
+        val isTaggedVersion = versionPart.matches(Regex("^[0-9]+\\.[0-9]+\\.[0-9]+.*$"))
+        val isDevVersion = versionPart.startsWith("dev-")
+        val isUnknown = versionPart == "unknown"
         
-        val version = VersionUtils.getVersionString()
-        
-        // If the current build has -dirty, verify it's at the end
-        if (version.contains("-dirty")) {
-            assertTrue(
-                "Version with -dirty suffix must end with -dirty, got: $version",
-                version.endsWith("-dirty")
-            )
-        }
-        
-        // Verify version always starts with expected prefix
         assertTrue(
-            "Version must start with 'v' or 'dev-', got: $version",
-            version.startsWith("v") || version.startsWith("dev-")
+            "Version should be tagged (X.Y.Z), dev-<hash>, or unknown, got: $versionPart",
+            isTaggedVersion || isDevVersion || isUnknown
         )
+    }
+    
+    @Test
+    fun testGetVersionString_devVersionHasValidHash() {
+        // When: Getting the version string
+        val version = VersionUtils.getVersionString()
+        val versionPart = version.removePrefix("Version ")
+        
+        // Then: If it's a dev version, the hash should be valid hex
+        if (versionPart.startsWith("dev-")) {
+            val hashPart = versionPart.substring(4) // Remove "dev-" prefix
+            assertTrue(
+                "Commit hash should be 7+ hex characters, got: $hashPart",
+                hashPart.matches(Regex("^[0-9a-f]{7,}$"))
+            )
+        }
     }
 }
