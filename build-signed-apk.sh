@@ -85,33 +85,33 @@ if [ $? -eq 0 ]; then
     echo ""
     
     # Check if APK is signed
-    if [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
-        echo "Signed APK location: app/build/outputs/apk/release/app-release.apk"
+    if [ -f "voicenotes/build/outputs/apk/release/voicenotes-release.apk" ]; then
+        echo "Signed APK location: voicenotes/build/outputs/apk/release/voicenotes-release.apk"
         echo ""
         
         # Show APK size
-        APK_SIZE=$(du -h app/build/outputs/apk/release/app-release.apk | cut -f1)
+        APK_SIZE=$(du -h voicenotes/build/outputs/apk/release/voicenotes-release.apk | cut -f1)
         echo "APK size: $APK_SIZE"
         echo ""
         
         # Verify signature
         echo "Verifying APK signature..."
-        jarsigner -verify -verbose app/build/outputs/apk/release/app-release.apk 2>&1 | grep -i "jar verified" && echo "✓ APK signature verified successfully" || echo "⚠ APK signature verification failed"
+        jarsigner -verify -verbose voicenotes/build/outputs/apk/release/voicenotes-release.apk 2>&1 | grep -i "jar verified" && echo "✓ APK signature verified successfully" || echo "⚠ APK signature verification failed"
         echo ""
         
         echo "To view certificate details:"
-        echo "  keytool -printcert -jarfile app/build/outputs/apk/release/app-release.apk"
+        echo "  keytool -printcert -jarfile voicenotes/build/outputs/apk/release/voicenotes-release.apk"
         echo ""
         echo "To install on a connected device:"
-        echo "  adb install app/build/outputs/apk/release/app-release.apk"
+        echo "  adb install voicenotes/build/outputs/apk/release/voicenotes-release.apk"
         echo ""
         echo "To install on a device (replacing existing version):"
-        echo "  adb install -r app/build/outputs/apk/release/app-release.apk"
+        echo "  adb install -r voicenotes/build/outputs/apk/release/voicenotes-release.apk"
         echo ""
     else
-        echo "Warning: Expected APK not found at app/build/outputs/apk/release/app-release.apk"
+        echo "Warning: Expected APK not found at voicenotes/build/outputs/apk/release/voicenotes-release.apk"
         echo "Listing all APKs in release directory:"
-        ls -lh app/build/outputs/apk/release/
+        ls -lh voicenotes/build/outputs/apk/release/
         echo ""
     fi
 else

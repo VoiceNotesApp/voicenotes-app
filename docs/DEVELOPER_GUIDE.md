@@ -18,7 +18,7 @@ Open in Android Studio and sync Gradle.
 ## Project Structure
 
 ```
-app/src/main/java/com/voicenotes/main/
+voicenotes/src/main/java/com/voicenotes/main/
 ├── database/
 │   ├── Recording.kt          # Entity
 │   ├── RecordingDao.kt       # Data access
@@ -46,7 +46,7 @@ app/src/main/java/com/voicenotes/main/
 ./gradlew assembleDebug
 ```
 
-Output: `app/build/outputs/apk/debug/app-debug.apk`
+Output: `voicenotes/build/outputs/apk/debug/voicenotes-debug.apk`
 
 ### Release Build
 
@@ -115,7 +115,7 @@ V2SStatus values: NOT_STARTED, PROCESSING, COMPLETED, FALLBACK, ERROR, DISABLED
 ./gradlew lintDebug
 ```
 
-Unit tests in `app/src/test/java/com/voicenotes/main/`.
+Unit tests in `voicenotes/src/test/java/com/voicenotes/main/`.
 
 ## Versioning
 
