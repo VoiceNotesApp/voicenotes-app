@@ -8,7 +8,7 @@ import org.robolectric.annotation.Config
 
 /**
  * Unit tests for VersionUtils.
- * 
+ *
  * Tests cover:
  * - Version string is not empty
  */
