@@ -50,10 +50,10 @@ if [ $? -eq 0 ]; then
     echo "BUILD SUCCESSFUL!"
     echo "=================================="
     echo ""
-    echo "APK location: app/build/outputs/apk/debug/app-debug.apk"
+    echo "APK location: voicenotes/build/outputs/apk/debug/voicenotes-debug.apk"
     echo ""
     echo "To install on a connected device:"
-    echo "  adb install app/build/outputs/apk/debug/app-debug.apk"
+    echo "  adb install voicenotes/build/outputs/apk/debug/voicenotes-debug.apk"
     echo ""
 else
     echo ""

@@ -159,8 +159,8 @@ jobs:
         with:
           name: app-debug-apk
           path: |
-            app/build/outputs/apk/debug/*.apk
-            vnmanager-opener/build/outputs/apk/debug/*.apk
+            voicenotes/build/outputs/apk/debug/*.apk
+            vnmanager/build/outputs/apk/debug/*.apk
           retention-days: 90
 
       # Upload Release APKs (mandatory for release)
@@ -169,8 +169,8 @@ jobs:
         with:
           name: app-release-apk
           path: |
-            app/build/outputs/apk/release/*.apk
-            vnmanager-opener/build/outputs/apk/release/*.apk
+            voicenotes/build/outputs/apk/release/*.apk
+            vnmanager/build/outputs/apk/release/*.apk
           retention-days: 90
       
       - name: Build Summary
@@ -184,7 +184,7 @@ jobs:
           
           # Check Voice Notes debug APK
           echo "**Voice Notes App (Debug)**" >> $GITHUB_STEP_SUMMARY
-          DEBUG_APK=$(find app/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
+          DEBUG_APK=$(find voicenotes/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
           if [ -f "$DEBUG_APK" ]; then
             DEBUG_SIZE=$(stat -c%s "$DEBUG_APK" 2>/dev/null || stat -f%z "$DEBUG_APK")
             DEBUG_SIZE_MB=$(echo "scale=2; $DEBUG_SIZE / 1024 / 1024" | bc)
@@ -197,7 +197,7 @@ jobs:
           # Check VN Manager Opener debug APK
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**VN Manager Opener (Debug)**" >> $GITHUB_STEP_SUMMARY
-          OPENER_DEBUG=$(find vnmanager-opener/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
+          OPENER_DEBUG=$(find vnmanager/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
           if [ -f "$OPENER_DEBUG" ]; then
             OPENER_DEBUG_SIZE=$(stat -c%s "$OPENER_DEBUG" 2>/dev/null || stat -f%z "$OPENER_DEBUG")
             OPENER_DEBUG_SIZE_MB=$(echo "scale=2; $OPENER_DEBUG_SIZE / 1024 / 1024" | bc)
@@ -214,7 +214,7 @@ jobs:
           
           # Check Voice Notes release APK
           echo "**Voice Notes App (Release)**" >> $GITHUB_STEP_SUMMARY
-          RELEASE_APK=$(find app/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" 2>/dev/null | head -1)
+          RELEASE_APK=$(find voicenotes/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" 2>/dev/null | head -1)
           if [ -f "$RELEASE_APK" ]; then
             RELEASE_SIZE=$(stat -c%s "$RELEASE_APK" 2>/dev/null || stat -f%z "$RELEASE_APK")
             RELEASE_SIZE_MB=$(echo "scale=2; $RELEASE_SIZE / 1024 / 1024" | bc)
@@ -227,7 +227,7 @@ jobs:
           # Check VN Manager Opener release APK
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**VN Manager Opener (Release)**" >> $GITHUB_STEP_SUMMARY
-          OPENER_RELEASE=$(find vnmanager-opener/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" 2>/dev/null | head -1)
+          OPENER_RELEASE=$(find vnmanager/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" 2>/dev/null | head -1)
           if [ -f "$OPENER_RELEASE" ]; then
             OPENER_RELEASE_SIZE=$(stat -c%s "$OPENER_RELEASE" 2>/dev/null || stat -f%z "$OPENER_RELEASE")
             OPENER_RELEASE_SIZE_MB=$(echo "scale=2; $OPENER_RELEASE_SIZE / 1024 / 1024" | bc)
@@ -335,7 +335,7 @@ jobs:
           set -euo pipefail
           
           # Find VoiceNotes signed release APK (required)
-          APP_RELEASE_APK=$(find apks/release/app/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" 2>/dev/null | head -1)
+          APP_RELEASE_APK=$(find apks/release/voicenotes/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" 2>/dev/null | head -1)
           if [ -z "$APP_RELEASE_APK" ]; then
             echo "Error: VoiceNotes signed release APK not found!"
             echo "Signing configuration is required for release builds."
@@ -347,7 +347,7 @@ jobs:
           echo "Prepared VoiceNotes release APK: VoiceNotes-${RELEASE_TAG}.apk"
           
           # Find VNmanager signed release APK (required)
-          OPENER_RELEASE_APK=$(find apks/release/vnmanager-opener/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" 2>/dev/null | head -1)
+          OPENER_RELEASE_APK=$(find apks/release/vnmanager/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" 2>/dev/null | head -1)
           if [ -z "$OPENER_RELEASE_APK" ]; then
             echo "Error: VNmanager signed release APK not found!"
             echo "Signing configuration is required for release builds."
@@ -428,11 +428,11 @@ jobs:
   #       with:
   #         serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
   #         packageName: com.voicenotes.main
-  #         releaseFiles: apks/app-release.apk
+  #         releaseFiles: apks/voicenotes-release.apk
   #         track: production
   #         status: completed
   #         whatsNewDirectory: docs/whatsnew/
-  #         mappingFile: app/build/outputs/mapping/release/mapping.txt
+  #         mappingFile: voicenotes/build/outputs/mapping/release/mapping.txt
 
   # Final status summary
   release-summary:
