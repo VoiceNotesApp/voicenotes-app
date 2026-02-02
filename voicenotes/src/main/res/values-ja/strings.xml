@@ -40,7 +40,7 @@
     <string name="permission_bluetooth">Bluetooth</string>
     <string name="permission_overlay">オーバーレイ</string>
     <string name="permissions_description">アプリが機能するために必要なすべての権限を付与</string>
-    <string name="shortcut_settings_short">マネージャー</string>
+    <string name="shortcut_settings_short">VNマネージャー</string>
     <string name="shortcut_settings_long">ボイスメモマネージャー</string>
     <string name="online_transcribing">オンライン：文字起こし中：</string>
     <string name="online_transcribing_failed">オンライン：文字起こし：失敗しました :-(</string>

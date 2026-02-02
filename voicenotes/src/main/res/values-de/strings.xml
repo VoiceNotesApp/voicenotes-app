@@ -40,7 +40,7 @@
     <string name="permission_bluetooth">Bluetooth</string>
     <string name="permission_overlay">Overlay</string>
     <string name="permissions_description">Alle erforderlichen Berechtigungen für die Funktionsfähigkeit der App erteilen</string>
-    <string name="shortcut_settings_short">Manager</string>
+    <string name="shortcut_settings_short">VN Manager</string>
     <string name="shortcut_settings_long">Sprachnotizen-Manager</string>
     <string name="online_transcribing">Online: Transkribieren:</string>
     <string name="online_transcribing_failed">Online: Transkribieren: fehlgeschlagen :-(</string>

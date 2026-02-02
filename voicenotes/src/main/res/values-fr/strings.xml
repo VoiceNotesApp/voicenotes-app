@@ -40,7 +40,7 @@
     <string name="permission_bluetooth">Bluetooth</string>
     <string name="permission_overlay">Superposition</string>
     <string name="permissions_description">Accorder toutes les autorisations requises pour le fonctionnement de l\'application</string>
-    <string name="shortcut_settings_short">Gestionnaire</string>
+    <string name="shortcut_settings_short">Gestionnaire VN</string>
     <string name="shortcut_settings_long">Gestionnaire de notes vocales</string>
     <string name="online_transcribing">En ligne : Transcription :</string>
     <string name="online_transcribing_failed">En ligne : Transcription : échec :-(</string>
