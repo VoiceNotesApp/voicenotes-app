@@ -40,7 +40,7 @@
     <string name="permission_bluetooth">藍牙</string>
     <string name="permission_overlay">懸浮視窗</string>
     <string name="permissions_description">授予應用程式正常運作所需的所有權限</string>
-    <string name="shortcut_settings_short">语音管理器</string>
+    <string name="shortcut_settings_short">語音管理器</string>
     <string name="shortcut_settings_long">語音備忘錄管理器</string>
     <string name="online_transcribing">線上：轉錄中：</string>
     <string name="online_transcribing_failed">線上：轉錄：失敗 :-(</string>
