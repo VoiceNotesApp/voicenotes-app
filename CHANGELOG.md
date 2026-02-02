@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.14] - 2026-02-01
+
+### Added
+- Dark mode support following system settings
+- Version display in Settings screen header
+- Status icons for Battery Optimization permission display
+- System locale support for speech recognition
+
+### Changed
+- Recording Manager button layout (delete left, action buttons right)
+- Settings screen: recordings count now in Recording Manager button subtext
+- Recording duration setting label changed to "Set recording timer"
+- Improved UI with semantic color resources for better theme support
+- Documentation rewritten with professional tone
+
+### Fixed
+- Non-positional format specifiers in migrated recordings string
+- Compiler warnings throughout the codebase
+- Malformed XML structure in item_recording.xml
+- Missing UtteranceProgressListener.onError implementation
+
+### Removed
+- On-device test suite and debug logging toggle
+- Unused STT context hints
+- 315 lines of unused code across imports, functions, and DAO methods
+
+## [0.0.13] - 2026-02-01
+
+### Added
+- Icon variant pairs for customization (10 themed variants for Voice Notes and VN Manager)
+- Better localization with externalized hardcoded strings
+
+### Changed
+- Recording Manager buttons now use content-based width
+- Selected language values displayed in speech recognition settings
+- Improved download button UX and technical debt cleanup
+
+### Fixed
+- OverlayService locale handling
+- Release pipeline tag determination for workflow_dispatch events
+
 ## [0.0.12] - 2026-01-31
 
 ### Added
@@ -160,7 +201,9 @@ _This release was superseded by v0.0.10 and contained the same changes._
 - Google Play Services location integration
 - AppAuth OAuth 2.0 with PKCE support
 
-[Unreleased]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.12...HEAD
+[Unreleased]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.14...HEAD
+[0.0.14]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.13...v0.0.14
+[0.0.13]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.9...v0.0.10
