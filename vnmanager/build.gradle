@@ -32,9 +32,6 @@ android {
         targetSdk 34
         versionCode getVersionCode()
         versionName project.findProperty('APP_VERSION') ?: 'unknown'
-
-        // Explicitly expose VERSION_NAME to BuildConfig
-        buildConfigField "String", "VERSION_NAME", "\"${project.findProperty('APP_VERSION') ?: 'unknown'}\""
     }
 
     signingConfigs {
