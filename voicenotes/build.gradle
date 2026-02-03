@@ -48,36 +48,27 @@ tasks.register('jacocoTestReport', JacocoReport) {
 
 def getVersionName() {
     try {
-        // Check if .git file or directory exists
         def gitDir = new File(rootProject.projectDir, '.git')
         if (!gitDir.exists()) {
             return "unknown"
         }
-        
-        // Try to get the exact tag on current commit
+
         def tagProcess = 'git describe --tags --always --dirty'.execute()
         tagProcess.waitFor()
-
-        // Git call failed
-        if (gitCheckProcess.exitValue() != 0) {
+        if (tagProcess.exitValue() != 0) {
             return "unknown"
         }
 
-        // Git call was successful
-        if (tagProcess.exitValue() == 0) {
-            def version = tagProcess.text.trim()
-            // Strip 'v' prefix if present (v0.0.15 -> 0.0.15)
-            if (version.startsWith('v')) {
-                version = version.substring(1)
-            }
-            return version
+        def version = tagProcess.text?.trim()
+        if (!version) {
+            return "unknown"
         }
 
-        // Fallback
-        return "unknown"
-        
+        if (version.startsWith('v')) {
+            version = version.substring(1)
+        }
+        return version
     } catch (Exception e) {
-        // Git not available or other error
         return "unknown"
     }
 }
