@@ -102,6 +102,51 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Determine Release Tag
+        id: release_info
+        env:
+          DISPATCH_TAG: ${{ github.event.inputs.release_version }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+
+          # 1) Prefer explicit workflow_dispatch input
+          if [ -n "${DISPATCH_TAG:-}" ]; then
+            TAG="${DISPATCH_TAG}"
+          # 2) If run was triggered by a tag push, use the pushed tag
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            # 3) Otherwise compute next patch from latest semver tag
+            git fetch --tags --quiet
+            LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1 || true)
+
+            if [ -z "${LATEST_TAG}" ]; then
+              # No tags yet, start at v0.0.1
+              TAG="v0.0.1"
+            else
+              # Strip leading v if present and split into parts
+              BASE=${LATEST_TAG#v}
+              IFS='.' read -r MAJOR MINOR PATCH <<< "${BASE}"
+              # Ensure PATCH is numeric; safe fallback
+              if ! printf '%s' "${PATCH}" | grep -Eq '^[0-9]+$'; then
+                PATCH=0
+              fi
+              PATCH=$((PATCH + 1))
+              TAG="v${MAJOR}.${MINOR}.${PATCH}"
+            fi
+          fi
+
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Release tag: ${TAG}"
+
+          if printf '%s' "${TAG}" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
+          fi
+          
       - name: Create gradle.properties
         run: |
           echo "GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON=${{ toJSON(secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_JSON) }}" >> gradle.properties
@@ -114,7 +159,7 @@ jobs:
           echo "org.gradle.parallel=true" >> gradle.properties
           echo "org.gradle.daemon=false" >> gradle.properties
           echo "org.gradle.configureondemand=true" >> gradle.properties
-          echo "APP_VERSION=$(git describe --tags --always --dirty)" >> gradle.properties
+          echo "APP_VERSION=${TAG}" >> gradle.properties
 
       # Optional: Setup signing if secrets are available
       - name: Setup Signing (Optional)
@@ -283,50 +328,6 @@ jobs:
           name: app-release-apk
           path: apks/release/
 
-      - name: Determine Release Tag
-        id: release_info
-        env:
-          DISPATCH_TAG: ${{ github.event.inputs.release_version }}
-          GITHUB_REF_NAME: ${{ github.ref_name }}
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-        run: |
-          set -euo pipefail
-
-          # 1) Prefer explicit workflow_dispatch input
-          if [ -n "${DISPATCH_TAG:-}" ]; then
-            TAG="${DISPATCH_TAG}"
-          # 2) If run was triggered by a tag push, use the pushed tag
-          elif [ "${GITHUB_EVENT_NAME}" = "push" ] && [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            TAG="${GITHUB_REF_NAME}"
-          else
-            # 3) Otherwise compute next patch from latest semver tag
-            git fetch --tags --quiet
-            LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1 || true)
-
-            if [ -z "${LATEST_TAG}" ]; then
-              # No tags yet, start at v0.0.1
-              TAG="v0.0.1"
-            else
-              # Strip leading v if present and split into parts
-              BASE=${LATEST_TAG#v}
-              IFS='.' read -r MAJOR MINOR PATCH <<< "${BASE}"
-              # Ensure PATCH is numeric; safe fallback
-              if ! printf '%s' "${PATCH}" | grep -Eq '^[0-9]+$'; then
-                PATCH=0
-              fi
-              PATCH=$((PATCH + 1))
-              TAG="v${MAJOR}.${MINOR}.${PATCH}"
-            fi
-          fi
-
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-          echo "Release tag: ${TAG}"
-
-          if printf '%s' "${TAG}" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "is_release=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "is_release=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Find and Prepare Signed Release APK Files
         id: find_apks
