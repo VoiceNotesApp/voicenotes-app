@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.18] - 2026-02-13
+
+### Fixed
+- Repository migration updates
+
+## [0.0.17] - 2026-02-10
+
+### Changed
+- Updated repository references
+
+## [0.0.16] - 2026-02-07
+
+### Changed
+- Internal improvements
+
+## [0.0.15] - 2026-02-04
+
+### Changed
+- Minor updates and improvements
+
 ## [0.0.14] - 2026-02-01
 
 ### Added
@@ -20,7 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings screen: recordings count now in Recording Manager button subtext
 - Recording duration setting label changed to "Set recording timer"
 - Improved UI with semantic color resources for better theme support
-- Documentation rewritten with professional tone
 
 ### Fixed
 - Non-positional format specifiers in migrated recordings string
@@ -29,9 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Missing UtteranceProgressListener.onError implementation
 
 ### Removed
-- On-device test suite and debug logging toggle
 - Unused STT context hints
-- 315 lines of unused code across imports, functions, and DAO methods
 
 ## [0.0.13] - 2026-02-01
 
@@ -42,11 +59,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Recording Manager buttons now use content-based width
 - Selected language values displayed in speech recognition settings
-- Improved download button UX and technical debt cleanup
+- Improved download button UX
 
 ### Fixed
 - OverlayService locale handling
-- Release pipeline tag determination for workflow_dispatch events
 
 ## [0.0.12] - 2026-01-31
 
@@ -55,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Headless app launch mode that skips UI when all permissions are granted
 
 ### Changed
-- Migrated Settings, Debug, and Recording Manager screens to Material Components
+- Migrated Settings and Recording Manager screens to Material Components
 - Replaced animated spinner with static processing icon for better performance
 - Improved permission handling with proper guards for Bluetooth and overlay permissions
 
@@ -93,9 +109,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 - Visual pulse animation for PROCESSING status indicator
 - Fallback placeholder display for empty transcriptions
 
-### Changed
-- Consolidated developer documentation into single DEVELOPER_GUIDE.md
-
 ### Fixed
 - Recording Manager transcription truncation
 - Playback controls in Recording Manager
@@ -125,9 +138,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 - "Open Maps" button to view recording location in external maps app
 - NumberPicker for recording duration selection (replaces text input)
 - Manual transcription editing in Recording Manager
-- Automatic version from git tags
-- CI/CD pipeline with caching and parallel execution
-- Unit test suite and coverage reporting
 
 ### Changed
 - Switched to VOICE_COMMUNICATION audio source for automatic gain control
@@ -145,7 +155,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 ### Fixed
 - Recording extension bug that reset countdown
 - Implicit broadcast to non-exported receiver
-- Database test isolation issues
 
 ## [0.0.3] - 2026-01-25
 
@@ -153,10 +162,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 - Launcher icon for direct access to Settings
 - Background launch feature - skips MainActivity UI when all permissions granted
 - Native OGG/Opus encoding for voice recordings
-- Comprehensive test suite with database isolation
-
-### Changed
-- Improved thread safety documentation
 
 ### Fixed
 - MediaRecorder API compatibility issues
@@ -171,7 +176,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 - GPX export with transcribed text
 - Real-time status list during processing
 - OSM username fetch via API
-- On-device test suite with debug logging
 
 ### Fixed
 - OverlayService premature termination during async post-processing
@@ -194,25 +198,22 @@ _This release was superseded by v0.0.10 and contained the same changes._
 ### Changed
 - Audio recording starts after TTS completes (prevents capturing TTS audio)
 
-### Technical
-- Android 8.0+ support (API 26+)
-- OGG/Opus format on Android 10+ (API 29+)
-- AMR-WB format on Android 8-9 (API 26-28)
-- Google Play Services location integration
-- AppAuth OAuth 2.0 with PKCE support
-
-[Unreleased]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.14...HEAD
-[0.0.14]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.13...v0.0.14
-[0.0.13]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.12...v0.0.13
-[0.0.12]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.11...v0.0.12
-[0.0.11]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.10...v0.0.11
-[0.0.10]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.9...v0.0.10
-[0.0.9]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.8...v0.0.9
-[0.0.8]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.7...v0.0.8
-[0.0.7]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.6...v0.0.7
-[0.0.6]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.5...v0.0.6
-[0.0.5]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.4...v0.0.5
-[0.0.4]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.3...v0.0.4
-[0.0.3]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.2...v0.0.3
-[0.0.2]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.1...v0.0.2
-[0.0.1]: https://github.com/c0dev0id/autorecord-app/releases/tag/v0.0.1
+[Unreleased]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.18...HEAD
+[0.0.18]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.17...v0.0.18
+[0.0.17]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.16...v0.0.17
+[0.0.16]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.15...v0.0.16
+[0.0.15]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.14...v0.0.15
+[0.0.14]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.13...v0.0.14
+[0.0.13]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.12...v0.0.13
+[0.0.12]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.11...v0.0.12
+[0.0.11]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.10...v0.0.11
+[0.0.10]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.9...v0.0.10
+[0.0.9]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.8...v0.0.9
+[0.0.8]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.7...v0.0.8
+[0.0.7]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.6...v0.0.7
+[0.0.6]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.5...v0.0.6
+[0.0.5]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.4...v0.0.5
+[0.0.4]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.3...v0.0.4
+[0.0.3]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.2...v0.0.3
+[0.0.2]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.1...v0.0.2
+[0.0.1]: https://github.com/VoiceNotesApp/voicenotes-app/releases/tag/v0.0.1
