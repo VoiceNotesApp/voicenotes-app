@@ -20,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings screen: recordings count now in Recording Manager button subtext
 - Recording duration setting label changed to "Set recording timer"
 - Improved UI with semantic color resources for better theme support
-- Documentation rewritten with professional tone
 
 ### Fixed
 - Non-positional format specifiers in migrated recordings string
@@ -29,9 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Missing UtteranceProgressListener.onError implementation
 
 ### Removed
-- On-device test suite and debug logging toggle
 - Unused STT context hints
-- 315 lines of unused code across imports, functions, and DAO methods
 
 ## [0.0.13] - 2026-02-01
 
@@ -46,7 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - OverlayService locale handling
-- Release pipeline tag determination for workflow_dispatch events
 
 ## [0.0.12] - 2026-01-31
 
@@ -93,9 +89,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 - Visual pulse animation for PROCESSING status indicator
 - Fallback placeholder display for empty transcriptions
 
-### Changed
-- Consolidated developer documentation into single DEVELOPER_GUIDE.md
-
 ### Fixed
 - Recording Manager transcription truncation
 - Playback controls in Recording Manager
@@ -125,9 +118,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 - "Open Maps" button to view recording location in external maps app
 - NumberPicker for recording duration selection (replaces text input)
 - Manual transcription editing in Recording Manager
-- Automatic version from git tags
-- CI/CD pipeline with caching and parallel execution
-- Unit test suite and coverage reporting
 
 ### Changed
 - Switched to VOICE_COMMUNICATION audio source for automatic gain control
@@ -145,7 +135,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 ### Fixed
 - Recording extension bug that reset countdown
 - Implicit broadcast to non-exported receiver
-- Database test isolation issues
 
 ## [0.0.3] - 2026-01-25
 
@@ -153,10 +142,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 - Launcher icon for direct access to Settings
 - Background launch feature - skips MainActivity UI when all permissions granted
 - Native OGG/Opus encoding for voice recordings
-- Comprehensive test suite with database isolation
-
-### Changed
-- Improved thread safety documentation
 
 ### Fixed
 - MediaRecorder API compatibility issues
@@ -171,7 +156,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 - GPX export with transcribed text
 - Real-time status list during processing
 - OSM username fetch via API
-- On-device test suite with debug logging
 
 ### Fixed
 - OverlayService premature termination during async post-processing
@@ -193,13 +177,6 @@ _This release was superseded by v0.0.10 and contained the same changes._
 
 ### Changed
 - Audio recording starts after TTS completes (prevents capturing TTS audio)
-
-### Technical
-- Android 8.0+ support (API 26+)
-- OGG/Opus format on Android 10+ (API 29+)
-- AMR-WB format on Android 8-9 (API 26-28)
-- Google Play Services location integration
-- AppAuth OAuth 2.0 with PKCE support
 
 [Unreleased]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.14...HEAD
 [0.0.14]: https://github.com/c0dev0id/autorecord-app/compare/v0.0.13...v0.0.14
