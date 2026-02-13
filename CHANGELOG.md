@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Recording Manager buttons now use content-based width
 - Selected language values displayed in speech recognition settings
-- Improved download button UX and technical debt cleanup
+- Improved download button UX
 
 ### Fixed
 - OverlayService locale handling
@@ -51,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Headless app launch mode that skips UI when all permissions are granted
 
 ### Changed
-- Migrated Settings, Debug, and Recording Manager screens to Material Components
+- Migrated Settings and Recording Manager screens to Material Components
 - Replaced animated spinner with static processing icon for better performance
 - Improved permission handling with proper guards for Bluetooth and overlay permissions
 
