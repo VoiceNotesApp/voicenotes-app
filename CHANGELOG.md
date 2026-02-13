@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.18] - 2026-02-13
+
+### Fixed
+- Repository migration updates
+
+## [0.0.17] - 2026-02-10
+
+### Changed
+- Updated repository references
+
+## [0.0.16] - 2026-02-07
+
+### Changed
+- Internal improvements
+
+## [0.0.15] - 2026-02-04
+
+### Changed
+- Minor updates and improvements
+
 ## [0.0.14] - 2026-02-01
 
 ### Added
@@ -178,7 +198,11 @@ _This release was superseded by v0.0.10 and contained the same changes._
 ### Changed
 - Audio recording starts after TTS completes (prevents capturing TTS audio)
 
-[Unreleased]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.14...HEAD
+[Unreleased]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.18...HEAD
+[0.0.18]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.17...v0.0.18
+[0.0.17]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.16...v0.0.17
+[0.0.16]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.15...v0.0.16
+[0.0.15]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/VoiceNotesApp/voicenotes-app/compare/v0.0.11...v0.0.12
